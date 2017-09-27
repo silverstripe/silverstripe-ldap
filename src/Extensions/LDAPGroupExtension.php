@@ -94,7 +94,7 @@ class LDAPGroupExtension extends DataExtension
         } else {
             $field = GridField::create(
                 'LDAPGroupMappings',
-                _t('LDAPGroupExtension.MAPPEDGROUPS', 'Mapped LDAP Groups'),
+                _t(__CLASS__ . '.MAPPEDGROUPS', 'Mapped LDAP Groups'),
                 $this->owner->LDAPGroupMappings()
             );
             $config = GridFieldConfig_RecordEditor::create();

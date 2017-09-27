@@ -50,6 +50,10 @@ class LDAPGroupMapping extends DataObject
         'ldapService' => '%$' . LDAPService::class,
     ];
 
+    private static $singular_name = 'LDAP Group Mapping';
+
+    private static $plural_name = 'LDAP Group Mappings';
+
     /**
      * {@inheritDoc}
      * @return FieldList
