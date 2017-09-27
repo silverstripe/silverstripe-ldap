@@ -1,0 +1,60 @@
+en:
+  SilverStripe\LDAP\Authenticators\LDAPAuthenticator:
+    CANTCHANGEPASSWORD: 'We couldn''t change your password, please contact an administrator.'
+    INVALIDCREDENTIALS: 'Invalid credentials'
+    NOUSER: 'Your account hasn''t been setup properly, please contact an administrator.'
+    PLEASEUSEUSERNAME: 'Please enter your username instead of your email to log in.'
+    PROBLEMFINDINGDATA: 'There was a problem retrieving your user data'
+  SilverStripe\LDAP\Authenticators\LDAPChangePasswordHandler:
+    NOUSER: 'Your account hasn''t been setup properly, please contact an administrator.'
+  SilverStripe\LDAP\Authenticators\LDAPLostPasswordHandler:
+    NOTERESETPASSWORDUSERNAME: 'Enter your username and we will send you a link with which you can reset your password'
+    NOTERESETPASSWORDUSERNAMEOREMAIL: 'Enter your username or your email address and we will send you a link with which you can reset your password'
+    PASSWORDSENTHEADER: 'Password reset link sent to ''{username}'''
+    PASSWORDSENTTEXT: 'Thank you! A reset link has been sent to ''{username}'', provided an account exists.'
+  SilverStripe\LDAP\Extensions\LDAPGroupExtension:
+    ADDMAPPEDGROUP: 'Add LDAP group mapping'
+    AUTOMAPPEDGROUPS: 'Automatically mapped LDAP Groups'
+    INFOIMPORTED: 'This group is automatically imported from LDAP.'
+    LASTSYNCED: 'Last synced'
+    MAPPEDGROUPS: 'Mapped LDAP Groups'
+  SilverStripe\LDAP\Extensions\LDAPMemberExtension:
+    CHANGEFIELDSUPDATELDAP: 'Changing fields here will update them in LDAP.'
+    IMPORTEDFIELD: ' (imported)'
+    INFOIMPORTED: 'This user is automatically imported from LDAP. Manual changes to imported fields will be removed upon sync.'
+    ISEXPIRED: 'Has user''s LDAP/AD login expired?'
+    LASTSYNCED: 'Last synced'
+  SilverStripe\LDAP\Forms\LDAPChangePasswordForm:
+    USERNAME: Username
+    USERNAMEOREMAIL: Email
+  SilverStripe\LDAP\Forms\LDAPLoginForm:
+    AUTHENTICATORNAME: LDAP
+    ENTERUSERNAME: 'Please enter your username to get a password reset link.'
+    ENTERUSERNAMEOREMAIL: 'Please enter your username or your email address to get a password reset link.'
+    USERNAME: Username
+    USERNAMEINSTEADOFEMAIL: 'Please enter your username instead of your email to get a password reset link.'
+    USERNAMEOREMAIL: 'Username or email'
+  SilverStripe\LDAP\Jobs\LDAPAllSyncJob:
+    SYNCTITLE: 'Sync all groups and users from Active Directory, and set mappings up.'
+  SilverStripe\LDAP\Jobs\LDAPMemberSyncJob:
+    SYNCTITLE: 'Sync all users from Active Directory'
+  SilverStripe\LDAP\Model\LDAPGroupMapping:
+    LDAPGROUP: 'LDAP Group'
+    ONELEVEL_DESCRIPTION: 'Only users within this group'
+    PLURALNAME: 'LDAP Group Mappings'
+    PLURALS:
+      one: 'A LDAP Group Mapping'
+      other: '{count} LDAP Group Mappings'
+    SCOPE: Scope
+    SELECTONE: 'Select one'
+    SINGULARNAME: 'LDAP Group Mapping'
+    SUBTREE_DESCRIPTION: 'Users within this group and all nested groups within'
+  SilverStripe\LDAP\Services\LDAPService:
+    ACCOUNTLOCKEDOUT: 'Your account has been temporarily locked because of too many failed login attempts. Please try again later.'
+    INVALIDCREDENTIALS: 'The provided details don''t seem to be correct. Please try again.'
+  SilverStripe\LDAP\Tasks\LDAPGroupSyncTask:
+    SYNCTITLE: 'Sync all groups from Active Directory'
+  SilverStripe\LDAP\Tasks\LDAPMemberSyncTask:
+    SYNCTITLE: 'Sync all users from Active Directory'
+  Silverstripe\Security\Member:
+    SUBJECTPASSWORDRESET: 'Your password reset link'
