@@ -1,12 +1,13 @@
 <?php
 
-namespace SilverStripe\ActiveDirectory\Tasks;
+namespace SilverStripe\LDAP\Tasks;
 
 use Exception;
 use SilverStripe\Control\Director;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Dev\BuildTask;
+use SilverStripe\LDAP\Services\LDAPService;
 use SilverStripe\ORM\DB;
 use SilverStripe\Security\Member;
 
@@ -14,8 +15,6 @@ use SilverStripe\Security\Member;
  * Class LDAPMemberSyncTask
  *
  * A task to sync all users to the site using LDAP.
- *
- * @package activedirectory
  */
 class LDAPMemberSyncTask extends BuildTask
 {
@@ -29,7 +28,7 @@ class LDAPMemberSyncTask extends BuildTask
      * @var array
      */
     private static $dependencies = [
-        'ldapService' => '%$SilverStripe\\ActiveDirectory\\Services\\LDAPService'
+        'ldapService' => '%$' . LDAPService::class,
     ];
 
     /**

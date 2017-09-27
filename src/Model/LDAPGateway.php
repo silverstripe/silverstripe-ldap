@@ -1,6 +1,6 @@
 <?php
 
-namespace SilverStripe\ActiveDirectory\Model;
+namespace SilverStripe\LDAP\Model;
 
 use Exception;
 use SilverStripe\Core\Injector\Injectable;
@@ -480,7 +480,7 @@ class LDAPGateway
     private function getLastPasswordError()
     {
         $defaultError = _t(
-            'SilverStripe\\ActiveDirectory\\Authenticators\\LDAPAuthenticator.CANTCHANGEPASSWORD',
+            'SilverStripe\\LDAP\\Authenticators\\LDAPAuthenticator.CANTCHANGEPASSWORD',
             'We couldn\'t change your password, please contact an administrator.'
         );
         $error = '';

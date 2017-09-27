@@ -1,12 +1,12 @@
 <?php
 
-namespace SilverStripe\ActiveDirectory\Services;
+namespace SilverStripe\LDAP\Services;
 
 use Exception;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
-use SilverStripe\ActiveDirectory\Model\LDAPGateway;
-use SilverStripe\ActiveDirectory\Model\LDAPGroupMapping;
+use SilverStripe\LDAP\Model\LDAPGateway;
+use SilverStripe\LDAP\Model\LDAPGroupMapping;
 use SilverStripe\Assets\Image;
 use SilverStripe\Assets\Filesystem;
 use SilverStripe\Core\Config\Config;
@@ -36,8 +36,6 @@ use Zend\Ldap\Ldap;
  * - error handling
  *
  * LDAPService relies on Zend LDAP module's data structures for some parameters and some return values.
- *
- * @package activedirectory
  */
 class LDAPService implements Flushable
 {
@@ -1042,7 +1040,7 @@ class LDAPService implements Flushable
             $this->getLogger()->warning(sprintf('Cannot update Member ID %s, GUID not set', $member->ID));
             $validationResult->addError(
                 _t(
-                    'SilverStripe\\ActiveDirectory\\Authenticators\\LDAPAuthenticator.NOUSER',
+                    'SilverStripe\\LDAP\\Authenticators\\LDAPAuthenticator.NOUSER',
                     'Your account hasn\'t been setup properly, please contact an administrator.'
                 )
             );
@@ -1053,7 +1051,7 @@ class LDAPService implements Flushable
         if (empty($userData['distinguishedname'])) {
             $validationResult->addError(
                 _t(
-                    'SilverStripe\\ActiveDirectory\\Authenticators\\LDAPAuthenticator.NOUSER',
+                    'SilverStripe\\LDAP\\Authenticators\\LDAPAuthenticator.NOUSER',
                     'Your account hasn\'t been setup properly, please contact an administrator.'
                 )
             );

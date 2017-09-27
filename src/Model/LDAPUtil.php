@@ -1,13 +1,11 @@
 <?php
 
-namespace SilverStripe\ActiveDirectory\Model;
+namespace SilverStripe\LDAP\Model;
 
 /**
  * Class LDAPUtil
  *
  * Provides some commonly used functions for LDAP and SAML.
- *
- * @package activedirectory
  */
 class LDAPUtil
 {

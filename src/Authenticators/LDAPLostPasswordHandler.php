@@ -1,8 +1,7 @@
 <?php
 
-namespace SilverStripe\ActiveDirectory\Authenticators;
+namespace SilverStripe\LDAP\Authenticators;
 
-use SilverStripe\ActiveDirectory\Services\LDAPService;
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\Email\Email;
 use SilverStripe\Control\HTTPResponse;
@@ -13,6 +12,7 @@ use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\Form;
 use SilverStripe\Forms\FormAction;
 use SilverStripe\Forms\TextField;
+use SilverStripe\LDAP\Services\LDAPService;
 use SilverStripe\ORM\FieldType\DBField;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\MemberAuthenticator\LostPasswordForm;
@@ -73,7 +73,7 @@ class LDAPLostPasswordHandler extends LostPasswordHandler
             if (Config::inst()->get(LDAPAuthenticator::class, 'allow_email_login') != 'yes') {
                 $form->sessionMessage(
                     _t(
-                        'SilverStripe\\ActiveDirectory\\Forms\\LDAPLoginForm.USERNAMEINSTEADOFEMAIL',
+                        'SilverStripe\\LDAP\\Forms\\LDAPLoginForm.USERNAMEINSTEADOFEMAIL',
                         'Please enter your username instead of your email to get a password reset link.'
                     ),
                     'bad'
@@ -133,7 +133,7 @@ class LDAPLostPasswordHandler extends LostPasswordHandler
             if (Config::inst()->get(LDAPAuthenticator::class, 'allow_email_login') === 'yes') {
                 $form->sessionMessage(
                     _t(
-                        'SilverStripe\\ActiveDirectory\\Forms\\LDAPLoginForm.ENTERUSERNAMEOREMAIL',
+                        'SilverStripe\\LDAP\\Forms\\LDAPLoginForm.ENTERUSERNAMEOREMAIL',
                         'Please enter your username or your email address to get a password reset link.'
                     ),
                     'bad'
@@ -141,7 +141,7 @@ class LDAPLostPasswordHandler extends LostPasswordHandler
             } else {
                 $form->sessionMessage(
                     _t(
-                        'SilverStripe\\ActiveDirectory\\Forms\\LDAPLoginForm.ENTERUSERNAME',
+                        'SilverStripe\\LDAP\\Forms\\LDAPLoginForm.ENTERUSERNAME',
                         'Please enter your username to get a password reset link.'
                     ),
                     'bad'
@@ -159,8 +159,8 @@ class LDAPLostPasswordHandler extends LostPasswordHandler
     public function lostPasswordForm()
     {
         $loginFieldLabel = (Config::inst()->get(LDAPAuthenticator::class, 'allow_email_login') === 'yes') ?
-            _t('SilverStripe\\ActiveDirectory\\Forms\\LDAPLoginForm.USERNAMEOREMAIL', 'Username or email') :
-            _t('SilverStripe\\ActiveDirectory\\Forms\\LDAPLoginForm.USERNAME', 'Username');
+            _t('SilverStripe\\LDAP\\Forms\\LDAPLoginForm.USERNAMEOREMAIL', 'Username or email') :
+            _t('SilverStripe\\LDAP\\Forms\\LDAPLoginForm.USERNAME', 'Username');
         $loginField = TextField::create('Login', $loginFieldLabel);
 
         $action = FormAction::create(

@@ -1,12 +1,12 @@
 <?php
 
-namespace SilverStripe\ActiveDirectory\Tests;
+namespace SilverStripe\LDAP\Tests;
 
-use SilverStripe\ActiveDirectory\Model\LDAPGateway;
-use SilverStripe\ActiveDirectory\Services\LDAPService;
-use SilverStripe\ActiveDirectory\Tests\Model\LDAPFakeGateway;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Dev\SapphireTest;
+use SilverStripe\LDAP\Model\LDAPGateway;
+use SilverStripe\LDAP\Services\LDAPService;
+use SilverStripe\LDAP\Tests\Model\LDAPFakeGateway;
 
 abstract class FakeGatewayTest extends SapphireTest
 {

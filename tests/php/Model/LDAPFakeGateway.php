@@ -1,15 +1,12 @@
 <?php
 
-namespace SilverStripe\ActiveDirectory\Tests\Model;
+namespace SilverStripe\LDAP\Tests\Model;
 
-use Zend\Authentication\Result as AuthenticationResult;
-use SilverStripe\ActiveDirectory\Model\LDAPGateway;
 use SilverStripe\Dev\TestOnly;
+use SilverStripe\LDAP\Model\LDAPGateway;
+use Zend\Authentication\Result as AuthenticationResult;
 use Zend\Ldap\Ldap;
 
-/**
- * @package activedirectory
- */
 class LDAPFakeGateway extends LDAPGateway implements TestOnly
 {
     public function __construct()

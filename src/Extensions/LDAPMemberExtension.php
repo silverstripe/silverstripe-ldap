@@ -1,9 +1,9 @@
 <?php
 
-namespace SilverStripe\ActiveDirectory\Extensions;
+namespace SilverStripe\LDAP\Extensions;
 
 use Exception;
-use SilverStripe\ActiveDirectory\Services\LDAPService;
+use SilverStripe\LDAP\Services\LDAPService;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\LiteralField;
@@ -25,7 +25,7 @@ class LDAPMemberExtension extends DataExtension
      * @var array
      */
     private static $db = [
-        // Unique user identifier, same field is used by SAMLMemberExtension
+        // Unique user identifier
         'GUID' => 'Varchar(50)',
         'Username' => 'Varchar(64)',
         'IsExpired' => 'Boolean',

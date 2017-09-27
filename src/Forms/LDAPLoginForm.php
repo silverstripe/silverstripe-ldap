@@ -1,8 +1,8 @@
 <?php
 
-namespace SilverStripe\ActiveDirectory\Forms;
+namespace SilverStripe\LDAP\Forms;
 
-use SilverStripe\ActiveDirectory\Services\LDAPService;
+use SilverStripe\LDAP\Services\LDAPService;
 use SilverStripe\Control\RequestHandler;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Forms\LiteralField;
@@ -16,8 +16,6 @@ use SilverStripe\View\Requirements;
  * Class LDAPLoginForm
  *
  * This not very interesting in itself. It's pretty much boiler-plate code to access the authenticator.
- *
- * @package activedirectory
  */
 class LDAPLoginForm extends MemberLoginForm
 {

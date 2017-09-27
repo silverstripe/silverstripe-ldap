@@ -1,13 +1,13 @@
 <?php
 
-namespace SilverStripe\ActiveDirectory\Control;
+namespace SilverStripe\LDAP\Control;
 
-use SilverStripe\ActiveDirectory\Model\LDAPGateway;
-use SilverStripe\ActiveDirectory\Model\LDAPGroupMapping;
-use SilverStripe\ActiveDirectory\Services\LDAPService;
 use SilverStripe\CMS\Controllers\ContentController;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Core\Config\Config;
+use SilverStripe\LDAP\Model\LDAPGateway;
+use SilverStripe\LDAP\Model\LDAPGroupMapping;
+use SilverStripe\LDAP\Services\LDAPService;
 use SilverStripe\ORM\ArrayList;
 use SilverStripe\Security\Group;
 use SilverStripe\Security\Permission;
@@ -18,8 +18,6 @@ use SilverStripe\View\ArrayData;
  * Class LDAPDebugController
  *
  * This controller is used to debug the LDAP connection.
- *
- * @package activedirectory
  */
 class LDAPDebugController extends ContentController
 {

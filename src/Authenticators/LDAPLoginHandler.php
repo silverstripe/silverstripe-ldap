@@ -1,8 +1,8 @@
 <?php
 
-namespace SilverStripe\ActiveDirectory\Authenticators;
+namespace SilverStripe\LDAP\Authenticators;
 
-use SilverStripe\ActiveDirectory\Forms\LDAPLoginForm;
+use SilverStripe\LDAP\Forms\LDAPLoginForm;
 use SilverStripe\Security\MemberAuthenticator\LoginHandler;
 
 class LDAPLoginHandler extends LoginHandler

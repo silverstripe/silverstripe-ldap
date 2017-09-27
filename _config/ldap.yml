@@ -3,19 +3,19 @@ Name: ldapconfig
 ---
 SilverStripe\Control\Director:
   rules:
-    'LDAPDebug': SilverStripe\ActiveDirectory\Control\LDAPDebugController
+    'LDAPDebug': SilverStripe\LDAP\Control\LDAPDebugController
 
 SilverStripe\Security\Group:
   extensions:
-    - SilverStripe\ActiveDirectory\Extensions\LDAPGroupExtension
+    - SilverStripe\LDAP\Extensions\LDAPGroupExtension
 SilverStripe\Security\Member:
   extensions:
-    - SilverStripe\ActiveDirectory\Extensions\LDAPMemberExtension
+    - SilverStripe\LDAP\Extensions\LDAPMemberExtension
 
-SilverStripe\ActiveDirectory\Authenticators\LDAPAuthenticator:
+SilverStripe\LDAP\Authenticators\LDAPAuthenticator:
   name: "LDAP"
 
-SilverStripe\ActiveDirectory\Services\LDAPService:
+SilverStripe\LDAP\Services\LDAPService:
   allow_password_change: false
 
 SilverStripe\Core\Injector\Injector:
@@ -28,20 +28,20 @@ SilverStripe\Core\Injector\Injector:
 SilverStripe\Dev\Backtrace:
   ignore_function_args:
     -
-      - 'SilverStripe\\ActiveDirectory\\Model\\LDAPGateway'
+      - 'SilverStripe\\LDAP\\Model\\LDAPGateway'
       - 'authenticate'
     -
-      - 'SilverStripe\\ActiveDirectory\\Model\\LDAPGateway'
+      - 'SilverStripe\\LDAP\\Model\\LDAPGateway'
       - 'changePassword'
     -
-      - 'SilverStripe\\ActiveDirectory\\Model\\LDAPGateway'
+      - 'SilverStripe\\LDAP\\Model\\LDAPGateway'
       - 'resetPassword'
     -
-      - 'SilverStripe\\ActiveDirectory\\Services\\LDAPService'
+      - 'SilverStripe\\LDAP\\Services\\LDAPService'
       - 'authenticate'
     -
-      - 'SilverStripe\\ActiveDirectory\\Services\\LDAPService'
+      - 'SilverStripe\\LDAP\\Services\\LDAPService'
       - 'setPassword'
     -
-      - 'SilverStripe\\ActiveDirectory\\Services\\LDAPService'
+      - 'SilverStripe\\LDAP\\Services\\LDAPService'
       - 'passwordHistoryWorkaround'

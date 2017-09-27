@@ -1,10 +1,12 @@
 <?php
 
-namespace SilverStripe\ActiveDirectory\Model;
+namespace SilverStripe\LDAP\Model;
 
 use SilverStripe\Forms\DropdownField;
 use SilverStripe\Forms\FieldList;
+use SilverStripe\LDAP\Services\LDAPService;
 use SilverStripe\ORM\DataObject;
+use SilverStripe\Security\Group;
 
 /**
  * Class LDAPGroupMapping
@@ -31,7 +33,7 @@ class LDAPGroupMapping extends DataObject
      * @var array
      */
     private static $has_one = [
-        'Group' => 'SilverStripe\\Security\\Group'
+        'Group' => Group::class
     ];
 
     /**
@@ -45,7 +47,7 @@ class LDAPGroupMapping extends DataObject
      * @var array
      */
     private static $dependencies = [
-        'ldapService' => '%$SilverStripe\\ActiveDirectory\\Services\\LDAPService'
+        'ldapService' => '%$' . LDAPService::class,
     ];
 
     /**

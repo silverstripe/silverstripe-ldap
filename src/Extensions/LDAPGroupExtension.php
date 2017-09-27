@@ -1,20 +1,19 @@
 <?php
 
-namespace SilverStripe\ActiveDirectory\Extensions;
+namespace SilverStripe\LDAP\Extensions;
 
 use SilverStripe\Forms\FieldList;
-use SilverStripe\Forms\ReadonlyField;
-use SilverStripe\Forms\LiteralField;
-use SilverStripe\ORM\DataExtension;
 use SilverStripe\Forms\GridField\GridField;
 use SilverStripe\Forms\GridField\GridFieldConfig_RecordEditor;
+use SilverStripe\Forms\LiteralField;
+use SilverStripe\Forms\ReadonlyField;
+use SilverStripe\LDAP\Model\LDAPGroupMapping;
+use SilverStripe\ORM\DataExtension;
 
 /**
  * Class LDAPGroupExtension
  *
  * Adds a field to map an LDAP group to a SilverStripe {@link Group}
- *
- * @package activedirectory
  */
 class LDAPGroupExtension extends DataExtension
 {
@@ -33,7 +32,7 @@ class LDAPGroupExtension extends DataExtension
      * @var array
      */
     private static $has_many = [
-        'LDAPGroupMappings' => 'SilverStripe\\ActiveDirectory\\Model\\LDAPGroupMapping'
+        'LDAPGroupMappings' => LDAPGroupMapping::class,
     ];
 
     /**

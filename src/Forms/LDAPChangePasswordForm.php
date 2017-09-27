@@ -1,13 +1,14 @@
 <?php
 
-namespace SilverStripe\ActiveDirectory\Forms;
+namespace SilverStripe\LDAP\Forms;
 
 use Exception;
-use SilverStripe\ActiveDirectory\Authenticators\LDAPAuthenticator;
-use SilverStripe\ActiveDirectory\Services\LDAPService;
+use SilverStripe\LDAP\Authenticators\LDAPAuthenticator;
+use SilverStripe\LDAP\Services\LDAPService;
 use SilverStripe\Control\Director;
 use SilverStripe\Control\HTTP;
 use SilverStripe\Control\HTTPResponse;
+use SilverStripe\Control\RequestHandler;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Forms\FieldList;
@@ -17,14 +18,11 @@ use SilverStripe\Security\Member;
 use SilverStripe\Security\MemberAuthenticator\ChangePasswordForm;
 use SilverStripe\Security\Security;
 
-/**
- * @package activedirectory
- */
 class LDAPChangePasswordForm extends ChangePasswordForm
 {
     /**
      * The sole purpose for overriding the constructor is surfacing the username to the user.
-     * @param \SilverStripe\Control\RequestHandler $controller
+     * @param RequestHandler $controller
      * @param string $name
      * @param FieldList $fields
      * @param FieldList $actions

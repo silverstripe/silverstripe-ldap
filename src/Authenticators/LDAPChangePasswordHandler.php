@@ -1,15 +1,15 @@
 <?php
 
-namespace SilverStripe\ActiveDirectory\Authenticators;
+namespace SilverStripe\LDAP\Authenticators;
 
 use Exception;
 use Psr\Log\LoggerInterface;
-use SilverStripe\ActiveDirectory\Forms\LDAPChangePasswordForm;
-use SilverStripe\ActiveDirectory\Services\LDAPService;
 use SilverStripe\Control\Director;
 use SilverStripe\Control\HTTP;
 use SilverStripe\Control\HTTPResponse;
 use SilverStripe\Core\Injector\Injector;
+use SilverStripe\LDAP\Forms\LDAPChangePasswordForm;
+use SilverStripe\LDAP\Services\LDAPService;
 use SilverStripe\ORM\ValidationResult;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\MemberAuthenticator\ChangePasswordHandler;

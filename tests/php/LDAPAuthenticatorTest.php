@@ -1,9 +1,9 @@
 <?php
 
-namespace SilverStripe\ActiveDirectory\Tests\Authenticators;
+namespace SilverStripe\LDAP\Tests\Authenticators;
 
-use SilverStripe\ActiveDirectory\Authenticators\LDAPAuthenticator;
-use SilverStripe\ActiveDirectory\Tests\FakeGatewayTest;
+use SilverStripe\LDAP\Authenticators\LDAPAuthenticator;
+use SilverStripe\LDAP\Tests\FakeGatewayTest;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Control\Session;
 use SilverStripe\Core\Config\Config;

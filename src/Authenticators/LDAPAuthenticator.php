@@ -1,14 +1,14 @@
 <?php
 
-namespace SilverStripe\ActiveDirectory\Authenticators;
+namespace SilverStripe\LDAP\Authenticators;
 
-use SilverStripe\ActiveDirectory\Forms\LDAPLoginForm;
-use SilverStripe\ActiveDirectory\Services\LDAPService;
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\Email\Email;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Injector\Injector;
+use SilverStripe\LDAP\Forms\LDAPLoginForm;
+use SilverStripe\LDAP\Services\LDAPService;
 use SilverStripe\ORM\ValidationResult;
 use SilverStripe\Security\Authenticator;
 use SilverStripe\Security\Member;
@@ -19,10 +19,6 @@ use Zend\Authentication\Result;
  * Class LDAPAuthenticator
  *
  * Authenticate a user against LDAP, without the single sign-on component.
- *
- * See SAMLAuthenticator for further information.
- *
- * @package activedirectory
  */
 class LDAPAuthenticator extends MemberAuthenticator
 {

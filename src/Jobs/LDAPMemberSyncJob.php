@@ -1,9 +1,9 @@
 <?php
 
-namespace SilverStripe\ActiveDirectory\Jobs;
+namespace SilverStripe\LDAP\Jobs;
 
 use Exception;
-use SilverStripe\ActiveDirectory\Tasks\LDAPMemberSyncTask;
+use SilverStripe\LDAP\Tasks\LDAPMemberSyncTask;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Injector\Injector;
 use Symbiote\QueuedJobs\Services\AbstractQueuedJob;
@@ -15,8 +15,6 @@ use Symbiote\QueuedJobs\Services\QueuedJobService;
  *
  * A {@link QueuedJob} job to sync all users to the site using LDAP.
  * This doesn't do the actual sync work, but rather just triggers {@link LDAPMemberSyncTask}
- *
- * @package activedirectory
  */
 class LDAPMemberSyncJob extends AbstractQueuedJob
 {

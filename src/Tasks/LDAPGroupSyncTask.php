@@ -1,10 +1,11 @@
 <?php
 
-namespace SilverStripe\ActiveDirectory\Tasks;
+namespace SilverStripe\LDAP\Tasks;
 
 use Exception;
 use SilverStripe\Control\Director;
 use SilverStripe\Dev\BuildTask;
+use SilverStripe\LDAP\Services\LDAPService;
 use SilverStripe\ORM\DB;
 use SilverStripe\Security\Group;
 
@@ -27,7 +28,7 @@ class LDAPGroupSyncTask extends BuildTask
      * @var array
      */
     private static $dependencies = [
-        'ldapService' => '%$SilverStripe\\ActiveDirectory\\Services\\LDAPService'
+        'ldapService' => '%$' . LDAPService::class,
     ];
 
     /**

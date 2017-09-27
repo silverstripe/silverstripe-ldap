@@ -1,12 +1,11 @@
-# SilverStripe Active Directory module
+# SilverStripe LDAP module
 
-[![Build Status](https://secure.travis-ci.org/silverstripe/silverstripe-activedirectory.svg)](https://travis-ci.org/silverstripe/silverstripe-activedirectory)
+[![Build Status](https://secure.travis-ci.org/silverstripe/silverstripe-ldap.svg)](https://travis-ci.org/silverstripe/silverstripe-ldap)
 
 ## Introduction
 
-This SilverStripe module provides Active Directory integration. It comes with three major components:
+This SilverStripe module provides LDAP integration. It comes with two major components:
 
-* Single sign-on authentication with SAML
 * Synchronisation of Active Directory users and group memberships via LDAP
 * Active Directory authentication via LDAP binding
 
@@ -14,7 +13,7 @@ These components may be used in any combination, also alongside the default Silv
 
 ## Requirements
 
- * PHP 5.5+ with extensions: ldap, openssl, dom, and mcrypt
+ * PHP 5.6+ with extensions: ldap, openssl, dom, and mcrypt
  * SilverStripe 4.0+
  * Active Directory on Windows Server 2008 R2 or greater (AD)
  * Active Directory Federation Services 2.0 or greater (ADFS)
@@ -65,4 +64,4 @@ AD user synchronisation and authentication is hidden behind the backend (server 
 
 ## Changelog
 
-The changelog can be found at [CHANGELOG.MD](CHANGELOG.MD).
+Please see the GitHub releases for changes.

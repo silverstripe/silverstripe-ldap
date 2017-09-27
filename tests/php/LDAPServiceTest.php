@@ -1,20 +1,16 @@
 <?php
 
-namespace SilverStripe\ActiveDirectory\Tests\Services;
+namespace SilverStripe\LDAP\Tests\Services;
 
-use SilverStripe\ActiveDirectory\Extensions\LDAPGroupExtension;
-use SilverStripe\ActiveDirectory\Extensions\LDAPMemberExtension;
-use SilverStripe\ActiveDirectory\Model\LDAPGateway;
-use SilverStripe\ActiveDirectory\Services\LDAPService;
-use SilverStripe\ActiveDirectory\Tests\FakeGatewayTest;
+use SilverStripe\LDAP\Extensions\LDAPGroupExtension;
+use SilverStripe\LDAP\Extensions\LDAPMemberExtension;
+use SilverStripe\LDAP\Model\LDAPGateway;
+use SilverStripe\LDAP\Services\LDAPService;
+use SilverStripe\LDAP\Tests\FakeGatewayTest;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Security\Group;
 use SilverStripe\Security\Member;
 
-/**
- * @coversDefaultClass \SilverStripe\ActiveDirectory\Services\LDAPService
- * @package activedirectory
- */
 class LDAPServiceTest extends FakeGatewayTest
 {
     /**

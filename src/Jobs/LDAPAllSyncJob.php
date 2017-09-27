@@ -1,9 +1,9 @@
 <?php
 
-namespace SilverStripe\ActiveDirectory\Jobs;
+namespace SilverStripe\LDAP\Jobs;
 
 use Exception;
-use SilverStripe\ActiveDirectory\Tasks\LDAPGroupSyncTask;
+use SilverStripe\LDAP\Tasks\LDAPGroupSyncTask;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Injector\Injector;
 use Symbiote\QueuedJobs\Services\AbstractQueuedJob;
@@ -16,8 +16,6 @@ use Symbiote\QueuedJobs\Services\QueuedJobService;
  * A {@link QueuedJob} job to sync all groups and members to the site using LDAP.
  * This doesn't do the actual sync work, but rather just triggers {@link LDAPGroupSyncTask} and
  * {@link LDAPMemberSyncTask}
- *
- * @package activedirectory
  */
 class LDAPAllSyncJob extends AbstractQueuedJob
 {
