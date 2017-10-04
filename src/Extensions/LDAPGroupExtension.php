@@ -4,6 +4,7 @@ namespace SilverStripe\LDAP\Extensions;
 
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\GridField\GridField;
+use SilverStripe\Forms\GridField\GridFieldAddNewButton;
 use SilverStripe\Forms\GridField\GridFieldConfig_RecordEditor;
 use SilverStripe\Forms\LiteralField;
 use SilverStripe\Forms\ReadonlyField;
@@ -98,7 +99,7 @@ class LDAPGroupExtension extends DataExtension
                 $this->owner->LDAPGroupMappings()
             );
             $config = GridFieldConfig_RecordEditor::create();
-            $config->getComponentByType('GridFieldAddNewButton')
+            $config->getComponentByType(GridFieldAddNewButton::class)
                 ->setButtonName(_t(__CLASS__ . '.ADDMAPPEDGROUP', 'Add LDAP group mapping'));
 
             $field->setConfig($config);

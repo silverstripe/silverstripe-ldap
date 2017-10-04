@@ -21,6 +21,8 @@ use SilverStripe\Security\Security;
 
 class LDAPLostPasswordHandler extends LostPasswordHandler
 {
+    protected $authenticatorClass = LDAPAuthenticator::class;
+
     /**
      * Since the logout and dologin actions may be conditionally removed, it's necessary to ensure these
      * remain valid actions regardless of the member login state.
@@ -34,6 +36,22 @@ class LDAPLostPasswordHandler extends LostPasswordHandler
         'passwordsent',
     ];
 
+    private static $dependencies = [
+        'service' => '%$' . LDAPService::class,
+    ];
+
+    /**
+     * @var LDAPService
+     */
+    protected $service;
+
+    /**
+     * LDAP data for the provided member - is loaded by validateForgotPasswordData
+     *
+     * @var array
+     */
+    protected $ldapUserData = [];
+
 
     /**
      * @param string $link The URL to recreate this request handler
@@ -46,90 +64,15 @@ class LDAPLostPasswordHandler extends LostPasswordHandler
         parent::__construct($link);
     }
 
-    /**
-     * Forgot password form handler method.
-     *
-     * Called when the user clicks on "I've lost my password".
-     *
-     * Extensions can use the 'forgotPassword' method to veto executing
-     * the logic, by returning FALSE. In this case, the user will be redirected back
-     * to the form without further action. It is recommended to set a message
-     * in the form detailing why the action was denied.
-     *
-     * @param array $data Submitted data
-     * @param LostPasswordForm $form
-     * @return HTTPResponse
-     */
-    public function forgotPassword($data, $form)
+    protected function validateForgotPasswordData(array $data, LostPasswordForm $form)
     {
-        /** @var Controller $controller */
-        $controller = $form->getController();
+        Config::modify()->set(Member::class, 'unique_identifier_field', 'Login');
 
         // No need to protect against injections, LDAPService will ensure that this is safe
-        $login = trim($data['Login']);
+        $login = isset($data['Login']) ? trim($data['Login']) : '';
 
-        $service = Injector::inst()->get(LDAPService::class);
-        if (Email::is_valid_address($login)) {
-            if (Config::inst()->get(LDAPAuthenticator::class, 'allow_email_login') != 'yes') {
-                $form->sessionMessage(
-                    _t(
-                        'SilverStripe\\LDAP\\Forms\\LDAPLoginForm.USERNAMEINSTEADOFEMAIL',
-                        'Please enter your username instead of your email to get a password reset link.'
-                    ),
-                    'bad'
-                );
-                return $controller->redirect($controller->Link('lostpassword'));
-            }
-            $userData = $service->getUserByEmail($login);
-        } else {
-            $userData = $service->getUserByUsername($login);
-        }
-        // Avoid information disclosure by displaying the same status,
-        // regardless whether the email address actually exists
-        if (!isset($userData['objectguid'])) {
-            return $controller->redirect($controller->Link('passwordsent/')
-                . urlencode($data['Login']));
-        }
-
-        $member = Member::get()->filter('GUID', $userData['objectguid'])->limit(1)->first();
-        // User haven't been imported yet so do that now
-        if (!($member && $member->exists())) {
-            $member = new Member();
-            $member->GUID = $userData['objectguid'];
-        }
-
-        // Update the users from LDAP so we are sure that the email is correct.
-        // This will also write the Member record.
-        $service->updateMemberFromLDAP($member, $userData, false);
-
-        // Allow vetoing forgot password requests
-        $results = $this->extend('forgotPassword', $member);
-        if ($results && is_array($results) && in_array(false, $results, true)) {
-            return $controller->redirect('lostpassword');
-        }
-
-        if ($member) {
-            /** @see MemberLoginForm::forgotPassword */
-            $token = $member->generateAutologinTokenAndStoreHash();
-            $e = Email::create()
-                ->setSubject(
-                    _t(
-                        'Silverstripe\\Security\\Member.SUBJECTPASSWORDRESET',
-                        'Your password reset link',
-                        'Email subject'
-                    )
-                )
-                ->setHTMLTemplate('SilverStripe\\Control\\Email\\ForgotPasswordEmail')
-                ->setData($member)
-                ->setData(['PasswordResetLink' => Security::getPasswordResetLink($member, $token)]);
-            $e->setTo($member->Email);
-            $e->send();
-            return $controller->redirect($controller->Link('passwordsent/') . urlencode($data['Login']));
-        } elseif ($data['Login']) {
-            // Avoid information disclosure by displaying the same status,
-            // regardless whether the email address actually exists
-            return $controller->redirect($controller->Link('passwordsent/') . urlencode($data['Login']));
-        } else {
+        // Ensure something was provided
+        if (empty($login)) {
             if (Config::inst()->get(LDAPAuthenticator::class, 'allow_email_login') === 'yes') {
                 $form->sessionMessage(
                     _t(
@@ -147,8 +90,42 @@ class LDAPLostPasswordHandler extends LostPasswordHandler
                     'bad'
                 );
             }
-            return $controller->redirect($controller->Link('lostpassword'));
+            return $this->redirectBack();
         }
+
+        // Look up the user and store it
+        if (Email::is_valid_address($login)) {
+            if (Config::inst()->get(LDAPAuthenticator::class, 'allow_email_login') != 'yes') {
+                $form->sessionMessage(
+                    _t(
+                        'SilverStripe\\LDAP\\Forms\\LDAPLoginForm.USERNAMEINSTEADOFEMAIL',
+                        'Please enter your username instead of your email to get a password reset link.'
+                    ),
+                    'bad'
+                );
+                return $this->redirect($this->Link('lostpassword'));
+            }
+            $this->ldapUserData = $this->getService()->getUserByEmail($login);
+        } else {
+            $this->ldapUserData = $this->getService()->getUserByUsername($login);
+        }
+    }
+
+    protected function getMemberFromData(array $data, $uniqueIdentifier)
+    {
+        $member = Member::get()->filter('GUID', $this->ldapUserData['objectguid'])->limit(1)->first();
+
+        // User haven't been imported yet so do that now
+        if (!$member || !$member->exists()) {
+            $member = Member::create();
+            $member->GUID = $this->ldapUserData['objectguid'];
+        }
+
+        // Update the users from LDAP so we are sure that the email is correct.
+        // This will also write the Member record.
+        $this->getService()->updateMemberFromLDAP($member, $this->ldapUserData, false);
+
+        return $member;
     }
 
     /**
@@ -203,7 +180,7 @@ class LDAPLostPasswordHandler extends LostPasswordHandler
         $username = Convert::raw2xml(
             rawurldecode($this->getRequest()->param('OtherID'))
         );
-        $username .= ($extension = $this->request->getExtension()) ? '.' . $extension : '';
+        $username .= ($extension = $this->getRequest()->getExtension()) ? '.' . $extension : '';
 
         return [
             'Title' => _t(
@@ -219,5 +196,27 @@ class LDAPLostPasswordHandler extends LostPasswordHandler
                 ),
             'Username' => $username
         ];
+    }
+
+    /**
+     * Get the LDAP service
+     *
+     * @return LDAPService
+     */
+    public function getService()
+    {
+        return $this->service;
+    }
+
+    /**
+     * Set the LDAP service
+     *
+     * @param LDAPService $service
+     * @return $this
+     */
+    public function setService(LDAPService $service)
+    {
+        $this->service = $service;
+        return $this;
     }
 }

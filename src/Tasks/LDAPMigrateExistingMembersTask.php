@@ -12,8 +12,8 @@ use SilverStripe\Security\Member;
 /**
  * Class LDAPMigrateExistingMembersTask
  *
- * Migrate existing Member records in SilverStripe into "LDAP Members"
- * by matching existing emails with ones that exist in AD.
+ * Migrate existing Member records in SilverStripe into "LDAP Members" by matching existing emails
+ * with ones that exist in a LDAP database for a given DN.
  */
 class LDAPMigrateExistingMembersTask extends BuildTask
 {
@@ -29,6 +29,14 @@ class LDAPMigrateExistingMembersTask extends BuildTask
     private static $dependencies = [
         'ldapService' => '%$' . LDAPService::class,
     ];
+
+    /**
+     * @return string
+     */
+    public function getTitle()
+    {
+        return _t(__CLASS__ . '.TITLE', 'Migrate existing members in SilverStripe into LDAP members');
+    }
 
     /**
      * {@inheritDoc}

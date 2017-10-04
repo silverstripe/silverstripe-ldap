@@ -67,8 +67,7 @@ class LDAPLoginForm extends MemberLoginForm
         // Users can't change passwords unless appropriate a LDAP user with write permissions is
         // configured the LDAP connection binding
         $this->Actions()->remove($this->Actions()->fieldByName('forgotPassword'));
-        $allowPasswordChange = Config::inst()
-            ->get(LDAPService::class, 'allow_password_change');
+        $allowPasswordChange = Config::inst()->get(LDAPService::class, 'allow_password_change');
         if ($allowPasswordChange && $name != 'LostPasswordForm' && !Security::getCurrentUser()) {
             $forgotPasswordLink = sprintf(
                 '<p id="ForgotPassword"><a href="%s">%s</a></p>',

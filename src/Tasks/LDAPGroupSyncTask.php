@@ -12,9 +12,7 @@ use SilverStripe\Security\Group;
 /**
  * Class LDAPGroupSyncTask
  *
- * A task to sync all groups to the site using LDAP.
- *
- * @package activedirectory
+ * A task to sync all groups from a specific DN in LDAP to the SilverStripe site in Group models
  */
 class LDAPGroupSyncTask extends BuildTask
 {
@@ -45,7 +43,7 @@ class LDAPGroupSyncTask extends BuildTask
      */
     public function getTitle()
     {
-        return _t(__CLASS__ . '.SYNCTITLE', 'Sync all groups from Active Directory');
+        return _t(__CLASS__ . '.SYNCTITLE', 'Sync all groups from LDAP');
     }
 
     /**

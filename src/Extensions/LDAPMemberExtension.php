@@ -11,6 +11,7 @@ use SilverStripe\Forms\ReadonlyField;
 use SilverStripe\ORM\DataExtension;
 use SilverStripe\ORM\ValidationResult;
 use SilverStripe\ORM\ValidationException;
+use SilverStripe\Security\Member;
 
 /**
  * Class LDAPMemberExtension.
@@ -273,5 +274,22 @@ class LDAPMemberExtension extends DataExtension
                 ->get(LDAPService::class)
                 ->updateMemberFromLDAP($this->owner);
         }
+    }
+
+    /**
+     * Synchronise password changes to AD when they happen in SilverStripe
+     *
+     * @param string           $newPassword
+     * @param ValidationResult $validation
+     */
+    public function onBeforeChangePassword($newPassword, $validation)
+    {
+        // Don't do anything if there's already a validation failure
+        if (!$validation->isValid()) {
+            return;
+        }
+
+        Injector::inst()->get(LDAPService::class)
+            ->setPassword($this->owner, $newPassword);
     }
 }
