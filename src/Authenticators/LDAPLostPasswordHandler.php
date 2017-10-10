@@ -111,7 +111,7 @@ class LDAPLostPasswordHandler extends LostPasswordHandler
         }
     }
 
-    protected function getMemberFromData(array $data, $uniqueIdentifier)
+    protected function getMemberFromData(array $data)
     {
         $member = Member::get()->filter('GUID', $this->ldapUserData['objectguid'])->limit(1)->first();
 
@@ -126,6 +126,17 @@ class LDAPLostPasswordHandler extends LostPasswordHandler
         $this->getService()->updateMemberFromLDAP($member, $this->ldapUserData, false);
 
         return $member;
+    }
+
+    protected function redirectToSuccess(array $data)
+    {
+        $link = Controller::join_links(
+            $this->link('passwordsent'),
+            rawurlencode($data['Login']),
+            '/'
+        );
+
+        return $this->redirect($this->addBackURLParam($link));
     }
 
     /**
