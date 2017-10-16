@@ -14,7 +14,7 @@ use SilverStripe\Security\Member;
 /**
  * Class LDAPMemberSyncTask
  *
- * A task to sync all users to the site using LDAP.
+ * A task to sync all users from a specific DN in LDAP to the SilverStripe site, stored in Member objects
  */
 class LDAPMemberSyncTask extends BuildTask
 {
@@ -59,7 +59,7 @@ class LDAPMemberSyncTask extends BuildTask
         // especially in the case where getUser() would return a lot of users
         $users = $this->ldapService->getUsers(array_merge(
             ['objectguid', 'samaccountname', 'useraccountcontrol', 'memberof'],
-            array_keys(Config::inst()->get('SilverStripe\\Security\\Member', 'ldap_field_mappings'))
+            array_keys(Config::inst()->get(Member::class, 'ldap_field_mappings'))
         ));
 
         $start = time();
@@ -73,7 +73,7 @@ class LDAPMemberSyncTask extends BuildTask
 
             if (!($member && $member->exists())) {
                 // create the initial Member with some internal fields
-                $member = new Member();
+                $member = Member::create();
                 $member->GUID = $data['objectguid'];
 
                 $this->log(sprintf(

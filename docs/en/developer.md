@@ -1,6 +1,6 @@
 # Developer guide
 
-This guide will step you through configuring your SilverStripe project to function as a SAML 2.0 Service Provider (SP). It will also show you a typical way to synchronise user details and group memberships from LDAP.
+This guide will step you through configuring your SilverStripe project to use an LDAP authentication backend. It will also show you a typical way to synchronise user details and group memberships from LDAP.
 
 As a SilverStripe developer after reading this guide, you should be able to correctly configure your site to integrate with the Identity Provider (IdP). You will also be able to authorise users based on their AD group memberships, and synchronise their personal details.
 
@@ -48,7 +48,15 @@ We assume ADFS 2.0 or greater is used as an IdP.
 
 First step is to add this module into your SilverStripe project. You can use composer for this:
 
-    composer require "silverstripe/activedirectory:*"
+```
+composer require silverstripe/ldap
+```
+
+You may need to specify a version constraint, e.g.:
+
+```
+composer require silverstripe/ldap ~1.0
+```
 
 Commit the changes.
 
@@ -511,10 +519,12 @@ that the "Username" field must be filled in, otherwise it will not be created, d
 
 You can also programatically create a user. For example:
 
-    $member = new \SilverStripe\Security\Member();
-    $member->FirstName = 'Joe';
-    $member->Username = 'jbloggs';
-    $member->write();
+```php
+$member = new \SilverStripe\Security\Member();
+$member->FirstName = 'Joe';
+$member->Username = 'jbloggs';
+$member->write();
+```
 
 If you enable `update_ldap_from_local` saving a user in the Security section of the CMS or calling `write()` on
 a Member object will push up the mapped fields to LDAP, assuming that Member record has a `GUID` field.

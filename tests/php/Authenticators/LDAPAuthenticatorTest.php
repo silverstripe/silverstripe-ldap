@@ -2,16 +2,19 @@
 
 namespace SilverStripe\LDAP\Tests\Authenticators;
 
-use SilverStripe\LDAP\Authenticators\LDAPAuthenticator;
-use SilverStripe\LDAP\Tests\FakeGatewayTest;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Control\Session;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Injector\Injector;
+use SilverStripe\Dev\SapphireTest;
+use SilverStripe\LDAP\Authenticators\LDAPAuthenticator;
+use SilverStripe\LDAP\Model\LDAPGateway;
+use SilverStripe\LDAP\Services\LDAPService;
+use SilverStripe\LDAP\Tests\Model\LDAPFakeGateway;
 use SilverStripe\ORM\ValidationResult;
 use SilverStripe\Security\Member;
 
-class LDAPAuthenticatorTest extends FakeGatewayTest
+class LDAPAuthenticatorTest extends SapphireTest
 {
     /**
      * @var LDAPAuthenticator
@@ -38,8 +41,19 @@ class LDAPAuthenticatorTest extends FakeGatewayTest
     protected function setUp()
     {
         parent::setUp();
+
+        $gateway = new LDAPFakeGateway();
+        Injector::inst()->registerService($gateway, LDAPGateway::class);
+
+        $service = Injector::inst()->get(LDAPService::class);
+        $service->setGateway($gateway);
+
+        $this->service = $service;
+
         $this->authenticator = Injector::inst()->create(LDAPAuthenticator::class);
+
         Config::modify()->set(LDAPAuthenticator::class, 'allow_email_login', 'yes');
+
         $this->request = new HTTPRequest('get', '/');
         $this->request->setSession(new Session([]));
         $this->result = new ValidationResult();

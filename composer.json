@@ -35,7 +35,7 @@
     "autoload": {
         "psr-4": {
             "SilverStripe\\LDAP\\": "src/",
-            "SilverStripe\\LDAP\\Tests\\": "tests/"
+            "SilverStripe\\LDAP\\Tests\\": "tests/php/"
         }
     },
     "minimum-stability": "dev",

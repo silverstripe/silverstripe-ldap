@@ -591,6 +591,11 @@ class LDAPService implements Flushable
                     )
                 );
             } else {
+                // The member must exist before we can use it as a relation:
+                if (!$member->exists()) {
+                    $member->write();
+                }
+
                 $group->Members()->add($member, [
                     'IsImportedFromLDAP' => '1'
                 ]);

@@ -2,29 +2,32 @@
 
 namespace SilverStripe\LDAP\Tests\Services;
 
+use SilverStripe\Core\Config\Config;
+use SilverStripe\Core\Injector\Injector;
+use SilverStripe\Dev\SapphireTest;
 use SilverStripe\LDAP\Extensions\LDAPGroupExtension;
 use SilverStripe\LDAP\Extensions\LDAPMemberExtension;
 use SilverStripe\LDAP\Model\LDAPGateway;
 use SilverStripe\LDAP\Services\LDAPService;
-use SilverStripe\LDAP\Tests\FakeGatewayTest;
-use SilverStripe\Core\Config\Config;
+use SilverStripe\LDAP\Tests\Model\LDAPFakeGateway;
 use SilverStripe\Security\Group;
 use SilverStripe\Security\Member;
 
-class LDAPServiceTest extends FakeGatewayTest
+class LDAPServiceTest extends SapphireTest
 {
-    /**
-     * {@inheritDoc}
-     * @var bool
-     */
     protected $usesDatabase = true;
 
-    /**
-     * {@inheritDoc}
-     */
-    public function setUp()
+    protected function setUp()
     {
         parent::setUp();
+
+        $gateway = new LDAPFakeGateway();
+        Injector::inst()->registerService($gateway, LDAPGateway::class);
+
+        $service = Injector::inst()->get(LDAPService::class);
+        $service->setGateway($gateway);
+
+        $this->service = $service;
 
         Config::modify()->set(LDAPGateway::class, 'options', ['host' => '1.2.3.4']);
         Config::modify()->set(LDAPService::class, 'groups_search_locations', [

@@ -66,6 +66,7 @@ class LDAPGroupMapping extends DataObject
         $field = DropdownField::create('DN', _t(__CLASS__ . '.LDAPGROUP', 'LDAP Group'));
         $field->setEmptyString(_t(__CLASS__ . '.SELECTONE', 'Select one'));
         $groups = $this->ldapService->getGroups(true, ['dn', 'name']);
+        $source = [];
         if ($groups) {
             foreach ($groups as $dn => $record) {
                 $source[$dn] = sprintf('%s (%s)', $record['name'], $dn);
