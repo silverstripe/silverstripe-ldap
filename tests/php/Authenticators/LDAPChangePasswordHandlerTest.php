@@ -6,9 +6,9 @@ use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Control\Session;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Dev\SapphireTest;
-use SIlverStripe\LDAP\Authenticators\LDAPAuthenticator;
-use SIlverStripe\LDAP\Authenticators\LDAPChangePasswordHandler;
-use SIlverStripe\LDAP\Forms\LDAPChangePasswordForm;
+use SilverStripe\LDAP\Authenticators\LDAPAuthenticator;
+use SilverStripe\LDAP\Authenticators\LDAPChangePasswordHandler;
+use SilverStripe\LDAP\Forms\LDAPChangePasswordForm;
 
 class LDAPChangePasswordHandlerTest extends SapphireTest
 {
