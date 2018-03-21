@@ -18,7 +18,7 @@ These components may be used in any combination, also alongside the default Silv
 Install using Composer:
 
 ```
-composer require silverstripe ldap ^1.0
+composer require silverstripe/ldap ^1.0
 ```
 
 ## Requirements
