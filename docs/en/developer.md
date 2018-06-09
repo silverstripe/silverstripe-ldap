@@ -60,7 +60,7 @@ SilverStripe\LDAP\Model\LDAPGateway:
     accountCanonicalForm: 4
 
 # Search locations for members and groups (if relevant)
-SilverStripe\LDAP\Services\DAPService:
+SilverStripe\LDAP\Services\LDAPService:
   # Specify an array of DNs to look for users in
   users_search_locations:
     - OU=My Users,OU=Your Company,DC=your,DC=adserver,DC=domain,DC=com
