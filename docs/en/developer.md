@@ -56,7 +56,7 @@ SilverStripe\LDAP\Model\LDAPGateway:
     baseDn: OU=Your Company,DC=your,DC=adserver,DC=domain,DC=com
     # Other connection options
     networkTimeout: 10
-    useSSL: 'TRUE'
+    useSsl: 'TRUE'
     accountCanonicalForm: 4
 
 # Search locations for members and groups (if relevant)
