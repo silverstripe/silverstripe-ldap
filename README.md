@@ -3,6 +3,7 @@
 [![Build Status](https://travis-ci.org/silverstripe/silverstripe-ldap.svg)](https://travis-ci.org/silverstripe/silverstripe-ldap)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/silverstripe/silverstripe-ldap/badges/quality-score.png)](https://scrutinizer-ci.com/g/silverstripe/silverstripe-ldap/)
 [![codecov](https://codecov.io/gh/silverstripe/silverstripe-ldap/branch/master/graph/badge.svg)](https://codecov.io/gh/silverstripe/silverstripe-ldap)
+[![SilverStripe supported module](https://img.shields.io/badge/silverstripe-supported-0071C4.svg)](https://www.silverstripe.org/software/addons/silverstripe-commercially-supported-module-list/)
 
 ## Introduction
 
