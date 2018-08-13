@@ -39,6 +39,11 @@ class LDAPGroupSyncTask extends BuildTask
     private static $destructive = false;
 
     /**
+     * @var LDAPService
+     */
+    public $ldapService;
+
+    /**
      * @return string
      */
     public function getTitle()
@@ -52,6 +57,8 @@ class LDAPGroupSyncTask extends BuildTask
      */
     public function run($request)
     {
+        ini_set('max_execution_time', 900);
+
         // get all groups from LDAP, but only get the attributes we need.
         // this is useful to avoid holding onto too much data in memory
         // especially in the case where getGroups() would return a lot of groups
@@ -129,6 +136,8 @@ class LDAPGroupSyncTask extends BuildTask
                 }
             }
         }
+
+        $this->invokeWithExtensions('onAfterLDAPGroupSyncTask');
 
         $end = time() - $start;
 

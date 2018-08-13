@@ -96,6 +96,24 @@ class LDAPMemberExtension extends DataExtension
     private static $delete_users_in_ldap = false;
 
     /**
+     * If enabled, this allows the afterMemberLoggedIn() call to fail to update the user without causing a login failure
+     * and server error. This can be useful when not all of your web servers have access to the LDAP server (for example
+     * when your front-line web servers are not the servers that perform the LDAP sync into the database.
+     *
+     * Note: If this is enabled, you *must* ensure that a regular sync of both groups and users is carried out by
+     * running the LDAPGroupSyncTask and LDAPMemberSyncTask. If not, there is no guarantee that this user can still have
+     * all the permissions that they previously had.
+     *
+     * Security risk: If this is enabled, then users who are removed from groups may not have their group membership or
+     * other information updated until the aforementioned LDAPGroupSyncTask and LDAPMemberSyncTask build tasks are run,
+     * which can lead to users having incorrect permissions until the next sync happens.
+     *
+     * @var bool
+     * @config
+     */
+    private static $allow_update_failure_during_login = false;
+
+    /**
      * @param FieldList $fields
      */
     public function updateCMSFields(FieldList $fields)
@@ -264,15 +282,23 @@ class LDAPMemberExtension extends DataExtension
     }
 
     /**
-     * Triggered by {@link Member::logIn()} when successfully logged in,
-     * this will update the Member record from AD data.
+     * Triggered by {@link IdentityStore::logIn()}. When successfully logged in,
+     * this will update the Member record from LDAP data.
      */
-    public function memberLoggedIn()
+    public function afterMemberLoggedIn()
     {
         if ($this->owner->GUID) {
-            Injector::inst()
-                ->get(LDAPService::class)
-                ->updateMemberFromLDAP($this->owner);
+            try {
+                Injector::inst()->get(LDAPService::class)->updateMemberFromLDAP($this->owner);
+            } catch (Exception $e) {
+                // If the failure is acceptable, then ignore it and return. Otherwise, re-throw the exception
+                if ($this->owner->config()->allow_update_failure_during_login) {
+                    return;
+                } else {
+                    throw $e;
+                }
+            }
+
         }
     }
 

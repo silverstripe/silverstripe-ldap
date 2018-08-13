@@ -3,8 +3,15 @@
 namespace SilverStripe\LDAP\Services;
 
 use Exception;
+use function file_put_contents;
+use function filesize;
+use finfo;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
+use SilverStripe\Assets\File;
+use SilverStripe\Assets\Folder;
+use SilverStripe\Assets\Upload;
+use SilverStripe\Assets\Upload_Validator;
 use SilverStripe\LDAP\Model\LDAPGateway;
 use SilverStripe\LDAP\Model\LDAPGroupMapping;
 use SilverStripe\Assets\Image;
@@ -22,6 +29,8 @@ use SilverStripe\ORM\ValidationResult;
 use SilverStripe\Security\Group;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\RandomGenerator;
+use function sys_get_temp_dir;
+use function tempnam;
 use Zend\Ldap\Ldap;
 
 /**
@@ -153,6 +162,19 @@ class LDAPService implements Flushable
     public function setGateway($gateway)
     {
         $this->gateway = $gateway;
+    }
+
+    /**
+     * Return the LDAP gateway currently in use. Can be strung together to access the underlying Zend\Ldap instance, or
+     * the PHP ldap resource itself. For example:
+     * - Get the Zend\Ldap object: $service->getGateway()->getLdap() // Zend\Ldap\Ldap object
+     * - Get the underlying PHP ldap resource: $service->getGateway()->getLdap()->getResource() // php resource
+     *
+     * @return LDAPGateway
+     */
+    public function getGateway()
+    {
+        return $this->gateway;
     }
 
     /**
@@ -355,7 +377,7 @@ class LDAPService implements Flushable
         $results = [];
 
         foreach ($searchLocations as $searchLocation) {
-            $records = $this->gateway->getUsers($searchLocation, Ldap::SEARCH_SCOPE_SUB, $attributes);
+            $records = $this->gateway->getUsersWithIterator($searchLocation, $attributes);
             if (!$records) {
                 continue;
             }
@@ -553,28 +575,62 @@ class LDAPService implements Flushable
                     continue;
                 }
 
-                $filename = sprintf('thumbnailphoto-%s.jpg', $data['samaccountname']);
-                $path = ASSETS_DIR . '/' . $member->config()->ldap_thumbnail_path;
-                $absPath = BASE_PATH . '/' . $path;
-                if (!file_exists($absPath)) {
-                    Filesystem::makeFolder($absPath);
-                }
-
-                // remove existing record if it exists
+                // Remove existing image if it exists
                 $existingObj = $member->getComponent($field);
                 if ($existingObj && $existingObj->exists()) {
                     $existingObj->delete();
                 }
 
-                // The image data is provided in raw binary.
-                file_put_contents($absPath . '/' . $filename, $data[$attribute]);
-                $record = new $imageClass();
-                $record->Name = $filename;
-                $record->Filename = $path . '/' . $filename;
-                $record->write();
+                // Setup variables
+                $thumbnailFolder = Folder::find_or_make($member->config()->ldap_thumbnail_path);
+                $filename = sprintf('thumbnailphoto-%s.jpg', $data['samaccountname']);
+                $upload = Upload::create();
+                $upload->setReplaceFile(true);
+                $info = new finfo(FILEINFO_MIME_TYPE);
 
-                $relationField = $field . 'ID';
-                $member->{$relationField} = $record->ID;
+                // Write thumbnail to tmp location
+                $tmpFilename = tempnam(sys_get_temp_dir(), 'thumbnailphoto');
+                file_put_contents($tmpFilename, $data[$attribute]);
+
+                $tmpUpload = [
+                    'name' => $filename,
+                    'type' => $info->buffer($data[$attribute]),
+                    'tmp_name' => $tmpFilename,
+                    'error' => 0,
+                    'size' => filesize($tmpFilename)
+                ];
+
+                // Disable is_uploaded_file() check in Upload_Validator
+                $oldUseIsUploadedFile = Upload_Validator::config()->get('use_is_uploaded_file');
+                Upload_Validator::config()->set('use_is_uploaded_file', false);
+                if(!$upload->validate($tmpUpload)) {
+                    $errors = $upload->getErrors();
+                    $message = array_shift($errors);
+                    $message = sprintf('Error while populating from file %s: %s', $tmpFilename, $message);
+                    unlink($tmpFilename); // Remove the old tmp file
+                    throw new Exception($message);
+                }
+
+                $fileClass = File::get_class_for_file_extension(File::get_file_extension($tmpUpload['name']));
+
+                /** @var File $file */
+                $file = Injector::inst()->create($fileClass);
+                $uploadResult = $upload->loadIntoFile($tmpUpload, $file, $thumbnailFolder->getFilename());
+
+                if (!$uploadResult) {
+                    throw new Exception(sprintf('Failed to load file %s', $tmpFilename));
+                }
+                Upload_Validator::config()->set('use_is_uploaded_file', $oldUseIsUploadedFile);
+
+                $file->ParentID = $thumbnailFolder->ID;
+                $file->write();
+                $file->publishRecursive();
+                unlink($tmpFilename); // Remove the old tmp file
+
+                if ($file->exists()) {
+                    $relationField = sprintf('%sID', $field);
+                    $member->{$relationField} = $file->ID;
+                }
             } else {
                 $member->$field = $data[$attribute];
             }

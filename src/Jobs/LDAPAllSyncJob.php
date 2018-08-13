@@ -6,6 +6,7 @@ use Exception;
 use SilverStripe\LDAP\Tasks\LDAPGroupSyncTask;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Injector\Injector;
+use SilverStripe\LDAP\Tasks\LDAPMemberSyncTask;
 use Symbiote\QueuedJobs\Services\AbstractQueuedJob;
 use Symbiote\QueuedJobs\Services\QueuedJob;
 use Symbiote\QueuedJobs\Services\QueuedJobService;
@@ -86,7 +87,7 @@ class LDAPAllSyncJob extends AbstractQueuedJob
         $task = Injector::inst()->create(LDAPGroupSyncTask::class);
         $task->run(null);
 
-        $task = Injector::inst()->create(LDAPGroupSyncTask::class);
+        $task = Injector::inst()->create(LDAPMemberSyncTask::class);
         $task->run(null);
 
         $this->isComplete = true;
