@@ -10,6 +10,7 @@ use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
 use SilverStripe\Assets\File;
 use SilverStripe\Assets\Folder;
+use SilverStripe\Assets\Storage\AssetStore;
 use SilverStripe\Assets\Upload;
 use SilverStripe\Assets\Upload_Validator;
 use SilverStripe\LDAP\Model\LDAPGateway;
@@ -560,77 +561,7 @@ class LDAPService implements Flushable
             }
 
             if ($attribute == 'thumbnailphoto') {
-                $imageClass = $member->getRelationClass($field);
-                if ($imageClass !== Image::class
-                    && !is_subclass_of($imageClass, Image::class)
-                ) {
-                    $this->getLogger()->debug(
-                        sprintf(
-                            'Member field %s configured for thumbnailphoto AD attribute, but it isn\'t a ' .
-                            'valid relation to an Image class',
-                            $field
-                        )
-                    );
-
-                    continue;
-                }
-
-                // Remove existing image if it exists
-                $existingObj = $member->getComponent($field);
-                if ($existingObj && $existingObj->exists()) {
-                    $existingObj->delete();
-                }
-
-                // Setup variables
-                $thumbnailFolder = Folder::find_or_make($member->config()->ldap_thumbnail_path);
-                $filename = sprintf('thumbnailphoto-%s.jpg', $data['samaccountname']);
-                $upload = Upload::create();
-                $upload->setReplaceFile(true);
-                $info = new finfo(FILEINFO_MIME_TYPE);
-
-                // Write thumbnail to tmp location
-                $tmpFilename = tempnam(sys_get_temp_dir(), 'thumbnailphoto');
-                file_put_contents($tmpFilename, $data[$attribute]);
-
-                $tmpUpload = [
-                    'name' => $filename,
-                    'type' => $info->buffer($data[$attribute]),
-                    'tmp_name' => $tmpFilename,
-                    'error' => 0,
-                    'size' => filesize($tmpFilename)
-                ];
-
-                // Disable is_uploaded_file() check in Upload_Validator
-                $oldUseIsUploadedFile = Upload_Validator::config()->get('use_is_uploaded_file');
-                Upload_Validator::config()->set('use_is_uploaded_file', false);
-                if(!$upload->validate($tmpUpload)) {
-                    $errors = $upload->getErrors();
-                    $message = array_shift($errors);
-                    $message = sprintf('Error while populating from file %s: %s', $tmpFilename, $message);
-                    unlink($tmpFilename); // Remove the old tmp file
-                    throw new Exception($message);
-                }
-
-                $fileClass = File::get_class_for_file_extension(File::get_file_extension($tmpUpload['name']));
-
-                /** @var File $file */
-                $file = Injector::inst()->create($fileClass);
-                $uploadResult = $upload->loadIntoFile($tmpUpload, $file, $thumbnailFolder->getFilename());
-
-                if (!$uploadResult) {
-                    throw new Exception(sprintf('Failed to load file %s', $tmpFilename));
-                }
-                Upload_Validator::config()->set('use_is_uploaded_file', $oldUseIsUploadedFile);
-
-                $file->ParentID = $thumbnailFolder->ID;
-                $file->write();
-                $file->publishRecursive();
-                unlink($tmpFilename); // Remove the old tmp file
-
-                if ($file->exists()) {
-                    $relationField = sprintf('%sID', $field);
-                    $member->{$relationField} = $file->ID;
-                }
+                $this->processThumbnailPhoto($member, $field, $data, $attribute);
             } else {
                 $member->$field = $data[$attribute];
             }
@@ -674,6 +605,65 @@ class LDAPService implements Flushable
         // This will throw an exception if there are two distinct GUIDs with the same email address.
         // We are happy with a raw 500 here at this stage.
         $member->write();
+    }
+
+    /**
+     * Attempts to process the thumbnail photo for a given user and store it against a {@link Member} object. This will
+     * overwrite any old file with the same name. The filename of the photo will be set to 'thumbnailphoto-<GUID>.jpg'.
+     *
+     * At the moment only JPEG files are supported, as this is mainly to support Active Directory, which always provides
+     * the photo in a JPEG format, and always at a specific resolution.
+     *
+     * @param Member $member The SilverStripe Member object we are storing this file on
+     * @param string $fieldName The SilverStripe field name we are storing this new file against
+     * @param array $data Array of all data returned about this user from LDAP
+     * @param string $attributeName Name of the attribute in the $data array to get the binary blog from
+     * @return boolean true on success, false on failure
+     */
+    private function processThumbnailPhoto(Member $member, $fieldName, $data, $attributeName)
+    {
+        $imageClass = $member->getRelationClass($fieldName);
+        if ($imageClass !== Image::class && !is_subclass_of($imageClass, Image::class)) {
+            $this->getLogger()->warning(
+                sprintf(
+                    'Member field %s configured for thumbnailphoto AD attribute, but it isn\'t a valid relation to an '
+                        . 'Image class',
+                    $fieldName
+                )
+            );
+
+            return false;
+        }
+
+        // Use and update existing Image object (if one exists), or create a new image if not - prevents ID thrashing
+        /** @var File $existingObj */
+        $existingObj = $member->getComponent($fieldName);
+        if ($existingObj && $existingObj->exists()) {
+            $file = $existingObj;
+        } else {
+            $file = new Image();
+        }
+
+        // Setup variables
+        $thumbnailFolder = Folder::find_or_make($member->config()->ldap_thumbnail_path);
+        $filename = sprintf('thumbnailphoto-%s.jpg', $data['objectguid']);
+        $filePath = File::join_paths($thumbnailFolder->getFilename(), $filename);
+        $fileCfg = [
+            'conflict' => AssetStore::CONFLICT_OVERWRITE,
+            'visibility' => AssetStore::VISIBILITY_PUBLIC
+        ];
+
+        $file->Title = sprintf('Thumbnail photo for %s', $data['displayname']);
+        $file->ShowInSearch = false;
+        $file->ParentID = $thumbnailFolder->ID;
+        $file->setFromString($data[$attributeName], $filePath, null, null, $fileCfg);
+        $file->write();
+        $file->publishRecursive();
+
+        if ($file->exists()) {
+            $relationField = sprintf('%sID', $fieldName);
+            $member->{$relationField} = $file->ID;
+        }
     }
 
     /**
