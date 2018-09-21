@@ -298,7 +298,6 @@ class LDAPMemberExtension extends DataExtension
                     throw $e;
                 }
             }
-
         }
     }
 
