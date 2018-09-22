@@ -45,7 +45,15 @@ final class LDAPIterator implements Iterator
      */
     private $cookie = true;
 
-    public function __construct(Ldap $ldap, string $filter, string $baseDn = null, array $returnAttributes = null, $pageSize = 250, bool $resolveRangedAttributes = false)
+    /**
+     * @param Ldap $ldap The Zend\Ldap\Ldap object that this iterator will use to retrieve results from
+     * @param string $filter An LDAP search filter (e.g. "(&(objectClass=user)(!(objectClass=computer)))")
+     * @param string|null $baseDn The Base DN to search from (or null to search from the connection root)
+     * @param array|null $returnAttributes The attributes to request from the LDAP server, or null to request all
+     * @param int $pageSize Number of results per page. This *must* be less than the LDAP server MaxPageSize setting
+     * @param bool $resolveRangedAttributes Whether or not to return ranged attributes
+     */
+    public function __construct(Ldap $ldap, $filter = "", $baseDn = null, array $returnAttributes = null, $pageSize = 250, $resolveRangedAttributes = false)
     {
         $this->ldap = $ldap;
         $this->filter = $filter;
