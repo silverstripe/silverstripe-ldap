@@ -248,6 +248,7 @@ class LDAPMemberExtension extends DataExtension
         }
 
         $service->deleteLDAPMember($this->owner);
+
     }
 
     /**

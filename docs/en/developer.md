@@ -491,6 +491,23 @@ SilverStripe\LDAP\Services\LDAPService:
   allow_password_change: true
 ```
 
+### Allow SilverStripe attributes to be reset (removed) by AD
+
+By default if attributes are present, and then missing in subsequent requests, they are ignored (non-descructive) by 
+this module. This can cause attributes to perist when they've been deliberately removed (attribute is no longer present)
+in the LDAP source data. 
+
+If you wish a full two way sync to occur, then set the attribute on `LDAPService` for `reset_missing_attributes` to 
+enable a full sync. 
+
+*Note*: This will mean syncs are desctructive, and data or attributes will be reset if missing from the master LDAP source
+data. 
+
+```yaml
+SilverStripe\LDAP\Services\LDAPService:
+  reset_missing_attributes: true 
+```
+
 This will allow users to change their AD password via the regular CMS "forgot password" forms, etc.
 
 ### Writing LDAP data from SilverStripe

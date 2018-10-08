@@ -25,6 +25,7 @@ use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Core\Injector\Injectable;
 use SilverStripe\ORM\DB;
 use SilverStripe\ORM\FieldType\DBDatetime;
+use SilverStripe\ORM\Relation;
 use SilverStripe\ORM\ValidationException;
 use SilverStripe\ORM\ValidationResult;
 use SilverStripe\Security\Group;
@@ -546,17 +547,31 @@ class LDAPService implements Flushable
         $member->LastSynced = (string)DBDatetime::now();
 
         foreach ($member->config()->ldap_field_mappings as $attribute => $field) {
+            // Special handling required for attributes that don't exist in the response.
             if (!isset($data[$attribute])) {
-                $this->getLogger()->notice(
-                    sprintf(
-                        'Attribute %s configured in Member.ldap_field_mappings, ' .
-                                'but no available attribute in AD data (GUID: %s, Member ID: %s)',
-                        $attribute,
-                        $data['objectguid'],
-                        $member->ID
-                    )
-                );
+                // a attribute we're expecting is missing from the LDAP response
+                if ($this->config()->get("reset_missing_attributes")) {
+                    // (Destructive) Reset the corresponding attribute on our side if instructed todo so.
+                    if (method_exists($member->$field, "delete") && $member->$field->exists()) {
+                        $member->$field->deleteFile();
+                        $member->$field->delete();
+                    } else {
+                        $member->$field = null;
+                    }
+                // or log the information.
+                } else {
+                    $this->getLogger()->debug(
+                        sprintf(
+                            'Attribute %s configured in Member.ldap_field_mappings, ' .
+                            'but no available attribute in AD data (GUID: %s, Member ID: %s)',
+                            $attribute,
+                            $data['objectguid'],
+                            $member->ID
+                        )
+                    );
+                }
 
+                // No further processing required.
                 continue;
             }
 
@@ -649,7 +664,7 @@ class LDAPService implements Flushable
         $filename = sprintf('thumbnailphoto-%s.jpg', $data['objectguid']);
         $filePath = File::join_paths($thumbnailFolder->getFilename(), $filename);
         $fileCfg = [
-            'conflict' => AssetStore::CONFLICT_OVERWRITE,
+            'conflict' => AssetStore::CONFLICT_USE_EXISTING,
             'visibility' => AssetStore::VISIBILITY_PUBLIC
         ];
 
