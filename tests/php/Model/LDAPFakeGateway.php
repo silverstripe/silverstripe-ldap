@@ -11,7 +11,8 @@ class LDAPFakeGateway extends LDAPGateway implements TestOnly
 {
     public function __construct()
     {
-        // do nothing
+        // thumbnail images are raw png
+        self::$data['users']['456']['thumbnailphoto'] = base64_decode(self::$data['users']['456']['thumbnailphoto']);
     }
 
     private static $data = [
@@ -42,6 +43,21 @@ class LDAPFakeGateway extends LDAPGateway implements TestOnly
                 'canonicalName'=>'mockCanonicalName',
                 'userprincipalname' => 'joe@bloggs.com',
                 'samaccountname' => 'joe'
+            ],
+            '456' => [
+                'distinguishedname' => 'CN=Appleseed,DC=playpen,DCx=local',
+                'objectguid' => '456',
+                'cn' => 'jappleseed',
+                'useraccountcontrol' => '1',
+                'givenname' => 'Johnny',
+                'sn' => 'Appleseed',
+                'mail' => 'john@appleseed.com',
+                'password' => 'mockPassword1',
+                'canonicalName'=>'mockCanonicalName2',
+                'userprincipalname' => 'john@appleseed.com',
+                'samaccountname' => 'john',
+                'thumbnailphoto' => 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==',
+                'displayname' => 'Johnny Appleseed'
             ]
         ]
     ];

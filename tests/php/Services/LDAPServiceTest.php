@@ -175,4 +175,46 @@ class LDAPServiceTest extends SapphireTest
         // ensure the profile image was deleted, as it wasn't present in the attribute response from TestLDAP service
         $this->assertFalse($member->ProfileImage->exists());
     }
+
+    /**
+     * If the LDAPService setting reset_missing_attributes is true, delete the thumbnail (special case)
+     * if it's not present in the response information.
+     */
+    public function testUpdateMemberLeaveThumbnailIfSameFromLDAP()
+    {
+        Config::modify()->set(
+            Member::class,
+            'ldap_field_mappings',
+            [
+                'givenname' => 'FirstName',
+                'sn' => 'Surname',
+                'mail' => 'Email',
+                'thumbnailphoto' => 'ProfileImage'
+            ]
+        );
+
+        Config::modify()->set(LDAPService::class,'reset_missing_attributes', true);
+
+        // Create a test 'image' for this member.
+        /** @var File $file */
+        TestAssetStore::activate('FileTest');
+
+        $member = new LDAPFakeMember();
+        $member->GUID = '456';
+
+        // make sure our Profile image is there.
+        $this->assertNotNull($member->ProfileImage);
+
+        $this->service->updateMemberFromLDAP($member);
+
+        // We have an image from the service.
+        $this->assertTrue($member->ProfileImage->exists());
+
+        // now make sure it doesn't change.
+        $obj = $member->ProfileImage;
+
+        $this->service->updateMemberFromLDAP($member);
+
+        $this->assertSame($member->ProfileImage, $obj);
+    }
 }

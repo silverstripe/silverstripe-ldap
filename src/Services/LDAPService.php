@@ -655,6 +655,12 @@ class LDAPService implements Flushable
         $existingObj = $member->getComponent($fieldName);
         if ($existingObj && $existingObj->exists()) {
             $file = $existingObj;
+
+            // If the file hashes match, and the file already exists, we don't need to update anything.
+            $hash = $existingObj->File->getHash();
+            if (hash_equals($hash, sha1($data[$attributeName]))) {
+                return;
+            }
         } else {
             $file = new Image();
         }
@@ -664,7 +670,8 @@ class LDAPService implements Flushable
         $filename = sprintf('thumbnailphoto-%s.jpg', $data['objectguid']);
         $filePath = File::join_paths($thumbnailFolder->getFilename(), $filename);
         $fileCfg = [
-            'conflict' => AssetStore::CONFLICT_USE_EXISTING,
+            // if there's a filename conflict we've got new content so overwrite it.
+            'conflict' => AssetStore::CONFLICT_OVERWRITE,
             'visibility' => AssetStore::VISIBILITY_PUBLIC
         ];
 
