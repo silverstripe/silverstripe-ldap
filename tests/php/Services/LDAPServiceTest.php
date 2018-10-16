@@ -15,10 +15,14 @@ use SilverStripe\LDAP\Tests\Model\LDAPFakeMember;
 use SilverStripe\Security\Group;
 use SilverStripe\Security\Member;
 use Silverstripe\Assets\Dev\TestAssetStore;
+use SilverStripe\ORM\DataQuery;
 
 class LDAPServiceTest extends SapphireTest
 {
     protected $usesDatabase = true;
+
+    protected static $fixture_file = 'LDAPServiceTest.yml';
+
 
     /**
      * @var LDAPService
@@ -102,6 +106,63 @@ class LDAPServiceTest extends SapphireTest
         $this->assertEquals('Joe', $member->FirstName, 'FirstName updated from LDAP');
         $this->assertEquals('Bloggs', $member->Surname, 'Surname updated from LDAP');
         $this->assertEquals('joe@bloggs.com', $member->Email, 'Email updated from LDAP');
+    }
+
+    /**
+     * LDAP should correctly assign a member to the groups, if there's a mapping between LDAPGroupMapping and Group
+     * and LDAP returns the mapping via 'memberof'
+     */
+    public function testAssignGroupMember()
+    {
+        Config::modify()->set(
+            Member::class,
+            'ldap_field_mappings',
+            [
+                'givenname' => 'FirstName',
+                'sn' => 'Surname',
+                'mail' => 'Email',
+            ]
+        );
+
+        $member = new Member();
+        $member->GUID = '789';
+
+        $this->service->updateMemberFromLDAP($member);
+        $this->assertCount(4, $member->Groups());
+    }
+
+    /**
+     * LDAP should correctly assign a member to the groups, if there's a mapping between LDAPGroupMapping and Group
+     * and LDAP returns the mapping via 'memberof'
+     */
+    public function testAssignRemovedGroupMember()
+    {
+        Config::modify()->set(
+            Member::class,
+            'ldap_field_mappings',
+            [
+                'givenname' => 'FirstName',
+                'sn' => 'Surname',
+                'mail' => 'Email',
+            ]
+        );
+
+        $member = new Member();
+        $member->GUID = '789';
+        $member->write();
+
+        // Pretend we're the module, and generate some mappings.
+        Group::get()->each(function ($group) use ($member) {
+            $group->Members()->add($member, [
+                'IsImportedFromLDAP' => '1'
+            ]);
+        });
+
+        $this->assertCount(Group::get()->count(), $member->Groups());
+
+        // There should only be 4 groups assigned from LDAP for this user, two should be removed.
+        $this->service->updateMemberFromLDAP($member);
+        $this->assertCount(4, $member->Groups());
     }
 
     /**

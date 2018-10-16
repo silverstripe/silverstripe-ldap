@@ -28,6 +28,7 @@ use SilverStripe\ORM\FieldType\DBDatetime;
 use SilverStripe\ORM\Relation;
 use SilverStripe\ORM\ValidationException;
 use SilverStripe\ORM\ValidationResult;
+use SilverStripe\ORM\DataQuery;
 use SilverStripe\Security\Group;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\RandomGenerator;
@@ -745,23 +746,23 @@ class LDAPService implements Flushable
             }
         }
 
-        // remove the user from any previously mapped groups, where the mapping has since been removed
-        $groupRecords = DB::query(
-            sprintf(
-                'SELECT "GroupID" FROM "Group_Members" WHERE "IsImportedFromLDAP" = 1 AND "MemberID" = %s',
-                $member->ID
-            )
-        );
+        // Lookup the previous mappings and see if there is any mappings no longer present.
+        $unmappedGroups = $member->Groups()->alterDataQuery(function (DataQuery $query) {
+            // join with the Group_Members table because we only want those group members assigned by this module.
+            $query->leftJoin("Group_Members", "Group_Members.GroupID = Group.ID");
+            $query->where("IsImportedFromLDAP = 1");
+        });
 
-        if (!empty($mappedGroupIDs)) {
-            foreach ($groupRecords as $groupRecord) {
-                if (!in_array($groupRecord['GroupID'], $mappedGroupIDs)) {
-                    $group = Group::get()->byId($groupRecord['GroupID']);
-                    // Some groups may no longer exist. SilverStripe does not clean up join tables.
-                    if ($group) {
-                        $group->Members()->remove($member);
-                    }
-                }
+        // Don't remove associations which have just been added and we know are already correct!
+        if(!empty($mappedGroupIDs)){
+            $unmappedGroups = $unmappedGroups->filter("GroupID:NOT", $mappedGroupIDs);
+        }
+
+        // Remove the member from any previously mapped groups, where the mapping
+        // has since been removed in the LDAP data source
+        if ($unmappedGroups->count()) {
+            foreach ($unmappedGroups as $group) {
+                $group->Members()->remove($member);
             }
         }
     }

@@ -1,0 +1,38 @@
+SilverStripe\Security\Group:
+  group1:
+   Title: "Group 1"
+   GUID: "d339637c-d0c1-11e8-80b6-7831c1cc1572"
+   DN: 'CN=Group1,CN=Users,DC=playpen,DC=local'
+  group2:
+   Title: "Group 2"
+   GUID: "df05eb94-d0c1-11e8-80b6-7831c1cc1572"
+   DN: 'CN=Group2,CN=Users,DC=playpen,DC=local'
+  group3:
+   GUID: "e80dd03a-d0c1-11e8-80b6-7831c1cc1572"
+   Title: "Group 3"
+   DN: 'CN=Group3,CN=Users,DC=playpen,DC=local'
+  group4:
+   GUID: "ee36f90a-d0c1-11e8-80b6-7831c1cc1572"
+   Title: "Group 4"
+   DN: 'CN=Group4,CN=Users,DC=playpen,DC=local'
+  group5:
+   GUID: "f4e9b9ae-d0c1-11e8-80b6-7831c1cc1572"
+   Title: "Group 5"
+   DN: 'CN=Group5,CN=Users,DC=playpen,DC=local'
+
+SilverStripe\LDAP\Model\LDAPGroupMapping:
+  group1:
+    Group: =>SilverStripe\Security\Group.group1
+    DN: 'CN=Group1,CN=Users,DC=playpen,DC=local'
+  group2:
+    Group: =>SilverStripe\Security\Group.group2
+    DN: 'CN=Group2,CN=Users,DC=playpen,DC=local'
+  group3:
+    Group: =>SilverStripe\Security\Group.group3
+    DN: 'CN=Group3,CN=Users,DC=playpen,DC=local'
+  group4:
+    Group: =>SilverStripe\Security\Group.group4
+    DN: 'CN=Group4,CN=Users,DC=playpen,DC=local'
+  group5:
+    Group: =>SilverStripe\Security\Group.group5
+    DN: 'CN=Group5,CN=Users,DC=playpen,DC=local'
