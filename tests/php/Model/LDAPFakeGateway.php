@@ -11,7 +11,8 @@ class LDAPFakeGateway extends LDAPGateway implements TestOnly
 {
     public function __construct()
     {
-        // thumbnail images are raw png
+        // thumbnail images are raw JPEG/JFIF files, but that's not important
+        // for this test, as long as the binary content are the same
         self::$data['users']['456']['thumbnailphoto'] = base64_decode(self::$data['users']['456']['thumbnailphoto']);
     }
 
