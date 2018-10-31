@@ -552,8 +552,11 @@ class LDAPService implements Flushable
             if (!isset($data[$attribute])) {
                 // a attribute we're expecting is missing from the LDAP response
                 if ($this->config()->get("reset_missing_attributes")) {
-                    // (Destructive) Reset the corresponding attribute on our side if instructed todo so.
-                    if (method_exists($member->$field, "delete") && $member->$field->exists()) {
+                    // (Destructive) Reset the corresponding attribute on our side if instructed to do so.
+                    if (method_exists($member->$field, "delete")
+                        && method_exists($member->$field, "deleteFile")
+                        && $member->$field->exists()
+                    ) {
                         $member->$field->deleteFile();
                         $member->$field->delete();
                     } else {
@@ -635,6 +638,8 @@ class LDAPService implements Flushable
      * @param array $data Array of all data returned about this user from LDAP
      * @param string $attributeName Name of the attribute in the $data array to get the binary blog from
      * @return boolean true on success, false on failure
+     *
+     * @throws ValidationException
      */
     private function processThumbnailPhoto(Member $member, $fieldName, $data, $attributeName)
     {
@@ -660,7 +665,7 @@ class LDAPService implements Flushable
             // If the file hashes match, and the file already exists, we don't need to update anything.
             $hash = $existingObj->File->getHash();
             if (hash_equals($hash, sha1($data[$attributeName]))) {
-                return;
+                return true;
             }
         } else {
             $file = new Image();
@@ -687,6 +692,8 @@ class LDAPService implements Flushable
             $relationField = sprintf('%sID', $fieldName);
             $member->{$relationField} = $file->ID;
         }
+
+        return true;
     }
 
     /**
