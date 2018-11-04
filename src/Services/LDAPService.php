@@ -25,8 +25,10 @@ use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Core\Injector\Injectable;
 use SilverStripe\ORM\DB;
 use SilverStripe\ORM\FieldType\DBDatetime;
+use SilverStripe\ORM\Relation;
 use SilverStripe\ORM\ValidationException;
 use SilverStripe\ORM\ValidationResult;
+use SilverStripe\ORM\DataQuery;
 use SilverStripe\Security\Group;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\RandomGenerator;
@@ -546,17 +548,34 @@ class LDAPService implements Flushable
         $member->LastSynced = (string)DBDatetime::now();
 
         foreach ($member->config()->ldap_field_mappings as $attribute => $field) {
+            // Special handling required for attributes that don't exist in the response.
             if (!isset($data[$attribute])) {
-                $this->getLogger()->notice(
-                    sprintf(
-                        'Attribute %s configured in Member.ldap_field_mappings, ' .
-                                'but no available attribute in AD data (GUID: %s, Member ID: %s)',
-                        $attribute,
-                        $data['objectguid'],
-                        $member->ID
-                    )
-                );
+                // a attribute we're expecting is missing from the LDAP response
+                if ($this->config()->get("reset_missing_attributes")) {
+                    // (Destructive) Reset the corresponding attribute on our side if instructed to do so.
+                    if (method_exists($member->$field, "delete")
+                        && method_exists($member->$field, "deleteFile")
+                        && $member->$field->exists()
+                    ) {
+                        $member->$field->deleteFile();
+                        $member->$field->delete();
+                    } else {
+                        $member->$field = null;
+                    }
+                // or log the information.
+                } else {
+                    $this->getLogger()->debug(
+                        sprintf(
+                            'Attribute %s configured in Member.ldap_field_mappings, ' .
+                            'but no available attribute in AD data (GUID: %s, Member ID: %s)',
+                            $attribute,
+                            $data['objectguid'],
+                            $member->ID
+                        )
+                    );
+                }
 
+                // No further processing required.
                 continue;
             }
 
@@ -619,6 +638,8 @@ class LDAPService implements Flushable
      * @param array $data Array of all data returned about this user from LDAP
      * @param string $attributeName Name of the attribute in the $data array to get the binary blog from
      * @return boolean true on success, false on failure
+     *
+     * @throws ValidationException
      */
     private function processThumbnailPhoto(Member $member, $fieldName, $data, $attributeName)
     {
@@ -640,6 +661,12 @@ class LDAPService implements Flushable
         $existingObj = $member->getComponent($fieldName);
         if ($existingObj && $existingObj->exists()) {
             $file = $existingObj;
+
+            // If the file hashes match, and the file already exists, we don't need to update anything.
+            $hash = $existingObj->File->getHash();
+            if (hash_equals($hash, sha1($data[$attributeName]))) {
+                return true;
+            }
         } else {
             $file = new Image();
         }
@@ -649,6 +676,7 @@ class LDAPService implements Flushable
         $filename = sprintf('thumbnailphoto-%s.jpg', $data['objectguid']);
         $filePath = File::join_paths($thumbnailFolder->getFilename(), $filename);
         $fileCfg = [
+            // if there's a filename conflict we've got new content so overwrite it.
             'conflict' => AssetStore::CONFLICT_OVERWRITE,
             'visibility' => AssetStore::VISIBILITY_PUBLIC
         ];
@@ -664,6 +692,8 @@ class LDAPService implements Flushable
             $relationField = sprintf('%sID', $fieldName);
             $member->{$relationField} = $file->ID;
         }
+
+        return true;
     }
 
     /**
@@ -723,23 +753,23 @@ class LDAPService implements Flushable
             }
         }
 
-        // remove the user from any previously mapped groups, where the mapping has since been removed
-        $groupRecords = DB::query(
-            sprintf(
-                'SELECT "GroupID" FROM "Group_Members" WHERE "IsImportedFromLDAP" = 1 AND "MemberID" = %s',
-                $member->ID
-            )
-        );
+        // Lookup the previous mappings and see if there is any mappings no longer present.
+        $unmappedGroups = $member->Groups()->alterDataQuery(function (DataQuery $query) {
+            // join with the Group_Members table because we only want those group members assigned by this module.
+            $query->leftJoin("Group_Members", "Group_Members.GroupID = Group.ID");
+            $query->where("IsImportedFromLDAP = 1");
+        });
 
-        if (!empty($mappedGroupIDs)) {
-            foreach ($groupRecords as $groupRecord) {
-                if (!in_array($groupRecord['GroupID'], $mappedGroupIDs)) {
-                    $group = Group::get()->byId($groupRecord['GroupID']);
-                    // Some groups may no longer exist. SilverStripe does not clean up join tables.
-                    if ($group) {
-                        $group->Members()->remove($member);
-                    }
-                }
+        // Don't remove associations which have just been added and we know are already correct!
+        if(!empty($mappedGroupIDs)){
+            $unmappedGroups = $unmappedGroups->filter("GroupID:NOT", $mappedGroupIDs);
+        }
+
+        // Remove the member from any previously mapped groups, where the mapping
+        // has since been removed in the LDAP data source
+        if ($unmappedGroups->count()) {
+            foreach ($unmappedGroups as $group) {
+                $group->Members()->remove($member);
             }
         }
     }

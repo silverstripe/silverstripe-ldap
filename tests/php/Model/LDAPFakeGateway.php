@@ -11,7 +11,9 @@ class LDAPFakeGateway extends LDAPGateway implements TestOnly
 {
     public function __construct()
     {
-        // do nothing
+        // thumbnail images are raw JPEG/JFIF files, but that's not important
+        // for this test, as long as the binary content are the same
+        self::$data['users']['456']['thumbnailphoto'] = base64_decode(self::$data['users']['456']['thumbnailphoto']);
     }
 
     private static $data = [
@@ -42,6 +44,42 @@ class LDAPFakeGateway extends LDAPGateway implements TestOnly
                 'canonicalName'=>'mockCanonicalName',
                 'userprincipalname' => 'joe@bloggs.com',
                 'samaccountname' => 'joe'
+            ],
+            '456' => [
+                'distinguishedname' => 'CN=Appleseed,DC=playpen,DC=local',
+                'objectguid' => '456',
+                'cn' => 'jappleseed',
+                'useraccountcontrol' => '1',
+                'givenname' => 'Johnny',
+                'sn' => 'Appleseed',
+                'mail' => 'john@appleseed.com',
+                'password' => 'mockPassword1',
+                'canonicalName' => 'mockCanonicalName2',
+                'userprincipalname' => 'john@appleseed.com',
+                'samaccountname' => 'john',
+                'thumbnailphoto' => 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==',
+                'displayname' => 'Johnny Appleseed'
+            ],
+            '789' => [
+                'distinguishedname' => 'CN=Appleseed,DC=playpen,DC=local',
+                'objectguid' => '456',
+                'cn' => 'jappleseed',
+                'useraccountcontrol' => '1',
+                'givenname' => 'Johnny',
+                'sn' => 'Appleseed',
+                'mail' => 'john@appleseed.com',
+                'password' => 'mockPassword1',
+                'canonicalName' => 'mockCanonicalName2',
+                'userprincipalname' => 'john@appleseed.com',
+                'samaccountname' => 'john',
+                'thumbnailphoto' => 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==',
+                'displayname' => 'Johnny Appleseed',
+                'memberof' => [
+                    'CN=Group1,CN=Users,DC=playpen,DC=local',
+                    'CN=Group2,CN=Users,DC=playpen,DC=local',
+                    'CN=Group3,CN=Users,DC=playpen,DC=local',
+                    'CN=Group4,CN=Users,DC=playpen,DC=local',
+                ]
             ]
         ]
     ];
@@ -77,8 +115,19 @@ class LDAPFakeGateway extends LDAPGateway implements TestOnly
         }
     }
 
+    /**
+     * Return nested groups for a DN. Not currently implemented.
+     *
+     * @param string $dn
+     * @param null $baseDn
+     * @param int $scope
+     * @param array $attributes
+     *
+     * @return array
+     */
     public function getNestedGroups($dn, $baseDn = null, $scope = Ldap::SEARCH_SCOPE_SUB, $attributes = [])
     {
+        return [];
     }
 
     public function getGroupByGUID($guid, $baseDn = null, $scope = Ldap::SEARCH_SCOPE_SUB, $attributes = [])
