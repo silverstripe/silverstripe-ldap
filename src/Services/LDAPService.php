@@ -658,7 +658,7 @@ class LDAPService implements Flushable
                 return true;
             }
         } else {
-            $file = new Image();
+            $file = Image::create();
         }
 
         // Setup variables
