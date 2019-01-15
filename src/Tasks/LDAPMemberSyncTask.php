@@ -166,7 +166,7 @@ class LDAPMemberSyncTask extends BuildTask
      */
     protected function findOrCreateMember($data = [])
     {
-        $member = Member::get()->filter('GUID', $data['objectguid'])->limit(1)->first();
+        $member = Member::get()->filter('GUID', $data['objectguid'])->first();
 
         if (!($member && $member->exists())) {
             // create the initial Member with some internal fields
