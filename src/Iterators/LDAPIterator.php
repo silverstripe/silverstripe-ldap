@@ -2,11 +2,10 @@
 
 namespace SilverStripe\LDAP\Iterators;
 
-use \Iterator;
-use Zend\Ldap\Ldap;
-use Zend\Ldap\Exception;
+use Iterator;
 use Zend\Ldap\ErrorHandler;
 use Zend\Ldap\Exception\LdapException;
+use Zend\Ldap\Ldap;
 
 /**
  * Class LDAPIterator
@@ -207,7 +206,7 @@ final class LDAPIterator implements Iterator
 
         return $result;
     }
-    private function getAttributeRecursive(string $dn, string $attrName, int $offset, int $maxPerRequest)
+    private function getAttributeRecursive($dn, $attrName, $offset, $maxPerRequest)
     {
         $attributeValue = [];
 
