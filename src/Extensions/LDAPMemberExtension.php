@@ -152,12 +152,12 @@ class LDAPMemberExtension extends DataExtension
                     // Set to readonly, but not disabled so that the data is still sent to the
                     // server and doesn't break Member_Validator
                     $field->setReadonly(true);
-                    $field->setTitle($field->Title()._t(__CLASS__ . '.IMPORTEDFIELD', ' (imported)'));
+                    $field->setTitle($field->Title() . _t(__CLASS__ . '.IMPORTEDFIELD', ' (imported)'));
                 }
             }
             $message = _t(
                 __CLASS__ . '.INFOIMPORTED',
-                'This user is automatically imported from LDAP. '.
+                'This user is automatically imported from LDAP. ' .
                     'Manual changes to imported fields will be removed upon sync.'
             );
         }
@@ -248,7 +248,6 @@ class LDAPMemberExtension extends DataExtension
         }
 
         $service->deleteLDAPMember($this->owner);
-
     }
 
     /**

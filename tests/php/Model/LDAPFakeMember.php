@@ -20,7 +20,8 @@ class LDAPFakeMember extends Member implements TestOnly
      *
      * @return int|void
      */
-    public function write(){
+    public function write()
+    {
         // Noop
     }
 }

@@ -761,7 +761,7 @@ class LDAPService implements Flushable
         });
 
         // Don't remove associations which have just been added and we know are already correct!
-        if(!empty($mappedGroupIDs)){
+        if (!empty($mappedGroupIDs)) {
             $unmappedGroups = $unmappedGroups->filter("GroupID:NOT", $mappedGroupIDs);
         }
 
@@ -958,7 +958,7 @@ class LDAPService implements Flushable
                 $dn = $newDn;
             }
         } catch (Exception $e) {
-            throw new ValidationException('LDAP move failure: '.$e->getMessage());
+            throw new ValidationException('LDAP move failure: ' . $e->getMessage());
         }
 
         try {
@@ -982,7 +982,7 @@ class LDAPService implements Flushable
 
             $this->update($dn, $attributes);
         } catch (Exception $e) {
-            throw new ValidationException('LDAP synchronisation failure: '.$e->getMessage());
+            throw new ValidationException('LDAP synchronisation failure: ' . $e->getMessage());
         }
     }
 

@@ -118,7 +118,7 @@ class LDAPDebugController extends ContentController
             if (!($group && $group->exists())) {
                 return sprintf(
                     'WARNING: LDAPService.default_group configured with \'%s\''
-                        .'but there is no Group with that Code in the database!',
+                        . 'but there is no Group with that Code in the database!',
                     $code
                 );
             } else {

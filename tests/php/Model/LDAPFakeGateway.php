@@ -41,7 +41,7 @@ class LDAPFakeGateway extends LDAPGateway implements TestOnly
                 'sn' => 'Bloggs',
                 'mail' => 'joe@bloggs.com',
                 'password' => 'mockPassword',
-                'canonicalName'=>'mockCanonicalName',
+                'canonicalName' => 'mockCanonicalName',
                 'userprincipalname' => 'joe@bloggs.com',
                 'samaccountname' => 'joe'
             ],

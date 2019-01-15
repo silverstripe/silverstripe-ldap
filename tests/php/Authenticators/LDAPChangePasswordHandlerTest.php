@@ -19,7 +19,7 @@ class LDAPChangePasswordHandlerTest extends SapphireTest
         $request = (new HTTPRequest('GET', '/'))
             ->setSession(new Session([]));
 
-        $handler = LDAPChangePasswordHandler::create('foo', new LDAPAuthenticator)
+        $handler = LDAPChangePasswordHandler::create('foo', new LDAPAuthenticator())
             ->setRequest($request);
 
         $this->assertInstanceOf(LDAPChangePasswordForm::class, $handler->changePasswordForm());

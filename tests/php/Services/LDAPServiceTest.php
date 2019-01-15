@@ -63,7 +63,7 @@ class LDAPServiceTest extends SapphireTest
         );
 
         // Disable Monolog logging to stderr by default if you don't give it a handler
-        $this->service->getLogger()->pushHandler(new \Monolog\Handler\NullHandler);
+        $this->service->getLogger()->pushHandler(new \Monolog\Handler\NullHandler());
     }
 
     public function testGroups()
@@ -182,7 +182,7 @@ class LDAPServiceTest extends SapphireTest
             ]
         );
 
-        Config::modify()->set(LDAPService::class,'reset_missing_attributes', true);
+        Config::modify()->set(LDAPService::class, 'reset_missing_attributes', true);
 
         $member = new Member();
         $member->GUID = '123';
@@ -215,7 +215,7 @@ class LDAPServiceTest extends SapphireTest
             ]
         );
 
-        Config::modify()->set(LDAPService::class,'reset_missing_attributes', true);
+        Config::modify()->set(LDAPService::class, 'reset_missing_attributes', true);
 
         // Create a test 'image' for this member.
         /** @var File $file */
@@ -254,7 +254,7 @@ class LDAPServiceTest extends SapphireTest
             ]
         );
 
-        Config::modify()->set(LDAPService::class,'reset_missing_attributes', true);
+        Config::modify()->set(LDAPService::class, 'reset_missing_attributes', true);
 
         // Create a test 'image' for this member.
         /** @var File $file */
