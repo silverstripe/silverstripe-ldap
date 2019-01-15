@@ -2,10 +2,9 @@
 
 namespace SilverStripe\LDAP\Tasks;
 
+use Exception;
 use SilverStripe\Control\HTTPRequest;
-use SilverStripe\Dev\BuildTask;
 use SilverStripe\LDAP\Services\LDAPService;
-use SilverStripe\Security\Permission;
 
 /**
  * Class LDAPMemberSyncOneTask
@@ -27,8 +26,13 @@ class LDAPMemberSyncOneTask extends LDAPMemberSyncTask
      * @var array
      */
     private static $dependencies = [
-        'ldapService' => '%$' . LDAPService::class,
+        'LDAPService' => '%$' . LDAPService::class,
     ];
+
+    /**
+     * @var LDAPService
+     */
+    protected $ldapService;
 
     /**
      * @return string
@@ -48,13 +52,15 @@ class LDAPMemberSyncOneTask extends LDAPMemberSyncTask
         $email = $request->getVar('email');
 
         if (!$email) {
-            die('You must supply an email parameter to this method.');
+            echo 'You must supply an email parameter to this method.', PHP_EOL;
+            exit;
         }
 
         $user = $this->ldapService->getUserByEmail($email);
 
         if (!$user) {
-            die(sprintf('No user found in LDAP for email %s', $email));
+            echo sprintf('No user found in LDAP for email %s', $email), PHP_EOL;
+            exit;
         }
 
         $member = $this->findOrCreateMember($user);
@@ -86,5 +92,15 @@ class LDAPMemberSyncOneTask extends LDAPMemberSyncTask
         } catch (Exception $e) {
             $this->log($e->getMessage());
         }
+    }
+
+    /**
+     * @param LDAPService $service
+     * @return $this
+     */
+    public function setLDAPService(LDAPService $service)
+    {
+        $this->ldapService = $service;
+        return $this;
     }
 }
