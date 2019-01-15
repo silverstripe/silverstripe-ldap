@@ -4,6 +4,7 @@ namespace SilverStripe\LDAP\Tasks;
 
 use Exception;
 use SilverStripe\Control\Director;
+use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Dev\BuildTask;
 use SilverStripe\LDAP\Services\LDAPService;
 use SilverStripe\ORM\DB;
@@ -26,7 +27,7 @@ class LDAPGroupSyncTask extends BuildTask
      * @var array
      */
     private static $dependencies = [
-        'ldapService' => '%$' . LDAPService::class,
+        'LDAPService' => '%$' . LDAPService::class,
     ];
 
     /**
@@ -41,7 +42,7 @@ class LDAPGroupSyncTask extends BuildTask
     /**
      * @var LDAPService
      */
-    public $ldapService;
+    protected $ldapService;
 
     /**
      * @return string
@@ -159,5 +160,15 @@ class LDAPGroupSyncTask extends BuildTask
     {
         $message = sprintf('[%s] ', date('Y-m-d H:i:s')) . $message;
         echo Director::is_cli() ? ($message . PHP_EOL) : ($message . '<br>');
+    }
+
+    /**
+     * @param LDAPService $service
+     * @return $this
+     */
+    public function setLDAPService(LDAPService $service)
+    {
+        $this->ldapService = $service;
+        return $this;
     }
 }
