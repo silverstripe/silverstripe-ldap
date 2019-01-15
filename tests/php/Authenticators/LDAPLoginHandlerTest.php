@@ -11,7 +11,7 @@ class LDAPLoginHandlerTest extends SapphireTest
 {
     public function testReturnsLdapLoginForm()
     {
-        $handler = LDAPLoginHandler::create('foo', new LDAPAuthenticator);
+        $handler = LDAPLoginHandler::create('foo', new LDAPAuthenticator());
 
         $this->assertInstanceOf(LDAPLoginForm::class, $handler->loginForm());
     }

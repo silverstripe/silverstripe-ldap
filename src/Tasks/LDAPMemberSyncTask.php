@@ -28,7 +28,7 @@ class LDAPMemberSyncTask extends BuildTask
      * @var array
      */
     private static $dependencies = [
-        'ldapService' => '%$' . LDAPService::class,
+        'LDAPService' => '%$' . LDAPService::class,
     ];
 
     /**
@@ -39,6 +39,11 @@ class LDAPMemberSyncTask extends BuildTask
      * @var bool
      */
     private static $destructive = false;
+
+    /**
+     * @var LDAPService
+     */
+    protected $ldapService;
 
     /**
      * @return string
@@ -54,11 +59,14 @@ class LDAPMemberSyncTask extends BuildTask
      */
     public function run($request)
     {
+        ini_set('max_execution_time', 3600); // 3600s = 1hr
+        ini_set('memory_limit', '1024M'); // 1GB memory limit
+
         // get all users from LDAP, but only get the attributes we need.
         // this is useful to avoid holding onto too much data in memory
         // especially in the case where getUser() would return a lot of users
         $users = $this->ldapService->getUsers(array_merge(
-            ['objectguid', 'samaccountname', 'useraccountcontrol', 'memberof'],
+            ['objectguid', 'cn', 'samaccountname', 'useraccountcontrol', 'memberof'],
             array_keys(Config::inst()->get(Member::class, 'ldap_field_mappings'))
         ));
 
@@ -69,28 +77,26 @@ class LDAPMemberSyncTask extends BuildTask
         $deleted = 0;
 
         foreach ($users as $data) {
-            $member = Member::get()->filter('GUID', $data['objectguid'])->limit(1)->first();
+            $member = $this->findOrCreateMember($data);
 
-            if (!($member && $member->exists())) {
-                // create the initial Member with some internal fields
-                $member = Member::create();
-                $member->GUID = $data['objectguid'];
-
+            // If member exists already, we're updating - otherwise we're creating
+            if ($member->exists()) {
+                $updated++;
                 $this->log(sprintf(
-                    'Creating new Member (GUID: %s, sAMAccountName: %s)',
+                    'Updating existing Member %s: "%s" (ID: %s, SAM Account Name: %s)',
                     $data['objectguid'],
-                    $data['samaccountname']
-                ));
-                $created++;
-            } else {
-                $this->log(sprintf(
-                    'Updating existing Member "%s" (ID: %s, GUID: %s, sAMAccountName: %s)',
                     $member->getName(),
                     $member->ID,
-                    $data['objectguid'],
                     $data['samaccountname']
                 ));
-                $updated++;
+            } else {
+                $created++;
+                $this->log(sprintf(
+                    'Creating new Member %s: "%s" (SAM Account Name: %s)',
+                    $data['objectguid'],
+                    $data['cn'],
+                    $data['samaccountname']
+                ));
             }
 
             // Sync attributes from LDAP to the Member record. This will also write the Member record.
@@ -128,6 +134,8 @@ class LDAPMemberSyncTask extends BuildTask
             }
         }
 
+        $this->invokeWithExtensions('onAfterLDAPMemberSyncTask');
+
         $end = time() - $start;
 
         $this->log(sprintf(
@@ -148,5 +156,34 @@ class LDAPMemberSyncTask extends BuildTask
     {
         $message = sprintf('[%s] ', date('Y-m-d H:i:s')) . $message;
         echo Director::is_cli() ? ($message . PHP_EOL) : ($message . '<br>');
+    }
+
+    /**
+     * Finds or creates a new {@link Member} object if the GUID provided by LDAP doesn't exist in the DB
+     *
+     * @param array $data The data from LDAP (specifically containing the objectguid value)
+     * @return Member Either the existing member in the DB, or a new member object
+     */
+    protected function findOrCreateMember($data = [])
+    {
+        $member = Member::get()->filter('GUID', $data['objectguid'])->first();
+
+        if (!($member && $member->exists())) {
+            // create the initial Member with some internal fields
+            $member = Member::create();
+            $member->GUID = $data['objectguid'];
+        }
+
+        return $member;
+    }
+
+    /**
+     * @param LDAPService $service
+     * @return $this
+     */
+    public function setLDAPService(LDAPService $service)
+    {
+        $this->ldapService = $service;
+        return $this;
     }
 }

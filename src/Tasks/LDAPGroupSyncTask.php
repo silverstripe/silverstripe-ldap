@@ -4,6 +4,7 @@ namespace SilverStripe\LDAP\Tasks;
 
 use Exception;
 use SilverStripe\Control\Director;
+use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Dev\BuildTask;
 use SilverStripe\LDAP\Services\LDAPService;
 use SilverStripe\ORM\DB;
@@ -26,7 +27,7 @@ class LDAPGroupSyncTask extends BuildTask
      * @var array
      */
     private static $dependencies = [
-        'ldapService' => '%$' . LDAPService::class,
+        'LDAPService' => '%$' . LDAPService::class,
     ];
 
     /**
@@ -37,6 +38,11 @@ class LDAPGroupSyncTask extends BuildTask
      * @var bool
      */
     private static $destructive = false;
+
+    /**
+     * @var LDAPService
+     */
+    protected $ldapService;
 
     /**
      * @return string
@@ -52,6 +58,8 @@ class LDAPGroupSyncTask extends BuildTask
      */
     public function run($request)
     {
+        ini_set('max_execution_time', 900);
+
         // get all groups from LDAP, but only get the attributes we need.
         // this is useful to avoid holding onto too much data in memory
         // especially in the case where getGroups() would return a lot of groups
@@ -130,6 +138,8 @@ class LDAPGroupSyncTask extends BuildTask
             }
         }
 
+        $this->invokeWithExtensions('onAfterLDAPGroupSyncTask');
+
         $end = time() - $start;
 
         $this->log(sprintf(
@@ -150,5 +160,15 @@ class LDAPGroupSyncTask extends BuildTask
     {
         $message = sprintf('[%s] ', date('Y-m-d H:i:s')) . $message;
         echo Director::is_cli() ? ($message . PHP_EOL) : ($message . '<br>');
+    }
+
+    /**
+     * @param LDAPService $service
+     * @return $this
+     */
+    public function setLDAPService(LDAPService $service)
+    {
+        $this->ldapService = $service;
+        return $this;
     }
 }

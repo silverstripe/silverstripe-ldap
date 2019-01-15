@@ -69,7 +69,7 @@ class LDAPUtil
 
         if ($escape) {
             $escaped = '\\';
-            for ($i = 0; $i < strlen($octet_str); $i+=2) {
+            for ($i = 0; $i < strlen($octet_str); $i += 2) {
                 $escaped .= substr($octet_str, $i, 2);
                 if ($i != strlen($octet_str) - 2) {
                     $escaped .= '\\';

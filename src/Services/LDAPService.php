@@ -5,17 +5,19 @@ namespace SilverStripe\LDAP\Services;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
-use SilverStripe\LDAP\Model\LDAPGateway;
-use SilverStripe\LDAP\Model\LDAPGroupMapping;
+use SilverStripe\Assets\File;
+use SilverStripe\Assets\Folder;
 use SilverStripe\Assets\Image;
-use SilverStripe\Assets\Filesystem;
+use SilverStripe\Assets\Storage\AssetStore;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Config\Configurable;
-use SilverStripe\Core\Flushable;
 use SilverStripe\Core\Extensible;
-use SilverStripe\Core\Injector\Injector;
+use SilverStripe\Core\Flushable;
 use SilverStripe\Core\Injector\Injectable;
-use SilverStripe\ORM\DB;
+use SilverStripe\Core\Injector\Injector;
+use SilverStripe\LDAP\Model\LDAPGateway;
+use SilverStripe\LDAP\Model\LDAPGroupMapping;
+use SilverStripe\ORM\DataQuery;
 use SilverStripe\ORM\FieldType\DBDatetime;
 use SilverStripe\ORM\ValidationException;
 use SilverStripe\ORM\ValidationResult;
@@ -156,6 +158,19 @@ class LDAPService implements Flushable
     }
 
     /**
+     * Return the LDAP gateway currently in use. Can be strung together to access the underlying Zend\Ldap instance, or
+     * the PHP ldap resource itself. For example:
+     * - Get the Zend\Ldap object: $service->getGateway()->getLdap() // Zend\Ldap\Ldap object
+     * - Get the underlying PHP ldap resource: $service->getGateway()->getLdap()->getResource() // php resource
+     *
+     * @return LDAPGateway
+     */
+    public function getGateway()
+    {
+        return $this->gateway;
+    }
+
+    /**
      * Checkes whether or not the service is enabled.
      *
      * @return bool
@@ -176,7 +191,7 @@ class LDAPService implements Flushable
      */
     public function authenticate($username, $password)
     {
-        $result = $this->gateway->authenticate($username, $password);
+        $result = $this->getGateway()->authenticate($username, $password);
         $messages = $result->getMessages();
 
         // all messages beyond the first one are for debugging and
@@ -227,7 +242,7 @@ class LDAPService implements Flushable
 
         if (!$results || !$cached) {
             $results = [];
-            $records = $this->gateway->getNodes(null, Ldap::SEARCH_SCOPE_SUB, $attributes);
+            $records = $this->getGateway()->getNodes(null, Ldap::SEARCH_SCOPE_SUB, $attributes);
             foreach ($records as $record) {
                 $results[$record['dn']] = $record;
             }
@@ -258,7 +273,7 @@ class LDAPService implements Flushable
         if (!$results || !$cached) {
             $results = [];
             foreach ($searchLocations as $searchLocation) {
-                $records = $this->gateway->getGroups($searchLocation, Ldap::SEARCH_SCOPE_SUB, $attributes);
+                $records = $this->getGateway()->getGroups($searchLocation, Ldap::SEARCH_SCOPE_SUB, $attributes);
                 if (!$records) {
                     continue;
                 }
@@ -295,7 +310,7 @@ class LDAPService implements Flushable
         $searchLocations = $this->config()->groups_search_locations ?: [null];
         $results = [];
         foreach ($searchLocations as $searchLocation) {
-            $records = $this->gateway->getNestedGroups($dn, $searchLocation, Ldap::SEARCH_SCOPE_SUB, $attributes);
+            $records = $this->getGateway()->getNestedGroups($dn, $searchLocation, Ldap::SEARCH_SCOPE_SUB, $attributes);
             foreach ($records as $record) {
                 $results[$record['dn']] = $record;
             }
@@ -316,7 +331,7 @@ class LDAPService implements Flushable
     {
         $searchLocations = $this->config()->groups_search_locations ?: [null];
         foreach ($searchLocations as $searchLocation) {
-            $records = $this->gateway->getGroupByGUID($guid, $searchLocation, Ldap::SEARCH_SCOPE_SUB, $attributes);
+            $records = $this->getGateway()->getGroupByGUID($guid, $searchLocation, Ldap::SEARCH_SCOPE_SUB, $attributes);
             if ($records) {
                 return $records[0];
             }
@@ -334,7 +349,7 @@ class LDAPService implements Flushable
     {
         $searchLocations = $this->config()->groups_search_locations ?: [null];
         foreach ($searchLocations as $searchLocation) {
-            $records = $this->gateway->getGroupByDN($dn, $searchLocation, Ldap::SEARCH_SCOPE_SUB, $attributes);
+            $records = $this->getGateway()->getGroupByDN($dn, $searchLocation, Ldap::SEARCH_SCOPE_SUB, $attributes);
             if ($records) {
                 return $records[0];
             }
@@ -355,7 +370,7 @@ class LDAPService implements Flushable
         $results = [];
 
         foreach ($searchLocations as $searchLocation) {
-            $records = $this->gateway->getUsers($searchLocation, Ldap::SEARCH_SCOPE_SUB, $attributes);
+            $records = $this->getGateway()->getUsersWithIterator($searchLocation, $attributes);
             if (!$records) {
                 continue;
             }
@@ -379,7 +394,7 @@ class LDAPService implements Flushable
     {
         $searchLocations = $this->config()->users_search_locations ?: [null];
         foreach ($searchLocations as $searchLocation) {
-            $records = $this->gateway->getUserByGUID($guid, $searchLocation, Ldap::SEARCH_SCOPE_SUB, $attributes);
+            $records = $this->getGateway()->getUserByGUID($guid, $searchLocation, Ldap::SEARCH_SCOPE_SUB, $attributes);
             if ($records) {
                 return $records[0];
             }
@@ -398,7 +413,7 @@ class LDAPService implements Flushable
     {
         $searchLocations = $this->config()->users_search_locations ?: [null];
         foreach ($searchLocations as $searchLocation) {
-            $records = $this->gateway->getUserByDN($dn, $searchLocation, Ldap::SEARCH_SCOPE_SUB, $attributes);
+            $records = $this->getGateway()->getUserByDN($dn, $searchLocation, Ldap::SEARCH_SCOPE_SUB, $attributes);
             if ($records) {
                 return $records[0];
             }
@@ -416,7 +431,7 @@ class LDAPService implements Flushable
     {
         $searchLocations = $this->config()->users_search_locations ?: [null];
         foreach ($searchLocations as $searchLocation) {
-            $records = $this->gateway->getUserByEmail($email, $searchLocation, Ldap::SEARCH_SCOPE_SUB, $attributes);
+            $records = $this->getGateway()->getUserByEmail($email, $searchLocation, Ldap::SEARCH_SCOPE_SUB, $attributes);
             if ($records) {
                 return $records[0];
             }
@@ -434,7 +449,7 @@ class LDAPService implements Flushable
     {
         $searchLocations = $this->config()->users_search_locations ?: [null];
         foreach ($searchLocations as $searchLocation) {
-            $records = $this->gateway->getUserByUsername(
+            $records = $this->getGateway()->getUserByUsername(
                 $username,
                 $searchLocation,
                 Ldap::SEARCH_SCOPE_SUB,
@@ -459,7 +474,7 @@ class LDAPService implements Flushable
             return null;
         }
 
-        return $this->gateway->getCanonicalUsername($data);
+        return $this->getGateway()->getCanonicalUsername($data);
     }
 
     /**
@@ -523,58 +538,39 @@ class LDAPService implements Flushable
         $member->LastSynced = (string)DBDatetime::now();
 
         foreach ($member->config()->ldap_field_mappings as $attribute => $field) {
+            // Special handling required for attributes that don't exist in the response.
             if (!isset($data[$attribute])) {
-                $this->getLogger()->notice(
-                    sprintf(
-                        'Attribute %s configured in Member.ldap_field_mappings, ' .
-                                'but no available attribute in AD data (GUID: %s, Member ID: %s)',
-                        $attribute,
-                        $data['objectguid'],
-                        $member->ID
-                    )
-                );
+                // a attribute we're expecting is missing from the LDAP response
+                if ($this->config()->get("reset_missing_attributes")) {
+                    // (Destructive) Reset the corresponding attribute on our side if instructed to do so.
+                    if (method_exists($member->$field, "delete")
+                        && method_exists($member->$field, "deleteFile")
+                        && $member->$field->exists()
+                    ) {
+                        $member->$field->deleteFile();
+                        $member->$field->delete();
+                    } else {
+                        $member->$field = null;
+                    }
+                // or log the information.
+                } else {
+                    $this->getLogger()->debug(
+                        sprintf(
+                            'Attribute %s configured in Member.ldap_field_mappings, ' .
+                            'but no available attribute in AD data (GUID: %s, Member ID: %s)',
+                            $attribute,
+                            $data['objectguid'],
+                            $member->ID
+                        )
+                    );
+                }
 
+                // No further processing required.
                 continue;
             }
 
             if ($attribute == 'thumbnailphoto') {
-                $imageClass = $member->getRelationClass($field);
-                if ($imageClass !== Image::class
-                    && !is_subclass_of($imageClass, Image::class)
-                ) {
-                    $this->getLogger()->debug(
-                        sprintf(
-                            'Member field %s configured for thumbnailphoto AD attribute, but it isn\'t a ' .
-                            'valid relation to an Image class',
-                            $field
-                        )
-                    );
-
-                    continue;
-                }
-
-                $filename = sprintf('thumbnailphoto-%s.jpg', $data['samaccountname']);
-                $path = ASSETS_DIR . '/' . $member->config()->ldap_thumbnail_path;
-                $absPath = BASE_PATH . '/' . $path;
-                if (!file_exists($absPath)) {
-                    Filesystem::makeFolder($absPath);
-                }
-
-                // remove existing record if it exists
-                $existingObj = $member->getComponent($field);
-                if ($existingObj && $existingObj->exists()) {
-                    $existingObj->delete();
-                }
-
-                // The image data is provided in raw binary.
-                file_put_contents($absPath . '/' . $filename, $data[$attribute]);
-                $record = new $imageClass();
-                $record->Name = $filename;
-                $record->Filename = $path . '/' . $filename;
-                $record->write();
-
-                $relationField = $field . 'ID';
-                $member->{$relationField} = $record->ID;
+                $this->processThumbnailPhoto($member, $field, $data, $attribute);
             } else {
                 $member->$field = $data[$attribute];
             }
@@ -618,6 +614,76 @@ class LDAPService implements Flushable
         // This will throw an exception if there are two distinct GUIDs with the same email address.
         // We are happy with a raw 500 here at this stage.
         $member->write();
+    }
+
+    /**
+     * Attempts to process the thumbnail photo for a given user and store it against a {@link Member} object. This will
+     * overwrite any old file with the same name. The filename of the photo will be set to 'thumbnailphoto-<GUID>.jpg'.
+     *
+     * At the moment only JPEG files are supported, as this is mainly to support Active Directory, which always provides
+     * the photo in a JPEG format, and always at a specific resolution.
+     *
+     * @param Member $member The SilverStripe Member object we are storing this file on
+     * @param string $fieldName The SilverStripe field name we are storing this new file against
+     * @param array $data Array of all data returned about this user from LDAP
+     * @param string $attributeName Name of the attribute in the $data array to get the binary blog from
+     * @return boolean true on success, false on failure
+     *
+     * @throws ValidationException
+     */
+    protected function processThumbnailPhoto(Member $member, $fieldName, $data, $attributeName)
+    {
+        $imageClass = $member->getRelationClass($fieldName);
+        if ($imageClass !== Image::class && !is_subclass_of($imageClass, Image::class)) {
+            $this->getLogger()->warning(
+                sprintf(
+                    'Member field %s configured for thumbnailphoto AD attribute, but it isn\'t a valid relation to an '
+                        . 'Image class',
+                    $fieldName
+                )
+            );
+
+            return false;
+        }
+
+        // Use and update existing Image object (if one exists), or create a new image if not - prevents ID thrashing
+        /** @var File $existingObj */
+        $existingObj = $member->getComponent($fieldName);
+        if ($existingObj && $existingObj->exists()) {
+            $file = $existingObj;
+
+            // If the file hashes match, and the file already exists, we don't need to update anything.
+            $hash = $existingObj->File->getHash();
+            if (hash_equals($hash, sha1($data[$attributeName]))) {
+                return true;
+            }
+        } else {
+            $file = Image::create();
+        }
+
+        // Setup variables
+        $thumbnailFolder = Folder::find_or_make($member->config()->ldap_thumbnail_path);
+        $filename = sprintf('thumbnailphoto-%s.jpg', $data['objectguid']);
+        $filePath = File::join_paths($thumbnailFolder->getFilename(), $filename);
+        $fileCfg = [
+            // if there's a filename conflict we've got new content so overwrite it.
+            'conflict' => AssetStore::CONFLICT_OVERWRITE,
+            'visibility' => AssetStore::VISIBILITY_PUBLIC
+        ];
+
+        $file->Title = sprintf('Thumbnail photo for %s', $data['displayname']);
+        $file->ShowInSearch = false;
+        $file->ParentID = $thumbnailFolder->ID;
+        $file->setFromString($data[$attributeName], $filePath, null, null, $fileCfg);
+        $file->write();
+        $file->publishRecursive();
+
+        if ($file->exists()) {
+            $relationField = sprintf('%sID', $fieldName);
+            $member->{$relationField} = $file->ID;
+        }
+
+        return true;
     }
 
     /**
@@ -677,23 +743,23 @@ class LDAPService implements Flushable
             }
         }
 
-        // remove the user from any previously mapped groups, where the mapping has since been removed
-        $groupRecords = DB::query(
-            sprintf(
-                'SELECT "GroupID" FROM "Group_Members" WHERE "IsImportedFromLDAP" = 1 AND "MemberID" = %s',
-                $member->ID
-            )
-        );
+        // Lookup the previous mappings and see if there is any mappings no longer present.
+        $unmappedGroups = $member->Groups()->alterDataQuery(function (DataQuery $query) {
+            // join with the Group_Members table because we only want those group members assigned by this module.
+            $query->leftJoin("Group_Members", '"Group_Members"."GroupID" = "Group"."ID"');
+            $query->where('"IsImportedFromLDAP" = 1');
+        });
 
+        // Don't remove associations which have just been added and we know are already correct!
         if (!empty($mappedGroupIDs)) {
-            foreach ($groupRecords as $groupRecord) {
-                if (!in_array($groupRecord['GroupID'], $mappedGroupIDs)) {
-                    $group = Group::get()->byId($groupRecord['GroupID']);
-                    // Some groups may no longer exist. SilverStripe does not clean up join tables.
-                    if ($group) {
-                        $group->Members()->remove($member);
-                    }
-                }
+            $unmappedGroups = $unmappedGroups->filter("GroupID:NOT", $mappedGroupIDs);
+        }
+
+        // Remove the member from any previously mapped groups, where the mapping
+        // has since been removed in the LDAP data source
+        if ($unmappedGroups->count()) {
+            foreach ($unmappedGroups as $group) {
+                $group->Members()->remove($member);
             }
         }
     }
@@ -778,7 +844,7 @@ class LDAPService implements Flushable
                 'userprincipalname' => sprintf(
                     '%s@%s',
                     $member->Username,
-                    $this->gateway->config()->options['accountDomainName']
+                    $this->getGateway()->config()->options['accountDomainName']
                 ),
             ]);
         } catch (Exception $e) {
@@ -882,7 +948,7 @@ class LDAPService implements Flushable
                 $dn = $newDn;
             }
         } catch (Exception $e) {
-            throw new ValidationException('LDAP move failure: '.$e->getMessage());
+            throw new ValidationException('LDAP move failure: ' . $e->getMessage());
         }
 
         try {
@@ -892,7 +958,7 @@ class LDAPService implements Flushable
                 'userprincipalname' => sprintf(
                     '%s@%s',
                     $member->Username,
-                    $this->gateway->config()->options['accountDomainName']
+                    $this->getGateway()->config()->options['accountDomainName']
                 ),
             ];
             foreach ($member->config()->ldap_field_mappings as $attribute => $field) {
@@ -906,7 +972,7 @@ class LDAPService implements Flushable
 
             $this->update($dn, $attributes);
         } catch (Exception $e) {
-            throw new ValidationException('LDAP synchronisation failure: '.$e->getMessage());
+            throw new ValidationException('LDAP synchronisation failure: ' . $e->getMessage());
         }
     }
 
@@ -1065,11 +1131,11 @@ class LDAPService implements Flushable
 
         try {
             if (!empty($oldPassword)) {
-                $this->gateway->changePassword($userData['distinguishedname'], $password, $oldPassword);
+                $this->getGateway()->changePassword($userData['distinguishedname'], $password, $oldPassword);
             } elseif ($this->config()->password_history_workaround) {
                 $this->passwordHistoryWorkaround($userData['distinguishedname'], $password);
             } else {
-                $this->gateway->resetPassword($userData['distinguishedname'], $password);
+                $this->getGateway()->resetPassword($userData['distinguishedname'], $password);
             }
             $this->extend('onAfterSetPassword', $member, $password, $validationResult);
         } catch (Exception $e) {
@@ -1112,7 +1178,7 @@ class LDAPService implements Flushable
      */
     public function update($dn, array $attributes)
     {
-        $this->gateway->update($dn, $attributes);
+        $this->getGateway()->update($dn, $attributes);
     }
 
     /**
@@ -1123,7 +1189,7 @@ class LDAPService implements Flushable
      */
     public function delete($dn, $recursively = false)
     {
-        $this->gateway->delete($dn, $recursively);
+        $this->getGateway()->delete($dn, $recursively);
     }
 
     /**
@@ -1135,7 +1201,7 @@ class LDAPService implements Flushable
      */
     public function move($fromDn, $toDn, $recursively = false)
     {
-        $this->gateway->move($fromDn, $toDn, $recursively);
+        $this->getGateway()->move($fromDn, $toDn, $recursively);
     }
 
     /**
@@ -1146,7 +1212,7 @@ class LDAPService implements Flushable
      */
     public function add($dn, array $attributes)
     {
-        $this->gateway->add($dn, $attributes);
+        $this->getGateway()->add($dn, $attributes);
     }
 
     /**
@@ -1159,8 +1225,8 @@ class LDAPService implements Flushable
         $generator = new RandomGenerator();
         // 'Aa1' is there to satisfy the complexity criterion.
         $tempPassword = sprintf('Aa1%s', substr($generator->randomToken('sha1'), 0, 21));
-        $this->gateway->resetPassword($dn, $tempPassword);
-        $this->gateway->changePassword($dn, $password, $tempPassword);
+        $this->getGateway()->resetPassword($dn, $tempPassword);
+        $this->getGateway()->changePassword($dn, $password, $tempPassword);
     }
 
     /**

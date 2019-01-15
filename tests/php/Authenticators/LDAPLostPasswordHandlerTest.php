@@ -22,13 +22,13 @@ class LDAPLostPasswordHandlerTest extends SapphireTest
     {
         parent::setUp();
 
-        $authenticator = new LDAPAuthenticator;
+        $authenticator = new LDAPAuthenticator();
         $this->handler = LDAPLostPasswordHandler::create('foo', $authenticator);
     }
 
     public function testGetAndSetLdapService()
     {
-        $service = new LDAPService;
+        $service = new LDAPService();
 
         $this->handler->setService($service);
         $this->assertSame($service, $this->handler->getService());

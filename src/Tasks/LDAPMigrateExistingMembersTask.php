@@ -31,6 +31,11 @@ class LDAPMigrateExistingMembersTask extends BuildTask
     ];
 
     /**
+     * @var LDAPService
+     */
+    public $ldapService;
+
+    /**
      * @return string
      */
     public function getTitle()

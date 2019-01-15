@@ -3,15 +3,14 @@
 namespace SilverStripe\LDAP\Extensions;
 
 use Exception;
-use SilverStripe\LDAP\Services\LDAPService;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\LiteralField;
 use SilverStripe\Forms\ReadonlyField;
+use SilverStripe\LDAP\Services\LDAPService;
 use SilverStripe\ORM\DataExtension;
-use SilverStripe\ORM\ValidationResult;
 use SilverStripe\ORM\ValidationException;
-use SilverStripe\Security\Member;
+use SilverStripe\ORM\ValidationResult;
 
 /**
  * Class LDAPMemberExtension.
@@ -96,6 +95,24 @@ class LDAPMemberExtension extends DataExtension
     private static $delete_users_in_ldap = false;
 
     /**
+     * If enabled, this allows the afterMemberLoggedIn() call to fail to update the user without causing a login failure
+     * and server error. This can be useful when not all of your web servers have access to the LDAP server (for example
+     * when your front-line web servers are not the servers that perform the LDAP sync into the database.
+     *
+     * Note: If this is enabled, you *must* ensure that a regular sync of both groups and users is carried out by
+     * running the LDAPGroupSyncTask and LDAPMemberSyncTask. If not, there is no guarantee that this user can still have
+     * all the permissions that they previously had.
+     *
+     * Security risk: If this is enabled, then users who are removed from groups may not have their group membership or
+     * other information updated until the aforementioned LDAPGroupSyncTask and LDAPMemberSyncTask build tasks are run,
+     * which can lead to users having incorrect permissions until the next sync happens.
+     *
+     * @var bool
+     * @config
+     */
+    private static $allow_update_failure_during_login = false;
+
+    /**
      * @param FieldList $fields
      */
     public function updateCMSFields(FieldList $fields)
@@ -134,12 +151,12 @@ class LDAPMemberExtension extends DataExtension
                     // Set to readonly, but not disabled so that the data is still sent to the
                     // server and doesn't break Member_Validator
                     $field->setReadonly(true);
-                    $field->setTitle($field->Title()._t(__CLASS__ . '.IMPORTEDFIELD', ' (imported)'));
+                    $field->setTitle($field->Title() . _t(__CLASS__ . '.IMPORTEDFIELD', ' (imported)'));
                 }
             }
             $message = _t(
                 __CLASS__ . '.INFOIMPORTED',
-                'This user is automatically imported from LDAP. '.
+                'This user is automatically imported from LDAP. ' .
                     'Manual changes to imported fields will be removed upon sync.'
             );
         }
@@ -264,15 +281,31 @@ class LDAPMemberExtension extends DataExtension
     }
 
     /**
-     * Triggered by {@link Member::logIn()} when successfully logged in,
-     * this will update the Member record from AD data.
+     * @deprecated 1.1.0 Not used by SilverStripe internally and will be removed in 2.0
      */
     public function memberLoggedIn()
     {
+        return $this->afterMemberLoggedIn();
+    }
+
+    /**
+     * Triggered by {@link IdentityStore::logIn()}. When successfully logged in,
+     * this will update the Member record from LDAP data.
+     *
+     * @throws Exception When failures are not acceptable via configuration
+     */
+    public function afterMemberLoggedIn()
+    {
         if ($this->owner->GUID) {
-            Injector::inst()
-                ->get(LDAPService::class)
-                ->updateMemberFromLDAP($this->owner);
+            try {
+                Injector::inst()->get(LDAPService::class)->updateMemberFromLDAP($this->owner);
+            } catch (Exception $e) {
+                // If the failure is acceptable, then ignore it and return. Otherwise, re-throw the exception
+                if ($this->owner->config()->get('allow_update_failure_during_login')) {
+                    return;
+                }
+                throw $e;
+            }
         }
     }
 

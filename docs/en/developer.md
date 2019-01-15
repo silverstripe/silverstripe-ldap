@@ -67,7 +67,7 @@ SilverStripe\LDAP\Services\LDAPService:
     - OU=My Private User Group,OU=Your Company,DC=your,DC=adserver,DC=domain,DC=com
 
   # Specify an array of DNs to look for groups in
-  group_search_locations:
+  groups_search_locations:
     - OU=Clients,OU=Your Company,DC=your,DC=adserver,DC=domain,DC=com
     - OU=Staff,OU=Your Company,DC=your,DC=adserver,DC=domain,DC=com
 
@@ -292,6 +292,19 @@ class MyMemberExtension extends DataExtension
 }
 ```
 
+### Allowing sync failures during login
+
+By default, every time a user logs in that is linked to an LDAP account, their account is synced with LDAP and any changed information is pulled into SilverStripe. In some situations, your web servers may not have access to the LDAP server due to security restrictions, VPN configuration or similar. If this happens, the default behaviour is for the login to fail and the user will see a Server Error style message.
+
+To prevent this, you can set a configuration flag to prevent an LDAP sync failure during login from breaking the login flow, however this is not enabled by default as it has a security impact. Please review the notes on `LDAPMemberExtension::$allow_update_failure_during_login` to understand the ramifications before enabling this.
+
+You can enable it as follows:
+
+```yaml
+SilverStripe\Security\Member:
+  allow_update_failure_during_login: true
+```
+
 ### Syncing AD users on a schedule
 
 You can schedule a job to run, then have it re-schedule itself so it runs again in the future, but some configuration needs to be set to have it work.
@@ -413,6 +426,52 @@ The fallback authenticator will be used in the following conditions:
  * User logs in using their email address, but does not have a username
  * The user logs in with a password that does not match what is set in LDAP
 
+### Extending the member and group sync tasks with custom functionality
+
+Both `LDAPMemberSyncTask` and `LDAPGroupSyncTask` provide extension points (`onAfterLDAPMemberSyncTask` and 
+`onAfterLDAPGroupSyncTask` respectively) after all members/groups have been synced and before the task exits. This is a 
+perfect time to set values that are dependent on a full sync - for example linking a user to their manager based on DNs. 
+For example:
+
+```yaml
+SilverStripe\LDAP\Tasks\LDAPMemberSyncTask:
+  extensions:
+    - App\Extensions\LDAPMemberSyncExtension
+SilverStripe\Security\Member:
+  ldap_field_mappings:
+    manager: ManagerDN
+    dn: DN
+```
+
+```php
+<?php
+namespace App\Extensions;
+use SilverStripe\Core\Extension;
+use SilverStripe\Security\Member;
+
+class LDAPMemberSyncExtension extends Extension
+{
+    /**
+     * Assuming the `DN` and `ManagerDN` values are set by LDAP, this code will link a member with their manager and 
+     * store the link in the `Manager` has_one.
+     */
+    public function onAfterLDAPMemberSyncTask()
+    {
+        $members = Member::get()->where('"GUID" IS NOT NULL');
+
+        foreach ($members as $member) {
+            if ($member->ManagerDN) {
+                $manager = Member::get()->filter('DN', $member->ManagerDN)->first();
+                if ($manager) {
+                    $member->ManagerID = $manager->ID;
+                    $member->write();
+                }
+            }
+        }
+    }
+}
+```
+
 ### Allowing users to update their AD password
 
 If the LDAP bind user that is configured under 'Connect with LDAP' section has permission to write attributes to the AD, it's possible to allow users to update their password via the internet site.
@@ -433,6 +492,23 @@ SilverStripe\LDAP\Services\LDAPService:
 ```
 
 This will allow users to change their AD password via the regular CMS "forgot password" forms, etc.
+
+### Allow SilverStripe attributes to be reset (removed) by AD
+
+By default if attributes are present, and then missing in subsequent requests, they are ignored (non-destructive) by 
+this module. This can cause attributes to persist when they've been deliberately removed (attribute is no longer present)
+in the LDAP source data. 
+
+If you wish a full two way sync to occur, then set the attribute on `LDAPService` for `reset_missing_attributes` to 
+enable a full sync. 
+
+*Note*: This will mean syncs are destructive, and data or attributes will be reset if missing from the master LDAP source
+data. 
+
+```yaml
+SilverStripe\LDAP\Services\LDAPService:
+  reset_missing_attributes: true 
+```
 
 ### Writing LDAP data from SilverStripe
 

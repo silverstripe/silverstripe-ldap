@@ -9,7 +9,7 @@ This guide contains a list of solutions to problems we have encountered in pract
 - [AD fields are not synchronised into SilverStripe](#ad-fields-are-not-synchronised-into-silverstripe)
 - [Problem finding names for field mappings](#problem-finding-names-for-field-mappings)
 - [Stale AD groups in the CMS](#stale-ad-groups-in-the-cms)
-- [1000 users limit in AD](#1000-users-limit-in-ad)
+- [1000 object limit in AD](#1000-object-limit-in-ad)
 
 ## Unexpected users when synchronising LDAP
 
@@ -55,42 +55,54 @@ Alternatively, consult a [cheatsheet](http://www.kouti.com/tables/userattributes
 The list of groups here is cached, with a default lifetime of 8 hours. You can clear and regenerate the cache by adding `?flush=1` in the URL.
 
 To change the cache lifetime, for example to make sure caches only last for an hour, a developer can set
-this the your `mysite/_config.php`:
+this in your `mysite/_config.php`:
 
 	\SilverStripe\Core\Cache::set_lifetime('ldap', 3600);
 
-## 1000 users limit in AD
+## 1000 object limit in AD
 
-Active Directory has a default max LDAP page size limit of 1000. This means if you have over 1000 users some of them won't be imported.
+Active Directory has a default maximum LDAP page size limit of 1000. This means that if your search returns more than 1,000 results, only the first 1,000 will be returned.
 
-Unfortunately due to a missing paging feature with the LDAP PHP extension, paging results is not currently possible. The workaround is to modify an LDAP policy `MaxPageSize` on your
-Active Directory server using `ntdsutil.exe`:
+This module gets around that when retrieving users and groups by implementing an LDAP paging iterator that requests information from LDAP in batches, continuing until all objects are returned.
 
-	C:\Documents and Settings\username>ntdsutil.exe
-	ntdsutil: ldap policies
-	ldap policy: connections
-	server connections: connect to server <yourservername>
-	Binding to <yourservername> ...
-	Connected to <yourservername> using credentials of locally logged on user.
-	server connections: q
-	ldap policy: show values
+However, this is only currently done within `LDAPService` for the `getUsers` and `getGroups` calls due to limited support for different LDAP scopes within the iterator. If you have other searches that require the use of the iterator, you can implement them as follows.
 
-	Policy                          Current(New)
+**Note:** The `searchWithIterator()` method does not return an `Iterator` object like you might expect, but instead it returns an array of every single entry returned by LDAP. This means that it is **not** suitable for large object sets where the amount of data returned may expand to be greater than the PHP max memory limit. 
 
-	MaxPoolThreads                  4
-	MaxDatagramRecv                 1024
-	MaxReceiveBuffer                10485760
-	InitRecvTimeout                 120
-	MaxConnections                  5000
-	MaxConnIdleTime                 900
-	MaxPageSize                     1000
-	MaxQueryDuration                120
-	MaxTempTableSize                10000
-	MaxResultSetSize                262144
-	MaxNotificationPerConn          5
-	MaxValRange                     0
+### Step 1: Define your own LDAPGateway sub-class:
+```php
+<?php
+use SilverStripe\LDAP\Model\LDAPGateway;
 
-	ldap policy: set maxpagesize to 10000
-	ldap policy: commit changes
-	ldap policy: q
-	ntdsutil: q
+class MyBetterGateway extends LDAPGateway
+{
+    public function getAllEntries()
+    {
+        $baseDn = 'DC=corp,DC=myorg,DC=example,DC=com';
+        $attributes = []; // Empty array means 'return all attributes' - note: this is very bad for performance
+        return $this->searchWithIterator('(objectclass=*)', $baseDn, $attributes);
+    }
+}
+```
+
+### Step 2: Register your custom LDAPGateway to be used by LDAPService:
+```yml
+SilverStripe\Core\Injector\Injector:
+    SilverStripe\LDAP\Model\LDAPGateway:
+        class: App\LDAP\Gateways\MyBetterGateway
+```
+
+### Step 3: Call your new method:
+```php
+<?php
+use SilverStripe\Core\Injector\Injector;
+use SilverStripe\LDAP\Services\LDAPService;
+
+$service = Injector::inst()->get(LDAPService::class);
+$allEntries = $service->getGateway()->getAllEntries();
+
+// Iterate over the returned results
+foreach ($allEntries as $entry) {
+    printf("%s\n", $entry['objectguid']);
+}
+```

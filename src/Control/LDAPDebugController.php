@@ -43,6 +43,7 @@ class LDAPDebugController extends ContentController
     protected function init()
     {
         parent::init();
+        ini_set('memory_limit', '-1'); // Increase memory limit to max possible
 
         if (!Permission::check('ADMIN')) {
             Security::permissionFailure();
@@ -117,7 +118,7 @@ class LDAPDebugController extends ContentController
             if (!($group && $group->exists())) {
                 return sprintf(
                     'WARNING: LDAPService.default_group configured with \'%s\''
-                        .'but there is no Group with that Code in the database!',
+                        . 'but there is no Group with that Code in the database!',
                     $code
                 );
             } else {
@@ -159,6 +160,6 @@ class LDAPDebugController extends ContentController
 
     public function Users()
     {
-        return count($this->ldapService->getUsers());
+        return count($this->ldapService->getUsers(['objectguid', 'dn'])); // Only get two attrs to prevent memory errors
     }
 }

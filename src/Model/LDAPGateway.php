@@ -3,14 +3,17 @@
 namespace SilverStripe\LDAP\Model;
 
 use Exception;
-use SilverStripe\Core\Injector\Injectable;
+use Iterator;
 use SilverStripe\Core\Config\Configurable;
+use SilverStripe\Core\Injector\Injectable;
+use SilverStripe\LDAP\Iterators\LDAPIterator;
 use Zend\Authentication\Adapter\Ldap as LdapAdapter;
 use Zend\Authentication\AuthenticationService;
 use Zend\Ldap\Exception\LdapException;
 use Zend\Ldap\Filter\AbstractFilter;
 use Zend\Ldap\Ldap;
 use Zend\Stdlib\ErrorHandler;
+use function ldap_control_paged_result;
 
 /**
  * Class LDAPGateway
@@ -30,7 +33,7 @@ class LDAPGateway
     private static $options = [];
 
     /**
-     * @var Ldap
+     * @var Zend\Ldap\Ldap
      */
     private $ldap;
 
@@ -41,6 +44,26 @@ class LDAPGateway
         if (count($this->config()->options)) {
             $this->ldap = new Ldap($this->config()->options);
         }
+    }
+
+    /**
+     * @return Ldap The underlying Zend\Ldap\Ldap class, so that methods can be called directly
+     */
+    public function getLdap()
+    {
+        return $this->ldap;
+    }
+
+    protected function searchWithIterator($filter, $baseDn = null, $attributes = [])
+    {
+        $pageSize = 500; // This must be less than the maximum size for a single page in LDAP (default 1000)
+        $records = new LDAPIterator($this->getLdap(), $filter, $baseDn, $attributes, $pageSize);
+        $results = $this->processSearchResults($records);
+
+        // Reset the LDAP pagination control back to the original, otherwise all further LDAP read queries fail
+        ldap_control_paged_result($this->getLdap()->getResource(), 1000);
+
+        return $results;
     }
 
     /**
@@ -57,7 +80,17 @@ class LDAPGateway
     protected function search($filter, $baseDn = null, $scope = Ldap::SEARCH_SCOPE_SUB, $attributes = [], $sort = '')
     {
         $records = $this->ldap->search($filter, $baseDn, $scope, $attributes, $sort);
+        return $this->processSearchResults($records);
+    }
 
+    /**
+     * Processes results from either self::search() or self::searchAll(), expecting eitheran array of records
+     *
+     * @param Iterator $records
+     * @return array
+     */
+    protected function processSearchResults($records)
+    {
         $results = [];
         foreach ($records as $record) {
             foreach ($record as $attribute => $value) {
@@ -213,6 +246,23 @@ class LDAPGateway
             $scope,
             $attributes,
             $sort
+        );
+    }
+
+    /**
+     * Query for LDAP users, but don't include built-in user accounts. Iterate over all users, regardless of the paging
+     * size control built into the LDAP server.
+     *
+     * @param string|null $baseDn The DN to search within. Defaults to the base DN applied to the connection.
+     * @param array $attributes Specify user attributes to be returned. Defaults to returning all attributes.
+     * @return array
+     */
+    public function getUsersWithIterator($baseDn = null, $attributes = [])
+    {
+        return $this->searchWithIterator(
+            '(&(objectClass=user)(!(objectClass=computer))(!(samaccountname=Guest))(!(samaccountname=Administrator))(!(samaccountname=krbtgt)))',
+            $baseDn,
+            $attributes
         );
     }
 
