@@ -3,15 +3,14 @@
 namespace SilverStripe\LDAP\Extensions;
 
 use Exception;
-use SilverStripe\LDAP\Services\LDAPService;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\LiteralField;
 use SilverStripe\Forms\ReadonlyField;
+use SilverStripe\LDAP\Services\LDAPService;
 use SilverStripe\ORM\DataExtension;
-use SilverStripe\ORM\ValidationResult;
 use SilverStripe\ORM\ValidationException;
-use SilverStripe\Security\Member;
+use SilverStripe\ORM\ValidationResult;
 
 /**
  * Class LDAPMemberExtension.
@@ -284,6 +283,8 @@ class LDAPMemberExtension extends DataExtension
     /**
      * Triggered by {@link IdentityStore::logIn()}. When successfully logged in,
      * this will update the Member record from LDAP data.
+     *
+     * @throws Exception When failures are not acceptable via configuration
      */
     public function afterMemberLoggedIn()
     {
@@ -292,11 +293,10 @@ class LDAPMemberExtension extends DataExtension
                 Injector::inst()->get(LDAPService::class)->updateMemberFromLDAP($this->owner);
             } catch (Exception $e) {
                 // If the failure is acceptable, then ignore it and return. Otherwise, re-throw the exception
-                if ($this->owner->config()->allow_update_failure_during_login) {
+                if ($this->owner->config()->get('allow_update_failure_during_login')) {
                     return;
-                } else {
-                    throw $e;
                 }
+                throw $e;
             }
         }
     }

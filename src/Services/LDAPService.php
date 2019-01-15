@@ -3,37 +3,27 @@
 namespace SilverStripe\LDAP\Services;
 
 use Exception;
-use function file_put_contents;
-use function filesize;
-use finfo;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
 use SilverStripe\Assets\File;
 use SilverStripe\Assets\Folder;
-use SilverStripe\Assets\Storage\AssetStore;
-use SilverStripe\Assets\Upload;
-use SilverStripe\Assets\Upload_Validator;
-use SilverStripe\LDAP\Model\LDAPGateway;
-use SilverStripe\LDAP\Model\LDAPGroupMapping;
 use SilverStripe\Assets\Image;
-use SilverStripe\Assets\Filesystem;
+use SilverStripe\Assets\Storage\AssetStore;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Config\Configurable;
-use SilverStripe\Core\Flushable;
 use SilverStripe\Core\Extensible;
-use SilverStripe\Core\Injector\Injector;
+use SilverStripe\Core\Flushable;
 use SilverStripe\Core\Injector\Injectable;
-use SilverStripe\ORM\DB;
+use SilverStripe\Core\Injector\Injector;
+use SilverStripe\LDAP\Model\LDAPGateway;
+use SilverStripe\LDAP\Model\LDAPGroupMapping;
+use SilverStripe\ORM\DataQuery;
 use SilverStripe\ORM\FieldType\DBDatetime;
-use SilverStripe\ORM\Relation;
 use SilverStripe\ORM\ValidationException;
 use SilverStripe\ORM\ValidationResult;
-use SilverStripe\ORM\DataQuery;
 use SilverStripe\Security\Group;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\RandomGenerator;
-use function sys_get_temp_dir;
-use function tempnam;
 use Zend\Ldap\Ldap;
 
 /**
