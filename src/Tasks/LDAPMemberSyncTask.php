@@ -28,7 +28,7 @@ class LDAPMemberSyncTask extends BuildTask
      * @var array
      */
     private static $dependencies = [
-        'ldapService' => '%$' . LDAPService::class,
+        'LDAPService' => '%$' . LDAPService::class,
     ];
 
     /**
@@ -43,7 +43,7 @@ class LDAPMemberSyncTask extends BuildTask
     /**
      * @var LDAPService
      */
-    public $ldapService;
+    protected $ldapService;
 
     /**
      * @return string
@@ -175,5 +175,15 @@ class LDAPMemberSyncTask extends BuildTask
         }
 
         return $member;
+    }
+
+    /**
+     * @param LDAPService $service
+     * @return $this
+     */
+    public function setLDAPService(LDAPService $service)
+    {
+        $this->ldapService = $service;
+        return $this;
     }
 }
