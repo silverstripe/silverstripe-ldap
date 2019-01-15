@@ -191,7 +191,7 @@ class LDAPService implements Flushable
      */
     public function authenticate($username, $password)
     {
-        $result = $this->gateway->authenticate($username, $password);
+        $result = $this->getGateway()->authenticate($username, $password);
         $messages = $result->getMessages();
 
         // all messages beyond the first one are for debugging and
@@ -242,7 +242,7 @@ class LDAPService implements Flushable
 
         if (!$results || !$cached) {
             $results = [];
-            $records = $this->gateway->getNodes(null, Ldap::SEARCH_SCOPE_SUB, $attributes);
+            $records = $this->getGateway()->getNodes(null, Ldap::SEARCH_SCOPE_SUB, $attributes);
             foreach ($records as $record) {
                 $results[$record['dn']] = $record;
             }
@@ -273,7 +273,7 @@ class LDAPService implements Flushable
         if (!$results || !$cached) {
             $results = [];
             foreach ($searchLocations as $searchLocation) {
-                $records = $this->gateway->getGroups($searchLocation, Ldap::SEARCH_SCOPE_SUB, $attributes);
+                $records = $this->getGateway()->getGroups($searchLocation, Ldap::SEARCH_SCOPE_SUB, $attributes);
                 if (!$records) {
                     continue;
                 }
@@ -310,7 +310,7 @@ class LDAPService implements Flushable
         $searchLocations = $this->config()->groups_search_locations ?: [null];
         $results = [];
         foreach ($searchLocations as $searchLocation) {
-            $records = $this->gateway->getNestedGroups($dn, $searchLocation, Ldap::SEARCH_SCOPE_SUB, $attributes);
+            $records = $this->getGateway()->getNestedGroups($dn, $searchLocation, Ldap::SEARCH_SCOPE_SUB, $attributes);
             foreach ($records as $record) {
                 $results[$record['dn']] = $record;
             }
@@ -331,7 +331,7 @@ class LDAPService implements Flushable
     {
         $searchLocations = $this->config()->groups_search_locations ?: [null];
         foreach ($searchLocations as $searchLocation) {
-            $records = $this->gateway->getGroupByGUID($guid, $searchLocation, Ldap::SEARCH_SCOPE_SUB, $attributes);
+            $records = $this->getGateway()->getGroupByGUID($guid, $searchLocation, Ldap::SEARCH_SCOPE_SUB, $attributes);
             if ($records) {
                 return $records[0];
             }
@@ -349,7 +349,7 @@ class LDAPService implements Flushable
     {
         $searchLocations = $this->config()->groups_search_locations ?: [null];
         foreach ($searchLocations as $searchLocation) {
-            $records = $this->gateway->getGroupByDN($dn, $searchLocation, Ldap::SEARCH_SCOPE_SUB, $attributes);
+            $records = $this->getGateway()->getGroupByDN($dn, $searchLocation, Ldap::SEARCH_SCOPE_SUB, $attributes);
             if ($records) {
                 return $records[0];
             }
@@ -370,7 +370,7 @@ class LDAPService implements Flushable
         $results = [];
 
         foreach ($searchLocations as $searchLocation) {
-            $records = $this->gateway->getUsersWithIterator($searchLocation, $attributes);
+            $records = $this->getGateway()->getUsersWithIterator($searchLocation, $attributes);
             if (!$records) {
                 continue;
             }
@@ -394,7 +394,7 @@ class LDAPService implements Flushable
     {
         $searchLocations = $this->config()->users_search_locations ?: [null];
         foreach ($searchLocations as $searchLocation) {
-            $records = $this->gateway->getUserByGUID($guid, $searchLocation, Ldap::SEARCH_SCOPE_SUB, $attributes);
+            $records = $this->getGateway()->getUserByGUID($guid, $searchLocation, Ldap::SEARCH_SCOPE_SUB, $attributes);
             if ($records) {
                 return $records[0];
             }
@@ -413,7 +413,7 @@ class LDAPService implements Flushable
     {
         $searchLocations = $this->config()->users_search_locations ?: [null];
         foreach ($searchLocations as $searchLocation) {
-            $records = $this->gateway->getUserByDN($dn, $searchLocation, Ldap::SEARCH_SCOPE_SUB, $attributes);
+            $records = $this->getGateway()->getUserByDN($dn, $searchLocation, Ldap::SEARCH_SCOPE_SUB, $attributes);
             if ($records) {
                 return $records[0];
             }
@@ -431,7 +431,7 @@ class LDAPService implements Flushable
     {
         $searchLocations = $this->config()->users_search_locations ?: [null];
         foreach ($searchLocations as $searchLocation) {
-            $records = $this->gateway->getUserByEmail($email, $searchLocation, Ldap::SEARCH_SCOPE_SUB, $attributes);
+            $records = $this->getGateway()->getUserByEmail($email, $searchLocation, Ldap::SEARCH_SCOPE_SUB, $attributes);
             if ($records) {
                 return $records[0];
             }
@@ -449,7 +449,7 @@ class LDAPService implements Flushable
     {
         $searchLocations = $this->config()->users_search_locations ?: [null];
         foreach ($searchLocations as $searchLocation) {
-            $records = $this->gateway->getUserByUsername(
+            $records = $this->getGateway()->getUserByUsername(
                 $username,
                 $searchLocation,
                 Ldap::SEARCH_SCOPE_SUB,
@@ -474,7 +474,7 @@ class LDAPService implements Flushable
             return null;
         }
 
-        return $this->gateway->getCanonicalUsername($data);
+        return $this->getGateway()->getCanonicalUsername($data);
     }
 
     /**
@@ -631,7 +631,7 @@ class LDAPService implements Flushable
      *
      * @throws ValidationException
      */
-    private function processThumbnailPhoto(Member $member, $fieldName, $data, $attributeName)
+    protected function processThumbnailPhoto(Member $member, $fieldName, $data, $attributeName)
     {
         $imageClass = $member->getRelationClass($fieldName);
         if ($imageClass !== Image::class && !is_subclass_of($imageClass, Image::class)) {
@@ -844,7 +844,7 @@ class LDAPService implements Flushable
                 'userprincipalname' => sprintf(
                     '%s@%s',
                     $member->Username,
-                    $this->gateway->config()->options['accountDomainName']
+                    $this->getGateway()->config()->options['accountDomainName']
                 ),
             ]);
         } catch (Exception $e) {
@@ -958,7 +958,7 @@ class LDAPService implements Flushable
                 'userprincipalname' => sprintf(
                     '%s@%s',
                     $member->Username,
-                    $this->gateway->config()->options['accountDomainName']
+                    $this->getGateway()->config()->options['accountDomainName']
                 ),
             ];
             foreach ($member->config()->ldap_field_mappings as $attribute => $field) {
@@ -1131,11 +1131,11 @@ class LDAPService implements Flushable
 
         try {
             if (!empty($oldPassword)) {
-                $this->gateway->changePassword($userData['distinguishedname'], $password, $oldPassword);
+                $this->getGateway()->changePassword($userData['distinguishedname'], $password, $oldPassword);
             } elseif ($this->config()->password_history_workaround) {
                 $this->passwordHistoryWorkaround($userData['distinguishedname'], $password);
             } else {
-                $this->gateway->resetPassword($userData['distinguishedname'], $password);
+                $this->getGateway()->resetPassword($userData['distinguishedname'], $password);
             }
             $this->extend('onAfterSetPassword', $member, $password, $validationResult);
         } catch (Exception $e) {
@@ -1178,7 +1178,7 @@ class LDAPService implements Flushable
      */
     public function update($dn, array $attributes)
     {
-        $this->gateway->update($dn, $attributes);
+        $this->getGateway()->update($dn, $attributes);
     }
 
     /**
@@ -1189,7 +1189,7 @@ class LDAPService implements Flushable
      */
     public function delete($dn, $recursively = false)
     {
-        $this->gateway->delete($dn, $recursively);
+        $this->getGateway()->delete($dn, $recursively);
     }
 
     /**
@@ -1201,7 +1201,7 @@ class LDAPService implements Flushable
      */
     public function move($fromDn, $toDn, $recursively = false)
     {
-        $this->gateway->move($fromDn, $toDn, $recursively);
+        $this->getGateway()->move($fromDn, $toDn, $recursively);
     }
 
     /**
@@ -1212,7 +1212,7 @@ class LDAPService implements Flushable
      */
     public function add($dn, array $attributes)
     {
-        $this->gateway->add($dn, $attributes);
+        $this->getGateway()->add($dn, $attributes);
     }
 
     /**
@@ -1225,8 +1225,8 @@ class LDAPService implements Flushable
         $generator = new RandomGenerator();
         // 'Aa1' is there to satisfy the complexity criterion.
         $tempPassword = sprintf('Aa1%s', substr($generator->randomToken('sha1'), 0, 21));
-        $this->gateway->resetPassword($dn, $tempPassword);
-        $this->gateway->changePassword($dn, $password, $tempPassword);
+        $this->getGateway()->resetPassword($dn, $tempPassword);
+        $this->getGateway()->changePassword($dn, $password, $tempPassword);
     }
 
     /**
