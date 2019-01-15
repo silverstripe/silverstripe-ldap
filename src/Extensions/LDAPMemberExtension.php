@@ -281,6 +281,14 @@ class LDAPMemberExtension extends DataExtension
     }
 
     /**
+     * @deprecated 1.1.0 Not used by SilverStripe internally and will be removed in 2.0
+     */
+    public function memberLoggedIn()
+    {
+        return $this->afterMemberLoggedIn();
+    }
+
+    /**
      * Triggered by {@link IdentityStore::logIn()}. When successfully logged in,
      * this will update the Member record from LDAP data.
      *
