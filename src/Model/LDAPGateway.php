@@ -4,9 +4,8 @@ namespace SilverStripe\LDAP\Model;
 
 use Exception;
 use Iterator;
-use function ldap_control_paged_result;
-use SilverStripe\Core\Injector\Injectable;
 use SilverStripe\Core\Config\Configurable;
+use SilverStripe\Core\Injector\Injectable;
 use SilverStripe\LDAP\Iterators\LDAPIterator;
 use Zend\Authentication\Adapter\Ldap as LdapAdapter;
 use Zend\Authentication\AuthenticationService;
@@ -14,6 +13,7 @@ use Zend\Ldap\Exception\LdapException;
 use Zend\Ldap\Filter\AbstractFilter;
 use Zend\Ldap\Ldap;
 use Zend\Stdlib\ErrorHandler;
+use function ldap_control_paged_result;
 
 /**
  * Class LDAPGateway
@@ -89,7 +89,7 @@ class LDAPGateway
      * @param Iterator $records
      * @return array
      */
-    private function processSearchResults($records)
+    protected function processSearchResults($records)
     {
         $results = [];
         foreach ($records as $record) {
