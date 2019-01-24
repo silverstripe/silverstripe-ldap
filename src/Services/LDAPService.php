@@ -747,7 +747,7 @@ class LDAPService implements Flushable
         $unmappedGroups = $member->Groups()->alterDataQuery(function (DataQuery $query) {
             // join with the Group_Members table because we only want those group members assigned by this module.
             $query->leftJoin("Group_Members", '"Group_Members"."GroupID" = "Group"."ID"');
-            $query->where('"IsImportedFromLDAP" = 1');
+            $query->where('"Group_Members"."IsImportedFromLDAP" = 1');
         });
 
         // Don't remove associations which have just been added and we know are already correct!
