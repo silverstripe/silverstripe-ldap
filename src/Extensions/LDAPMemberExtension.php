@@ -9,7 +9,6 @@ use SilverStripe\Forms\LiteralField;
 use SilverStripe\Forms\ReadonlyField;
 use SilverStripe\Forms\TextField;
 use SilverStripe\LDAP\Services\LDAPService;
-use SilverStripe\LDAP\Services\LDAPService;
 use SilverStripe\ORM\DataExtension;
 use SilverStripe\ORM\ValidationException;
 use SilverStripe\ORM\ValidationResult;
