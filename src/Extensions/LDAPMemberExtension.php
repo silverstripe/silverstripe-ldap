@@ -7,6 +7,8 @@ use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\LiteralField;
 use SilverStripe\Forms\ReadonlyField;
+use SilverStripe\Forms\TextField;
+use SilverStripe\LDAP\Services\LDAPService;
 use SilverStripe\LDAP\Services\LDAPService;
 use SilverStripe\ORM\DataExtension;
 use SilverStripe\ORM\ValidationException;
@@ -170,6 +172,13 @@ class LDAPMemberExtension extends DataExtension
                 'FirstName'
             );
         }
+
+        // Ensure blog fields are added after first and last name
+        $fields->addFieldToTab(
+            'Root.Main',
+            TextField::create('Username'),
+            'Email'
+        );
     }
 
     /**
