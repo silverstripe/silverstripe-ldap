@@ -1,0 +1,59 @@
+id_ID:
+  SilverStripe\LDAP\Authenticators\LDAPAuthenticator:
+    CANTCHANGEPASSWORD: 'Tidak dapat merubah password, mohon hubungi administrator'
+    INVALIDCREDENTIALS: 'Kredensial tidak valid'
+    NOUSER: 'Akun Anda belum disiapkan dengan benar, mohon hubungi administrator.'
+    PLEASEUSEUSERNAME: 'Harap masukkan nama pengguna dari pada surel Anda untuk login.'
+    PROBLEMFINDINGDATA: 'Ada masalah saat menerima data anda'
+  SilverStripe\LDAP\Authenticators\LDAPChangePasswordHandler:
+    NOUSER: 'Akun Anda belum disiapkan dengan benar, mohon hubungi administrator.'
+  SilverStripe\LDAP\Authenticators\LDAPLostPasswordHandler:
+    NOTERESETPASSWORDUSERNAME: 'Masukkan username anda dan kami akan mengirimkan tautan untuk mereset password anda'
+    NOTERESETPASSWORDUSERNAMEOREMAIL: 'Masukkan nama pengguna atau alamat surel Anda dan kami akan mengirimkan tautan yang dapat mengatur ulang kata sandi Anda'
+    PASSWORDSENTHEADER: 'Tautan mengatur ulang kata sandi dikirim ke ''{username}'''
+    PASSWORDSENTTEXT: 'Terima kasih! Sebuah tautan mengatur ulang telah dikirim ke ''{username}'', jika akun tersedia.'
+  SilverStripe\LDAP\Extensions\LDAPGroupExtension:
+    ADDMAPPEDGROUP: 'Menambahkan pemetaan grup LDAP'
+    AUTOMAPPEDGROUPS: 'Secara otomatis memetakan Grup LDAP'
+    INFOIMPORTED: 'Grup ini secara otomatis diimpor dari LDAP.'
+    LASTSYNCED: 'Terakhir disinkronkan'
+    MAPPEDGROUPS: 'Memetakan Grup LDAP'
+  SilverStripe\LDAP\Extensions\LDAPMemberExtension:
+    CHANGEFIELDSUPDATELDAP: 'Mengubah bagian di sini akan memperbaruinya di LDAP.'
+    IMPORTEDFIELD: (diimpor)
+    INFOIMPORTED: 'Pengguna ini secara otomatis diimpor dari LDAP. Perubahan manual pada bagian impor akan dihapus saat disinkronkan.'
+    ISEXPIRED: 'Sudahkah login LDAP / AD pengguna kadaluarsa?'
+    LASTSYNCED: 'Terakhir disinkronkan'
+  SilverStripe\LDAP\Forms\LDAPChangePasswordForm:
+    USERNAME: 'Nama Pengguna'
+    USERNAMEOREMAIL: Surel
+  SilverStripe\LDAP\Forms\LDAPLoginForm:
+    AUTHENTICATORNAME: LDAP
+    ENTERUSERNAME: 'Mohon masukkan nama pengguna Anda untuk mendapatkan tautan mengatur ulang kata sandi'
+    ENTERUSERNAMEOREMAIL: 'Mohon masukkan nama pengguna Anda atau alamat surel Anda untuk mendapatkan tautan mengatur ulang kata sandi'
+    USERNAME: 'Nama Pengguna'
+    USERNAMEINSTEADOFEMAIL: 'Harap masukkan pengganti nama pengguna Anda dan surel Anda untuk mendapatkan tautan mengatur ulang kata sandi'
+    USERNAMEOREMAIL: 'Nama Pengguna atau email'
+  SilverStripe\LDAP\Jobs\LDAPAllSyncJob:
+    SYNCTITLE: 'Sinkronkan semua grup dan pengguna dari Direktori Aktif, dan tetapkan pemetaan.'
+  SilverStripe\LDAP\Jobs\LDAPMemberSyncJob:
+    SYNCTITLE: 'Sinkronkan semua pengguna dari Direktori Aktif'
+  SilverStripe\LDAP\Model\LDAPGroupMapping:
+    LDAPGROUP: 'Grup LDAP'
+    ONELEVEL_DESCRIPTION: 'Hanya pengguna di dalam grup ini'
+    PLURALNAME: 'Pemetaan Grup LDAP'
+    PLURALS:
+      other: '{count} Pemetaan Grup LDAP'
+    SCOPE: Cakupan
+    SELECTONE: 'Pilih satu'
+    SINGULARNAME: 'Pemetaan Grup LDAP'
+    SUBTREE_DESCRIPTION: 'Pengguna dalam grup ini dan semua kelompok di dalamnya'
+  SilverStripe\LDAP\Services\LDAPService:
+    ACCOUNTLOCKEDOUT: 'Akun Anda telah dikunci sementara karena terlalu banyak usaha masuk gagal. Silakan coba lagi nanti.'
+    INVALIDCREDENTIALS: 'Rincian yang diberikan sepertinya tidak benar. Silahkan coba lagi.'
+  SilverStripe\LDAP\Tasks\LDAPGroupSyncTask:
+    SYNCTITLE: 'Sinkronkan semua grup dari Direktori Aktif'
+  SilverStripe\LDAP\Tasks\LDAPMemberSyncTask:
+    SYNCTITLE: 'Sinkronkan semua pengguna dari Direktori Aktif'
+  Silverstripe\Security\Member:
+    SUBJECTPASSWORDRESET: 'Tautan mengatur ulang kata sandi anda'

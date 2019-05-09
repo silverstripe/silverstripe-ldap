@@ -1,0 +1,39 @@
+fi:
+  SilverStripe\LDAP\Authenticators\LDAPAuthenticator:
+    CANTCHANGEPASSWORD: 'Emme voineet vaihtaa salasanaasi, ota yhteyttä järjestelmänvalvojaan.'
+    INVALIDCREDENTIALS: 'Virheelliset kirjautumistiedot'
+    NOUSER: 'Tilisi määrityksissä on puutteita, ota yhteyttä järjestelmänvalvojaan.'
+    PLEASEUSEUSERNAME: 'Syötä sähköpostiosoitteesi sijaan käyttäjänimesi jotta voit kirjautua sisään.'
+    PROBLEMFINDINGDATA: 'Käyttäjätietojesi hakemisessa ilmeni ongelma'
+  SilverStripe\LDAP\Authenticators\LDAPChangePasswordHandler:
+    NOUSER: 'Tilisi määrityksissä on puutteita, ota yhteyttä järjestelmänvalvojaan.'
+  SilverStripe\LDAP\Authenticators\LDAPLostPasswordHandler:
+    NOTERESETPASSWORDUSERNAME: 'Syötä käyttäjätunnuksesi niin lähetämme linkin, jolla voit asettaa salasanasi'
+    NOTERESETPASSWORDUSERNAMEOREMAIL: 'Syötä käyttäjätunnuksesi tai sähköpostiosoitteesi niin lähetämme linkin, jolla voit asettaa salasanasi'
+    PASSWORDSENTHEADER: 'Salasanan palautuslinkki lähetetty käyttäjälle ''{username}'''
+    PASSWORDSENTTEXT: 'Kiitos! Palautuslinkki on lähetetty käyttäjälle ''{username}'', mikäli se löytyy järjestelmästä.'
+  SilverStripe\LDAP\Extensions\LDAPGroupExtension:
+    INFOIMPORTED: 'Tämä ryhmä on automaattisesti tuotu LDAP:sta.'
+    LASTSYNCED: 'Viimeksi synkronoitu'
+  SilverStripe\LDAP\Extensions\LDAPMemberExtension:
+    IMPORTEDFIELD: (tuotu)
+    LASTSYNCED: 'Viimeksi synkronoitu'
+  SilverStripe\LDAP\Forms\LDAPChangePasswordForm:
+    USERNAME: Käyttäjätunnus
+    USERNAMEOREMAIL: Sähköpostiosoite
+  SilverStripe\LDAP\Forms\LDAPLoginForm:
+    AUTHENTICATORNAME: LDAP
+    ENTERUSERNAME: 'Syötä käyttäjätunnuksesi niin saat salasanan palautuslinkin.'
+    ENTERUSERNAMEOREMAIL: 'Syötä käyttäjätunnuksesi tai sähköpostiosoitteesi niin lähetämme linkin, jolla voit asettaa salasanasi'
+    USERNAME: Käyttäjätunnus
+    USERNAMEINSTEADOFEMAIL: 'Syötä sähköpostiosoitteesi sijaan käyttäjätunnuksesi jotta saat salasanan palautuslinkin.'
+    USERNAMEOREMAIL: 'Käyttäjätunnus tai sähköpostiosoite'
+  SilverStripe\LDAP\Model\LDAPGroupMapping:
+    LDAPGROUP: LDAP-ryhmä
+    SCOPE: Laajuus
+    SELECTONE: 'Valitse yksi'
+  SilverStripe\LDAP\Services\LDAPService:
+    ACCOUNTLOCKEDOUT: 'Tilisi on tilapäisesti lukittu liian monen epäonnistuneen kirjautumisyrityksen vuoksi. Yritä myöhemmin uudelleen.'
+    INVALIDCREDENTIALS: 'Tiedot eivät ole oikein. Yritä uudelleen.'
+  Silverstripe\Security\Member:
+    SUBJECTPASSWORDRESET: 'Salasanan palautuslinkkisi'

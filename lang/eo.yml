@@ -1,0 +1,60 @@
+eo:
+  SilverStripe\LDAP\Authenticators\LDAPAuthenticator:
+    CANTCHANGEPASSWORD: 'Ni ne povas ŝanĝi vian pasvorton. Bonvolu kontakti administranton.'
+    INVALIDCREDENTIALS: 'Nevalidaj legitimaĵoj'
+    NOUSER: 'Via konto ne estas ĝuste agordita. Bonvolu kontakti adminstranton.'
+    PLEASEUSEUSERNAME: 'Por ensaluti, bonvolu enigi vian salutnomon anstataŭ vian retpoŝtan adreson.'
+    PROBLEMFINDINGDATA: 'Okazis problemo akiri viajn datumojn de uzanto'
+  SilverStripe\LDAP\Authenticators\LDAPChangePasswordHandler:
+    NOUSER: 'Via konto ne estas ĝuste agordita. Bonvolu kontakti administranton.'
+  SilverStripe\LDAP\Authenticators\LDAPLostPasswordHandler:
+    NOTERESETPASSWORDUSERNAME: 'Enigu vian salutnomon kaj ni sendos al vi ligilon per kiu vi povos agordi vian pasvorton'
+    NOTERESETPASSWORDUSERNAMEOREMAIL: 'Enigu vian salutnomon aŭ vian retpoŝtan adreson kaj ni sendos al vi ligilon per kiu vi povos agordi vian pasvorton'
+    PASSWORDSENTHEADER: 'Sendiĝis al ''{username}'' ligilo por agordi vian pasvorton'
+    PASSWORDSENTTEXT: 'Dankon! Ni sendis agordan ligilon al ''{username}'', kondiĉe ke konto ekzistas.'
+  SilverStripe\LDAP\Extensions\LDAPGroupExtension:
+    ADDMAPPEDGROUP: 'Enmetu LDAP-grupan mapigon'
+    AUTOMAPPEDGROUPS: 'Aŭtomate mapigitaj LDAP-grupoj'
+    INFOIMPORTED: 'Ĉi tiu grupo estas aŭtomate importita el LDAP.'
+    LASTSYNCED: 'Lastfoje sinkronigita'
+    MAPPEDGROUPS: 'Mapigitaj LDAP-grupoj'
+  SilverStripe\LDAP\Extensions\LDAPMemberExtension:
+    CHANGEFIELDSUPDATELDAP: 'Ŝanĝi kampojn ĉi tie ĝisdatigos ilin en LDAP.'
+    IMPORTEDFIELD: (importita)
+    INFOIMPORTED: 'Ĉi tiu uzanto estas aŭtomate importita el LDAP. Manaj ŝanĝoj al importitaj kampoj foriĝos je sinkronigo.'
+    ISEXPIRED: 'Ĉu la LDAP/AD-ensaluto de la uzanto malaperis?'
+    LASTSYNCED: 'Lastfoje sinkronigita'
+  SilverStripe\LDAP\Forms\LDAPChangePasswordForm:
+    USERNAME: Salutnomo
+    USERNAMEOREMAIL: Retadreso
+  SilverStripe\LDAP\Forms\LDAPLoginForm:
+    AUTHENTICATORNAME: LDAP
+    ENTERUSERNAME: 'Bonvolu enigi vian salutnomon por ricevi pasvortagordan ligilon.'
+    ENTERUSERNAMEOREMAIL: 'Bonvolu enigi vian salutnomon aŭ vian retadreson por ricevi pasvortagordan ligilon.'
+    USERNAME: Salutnomo
+    USERNAMEINSTEADOFEMAIL: 'Bonvolu enigi vian salutnomon anstataŭ vian retadreson por ricevi pasvortagordan ligilon.'
+    USERNAMEOREMAIL: 'Salutnomo aŭ retpoŝa adreso'
+  SilverStripe\LDAP\Jobs\LDAPAllSyncJob:
+    SYNCTITLE: 'Sinkronigu ĉiujn grupojn kaj uzantojn el Active Directory, kaj agordu mapigojn.'
+  SilverStripe\LDAP\Jobs\LDAPMemberSyncJob:
+    SYNCTITLE: 'Sinkronigu ĉiujn uzantojn el Active Directory'
+  SilverStripe\LDAP\Model\LDAPGroupMapping:
+    LDAPGROUP: LDAP-grupo
+    ONELEVEL_DESCRIPTION: 'Nur uzantoj en ĉi tiu grupo'
+    PLURALNAME: 'LDAP-grupaj mapigoj'
+    PLURALS:
+      one: 'Unu LDAP-grupa mapigo'
+      other: '{count} LDAP-grupaj mapigoj'
+    SCOPE: Amplekso
+    SELECTONE: 'Elektu iun'
+    SINGULARNAME: 'LDAP grupaj mapigoj'
+    SUBTREE_DESCRIPTION: 'Uzantoj en ĉitiu grupo kaj ĉiuj ingitaj grupoj'
+  SilverStripe\LDAP\Services\LDAPService:
+    ACCOUNTLOCKEDOUT: 'Via konto estas provizore ŝlosita ĉar okazis troaj ensalutaj provoj. Bonvolu provi denove poste.'
+    INVALIDCREDENTIALS: 'Ŝajnas ke la donitaj detaloj malpravas. Bonvolu provi denove.'
+  SilverStripe\LDAP\Tasks\LDAPGroupSyncTask:
+    SYNCTITLE: 'Sinkronigu ĉiujn grupojn el Active Directory'
+  SilverStripe\LDAP\Tasks\LDAPMemberSyncTask:
+    SYNCTITLE: 'Sinkronigu ĉiujn uzantojn el Active Directory'
+  Silverstripe\Security\Member:
+    SUBJECTPASSWORDRESET: 'Via pasvortagorda ligilo'
