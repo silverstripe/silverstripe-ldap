@@ -1,0 +1,49 @@
+de:
+  SilverStripe\LDAP\Authenticators\LDAPAuthenticator:
+    CANTCHANGEPASSWORD: 'Wir konnten Ihr Passwort nicht ändern, wenden Sie sich bitte an einen Administrator.'
+    INVALIDCREDENTIALS: 'Ungültige Anmeldedaten'
+    NOUSER: 'Ihr Konto wurde nicht richtig eingerichtet, wenden Sie sich bitte an einen Administrator.'
+    PLEASEUSEUSERNAME: 'Bitte geben Sie Ihren Benutzernamen anstelle Ihrer E-Mail-Adresse ein, um sich anzumelden.'
+    PROBLEMFINDINGDATA: 'Es gab ein Problem beim Abrufen Ihrer Benutzerdaten'
+  SilverStripe\LDAP\Authenticators\LDAPChangePasswordHandler:
+    NOUSER: 'Ihr Konto wurde nicht richtig eingerichtet, wenden Sie sich bitte an einen Administrator.'
+  SilverStripe\LDAP\Authenticators\LDAPLostPasswordHandler:
+    NOTERESETPASSWORDUSERNAME: 'Geben Sie Ihren Benutzernamen ein und wir senden Ihnen einen Link, mit dem Sie Ihr Passwort zurücksetzen können.'
+    NOTERESETPASSWORDUSERNAMEOREMAIL: 'Geben Sie Ihren Benutzernamen oder Ihre E-Mail-Adresse ein und wir senden Ihnen einen Link, mit dem Sie Ihr Passwort zurücksetzen können.'
+    PASSWORDSENTHEADER: 'Link zum Zurücksetzen des Passworts an ''{username}'' gesendet'
+    PASSWORDSENTTEXT: 'Vielen Dank! Ein Link zum Zurücksetzen wurde an ''{username}'' gesendet, sofern ein Konto vorhanden ist.'
+  SilverStripe\LDAP\Extensions\LDAPGroupExtension:
+    INFOIMPORTED: 'Diese Gruppe wird automatisch aus LDAP importiert.'
+    LASTSYNCED: 'Zuletzt synchronisiert'
+  SilverStripe\LDAP\Extensions\LDAPMemberExtension:
+    CHANGEFIELDSUPDATELDAP: 'Wenn Sie hier Felder ändern, werden diese in LDAP aktualisiert.'
+    IMPORTEDFIELD: ' (importiert)'
+    INFOIMPORTED: 'Dieser Benutzer wird automatisch aus LDAP importiert. Manuelle Änderungen an importierten Feldern werden beim Synchronisieren entfernt.'
+    LASTSYNCED: 'Zuletzt synchronisiert'
+  SilverStripe\LDAP\Forms\LDAPChangePasswordForm:
+    USERNAME: Benutzername
+    USERNAMEOREMAIL: E-Mail-Adresse
+  SilverStripe\LDAP\Forms\LDAPLoginForm:
+    AUTHENTICATORNAME: LDAP
+    ENTERUSERNAME: 'Bitte geben Sie Ihren Benutzernamen ein, um einen Link zum Zurücksetzen des Passworts zu erhalten.'
+    ENTERUSERNAMEOREMAIL: 'Bitte geben Sie Ihren Benutzernamen oder Ihre E-Mail-Adresse ein, um einen Link zum Zurücksetzen des Passworts zu erhalten.'
+    USERNAME: Benutzername
+    USERNAMEINSTEADOFEMAIL: 'Bitte geben Sie Ihren Benutzernamen anstelle Ihrer E-Mail-Adresse ein, um einen Link zum Zurücksetzen des Passworts zu erhalten.'
+    USERNAMEOREMAIL: 'Benutzername oder E-Mail-Adresse'
+  SilverStripe\LDAP\Jobs\LDAPMemberSyncJob:
+    SYNCTITLE: 'Alle Benutzer aus dem Active Directory synchronisieren'
+  SilverStripe\LDAP\Model\LDAPGroupMapping:
+    LDAPGROUP: LDAP-Gruppe
+    ONELEVEL_DESCRIPTION: 'Nur Benutzer innerhalb dieser Gruppe'
+    SCOPE: Gültigkeitsbereich
+    SELECTONE: 'Wählen Sie eine'
+    SUBTREE_DESCRIPTION: 'Benutzer innerhalb dieser Gruppe und alle verschachtelten Gruppen innerhalb dieser Gruppe'
+  SilverStripe\LDAP\Services\LDAPService:
+    ACCOUNTLOCKEDOUT: 'Ihr Konto wurde wegen zu vielen fehlgeschlagenen Anmeldeversuchen vorübergehend gesperrt. Bitte versuchen Sie es später noch einmal.'
+    INVALIDCREDENTIALS: 'Die angegebenen Details scheinen nicht korrekt zu sein. Bitte versuchen Sie es erneut.'
+  SilverStripe\LDAP\Tasks\LDAPGroupSyncTask:
+    SYNCTITLE: 'Alle Gruppen aus dem Active Directory synchronisieren'
+  SilverStripe\LDAP\Tasks\LDAPMemberSyncTask:
+    SYNCTITLE: 'Alle Benutzer aus dem Active Directory synchronisieren'
+  Silverstripe\Security\Member:
+    SUBJECTPASSWORDRESET: 'Ihr Link zum Zurücksetzen des Passwortes'

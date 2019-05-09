@@ -1,0 +1,35 @@
+hr:
+  SilverStripe\LDAP\Authenticators\LDAPAuthenticator:
+    CANTCHANGEPASSWORD: 'Ne možemo promjeniti vašu lozinku, molimo kontaktirajte administratora.'
+    INVALIDCREDENTIALS: 'Nevažeći pristupni podaci'
+    NOUSER: 'Vaš korisnički račun nije dobro konfiguriran, molimo kontaktirajte administratora.'
+    PLEASEUSEUSERNAME: 'Molimo unesite vaše korisničko ime umjesto emaila za prijavu.'
+  SilverStripe\LDAP\Authenticators\LDAPChangePasswordHandler:
+    NOUSER: 'Vaš korisnički račun nije dobro konfiguriran, molimo kontaktirajte administratora.'
+  SilverStripe\LDAP\Authenticators\LDAPLostPasswordHandler:
+    NOTERESETPASSWORDUSERNAME: 'Unesite vaše korisničko ime i mi ćemo vam poslati link s kojim će te moći resetirati vašu lozinku'
+    NOTERESETPASSWORDUSERNAMEOREMAIL: 'Unesite vaše korisničko ime ili email adresu i mi ćemo vam poslati link s kojim će te moći resetirati vašu lozinku'
+  SilverStripe\LDAP\Extensions\LDAPGroupExtension:
+    LASTSYNCED: 'Zadnje sinkronizirano'
+  SilverStripe\LDAP\Extensions\LDAPMemberExtension:
+    LASTSYNCED: 'Zadnje sinkronizirano'
+  SilverStripe\LDAP\Forms\LDAPChangePasswordForm:
+    USERNAME: 'Korisničko ime'
+    USERNAMEOREMAIL: Email
+  SilverStripe\LDAP\Forms\LDAPLoginForm:
+    AUTHENTICATORNAME: LDAP
+    ENTERUSERNAME: 'Molimo unesite korisničko ime kako bi ste dobili link za resetiranje lozinke.'
+    ENTERUSERNAMEOREMAIL: 'Molimo unesite korisničko ime ili email adresu kako bi ste dobili link za resetiranje lozinke.'
+    USERNAME: 'Korisničko ime'
+    USERNAMEINSTEADOFEMAIL: 'Molimo unesite vaše korisničko ime umjesto email adrese da bi ste dobili link za resetiranje lozinke.'
+    USERNAMEOREMAIL: 'Korisničko ime ili email'
+  SilverStripe\LDAP\Jobs\LDAPAllSyncJob:
+    SYNCTITLE: 'Sinkroniziraj sve grupe i korisnike s Active Directory i konfiguriraj mapiranja.'
+  SilverStripe\LDAP\Jobs\LDAPMemberSyncJob:
+    SYNCTITLE: 'Sinkroniziraj sve korisnike iz Active Directory'
+  SilverStripe\LDAP\Model\LDAPGroupMapping:
+    LDAPGROUP: 'LDAP grupa'
+    ONELEVEL_DESCRIPTION: 'Samo korisnici unutar ove grupe'
+    SELECTONE: 'Odaberi jedan'
+  Silverstripe\Security\Member:
+    SUBJECTPASSWORDRESET: 'Vaš link za resetiranje lozinke'
