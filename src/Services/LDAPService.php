@@ -576,6 +576,12 @@ class LDAPService implements Flushable
             }
         }
 
+        // this is to keep track of which group the user gets mapped to if there
+        // is a default group defined so when they are removed from unmapped
+        // groups in ->updateMemberGroups() they are not then removed from the
+        // default group
+        $mappedGroupIDs = [];
+
         // if a default group was configured, ensure the user is in that group
         if ($this->config()->default_group) {
             $group = Group::get()->filter('Code', $this->config()->default_group)->limit(1)->first();
@@ -595,12 +601,10 @@ class LDAPService implements Flushable
                 $group->Members()->add($member, [
                     'IsImportedFromLDAP' => '1'
                 ]);
+
+                $mappedGroupIDs[] = $group->ID;
             }
         }
-
-        // this is to keep track of which groups the user gets mapped to
-        // and we'll use that later to remove them from any groups that they're no longer mapped to
-        $mappedGroupIDs = [];
 
         // Member must have an ID before manipulating Groups, otherwise they will not be added correctly.
         // However we cannot do a full ->write before the groups are associated, because this will upsync
@@ -608,7 +612,7 @@ class LDAPService implements Flushable
         $member->writeWithoutSync();
 
         if ($updateGroups) {
-            $this->updateMemberGroups($data, $member);
+            $this->updateMemberGroups($data, $member, $mappedGroupIDs);
         }
 
         // This will throw an exception if there are two distinct GUIDs with the same email address.
@@ -696,9 +700,15 @@ class LDAPService implements Flushable
      * Ensure the user is mapped to any applicable groups.
      * @param array $data
      * @param Member $member
+     * @param array $mappedGroupsToKeep
      */
-    public function updateMemberGroups($data, Member $member)
+    public function updateMemberGroups($data, Member $member, $mappedGroupsToKeep = [])
     {
+        // this is to keep track of which groups the user gets mapped to and
+        // we'll use that later to remove them from any groups that they're no
+        // longer mapped to
+        $mappedGroupIDs = $mappedGroupsToKeep;
+
         if (isset($data['memberof'])) {
             $ldapGroups = is_array($data['memberof']) ? $data['memberof'] : [$data['memberof']];
             foreach ($ldapGroups as $groupDN) {
