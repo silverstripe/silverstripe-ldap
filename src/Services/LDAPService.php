@@ -569,7 +569,11 @@ class LDAPService implements Flushable
                 continue;
             }
 
-            if ($attribute == 'thumbnailphoto') {
+            $photoAttributes = ['thumbnailphoto'];
+
+            $this->extend('updatePhotoAttributes', $photoAttributes);
+
+            if (in_array($attribute, $photoAttributes)) {
                 $this->processThumbnailPhoto($member, $field, $data, $attribute);
             } else {
                 $member->$field = $data[$attribute];
@@ -637,7 +641,7 @@ class LDAPService implements Flushable
         if ($imageClass !== Image::class && !is_subclass_of($imageClass, Image::class)) {
             $this->getLogger()->warning(
                 sprintf(
-                    'Member field %s configured for thumbnailphoto AD attribute, but it isn\'t a valid relation to an '
+                    'Member field %s configured for ' . $attributeName . ' AD attribute, but it isn\'t a valid relation to an '
                         . 'Image class',
                     $fieldName
                 )
@@ -663,7 +667,7 @@ class LDAPService implements Flushable
 
         // Setup variables
         $thumbnailFolder = Folder::find_or_make($member->config()->ldap_thumbnail_path);
-        $filename = sprintf('thumbnailphoto-%s.jpg', $data['objectguid']);
+        $filename = sprintf($attributeName . '-%s.jpg', $data['objectguid']);
         $filePath = File::join_paths($thumbnailFolder->getFilename(), $filename);
         $fileCfg = [
             // if there's a filename conflict we've got new content so overwrite it.
