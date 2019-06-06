@@ -17,6 +17,8 @@ SilverStripe\LDAP\Authenticators\LDAPAuthenticator:
 
 SilverStripe\LDAP\Services\LDAPService:
   allow_password_change: false
+  photo_attributes:
+    - thumbnailphoto
 
 SilverStripe\Core\Injector\Injector:
   Psr\SimpleCache\CacheInterface.ldap:

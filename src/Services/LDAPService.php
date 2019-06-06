@@ -569,11 +569,7 @@ class LDAPService implements Flushable
                 continue;
             }
 
-            $photoAttributes = ['thumbnailphoto'];
-
-            $this->extend('updatePhotoAttributes', $photoAttributes);
-
-            if (in_array($attribute, $photoAttributes)) {
+            if (in_array($attribute, $this->config()->photo_attributes)) {
                 $this->processThumbnailPhoto($member, $field, $data, $attribute);
             } else {
                 $member->$field = $data[$attribute];
