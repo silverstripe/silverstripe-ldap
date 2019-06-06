@@ -671,7 +671,13 @@ class LDAPService implements Flushable
             'visibility' => AssetStore::VISIBILITY_PUBLIC
         ];
 
-        $file->Title = sprintf('Thumbnail photo for %s', $data['displayname']);
+        if (isset($data['displayname'])) {
+            $userName = $data['displayname'];
+        } else {
+            $userName = $member->Name;
+        }
+
+        $file->Title = sprintf('Thumbnail photo for %s', $userName);
         $file->ShowInSearch = false;
         $file->ParentID = $thumbnailFolder->ID;
         $file->setFromString($data[$attributeName], $filePath, null, null, $fileCfg);
