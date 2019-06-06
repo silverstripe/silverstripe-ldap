@@ -249,7 +249,17 @@ There is a special case for the `thumbnailphoto` attribute which can contain a p
 through from AD in binary format. If you have a `has_one` relation to an `Image` on the Member, you can map that field
 to this attribute, and it will put the file into place and assign the image to that field.
 
-By default, thumbnails are saved into `assets/Uploads`, but you can specify the location
+To use other fields from AD containing an image, you can add them like this:
+
+```yaml
+SilverStripe\LDAP\Services\LDAPService:
+  photo_attributes:
+    - jpegphoto
+```
+
+Afterwards they will be automatically processed like `thumbnailphoto`.
+
+By default, thumbnails/images are saved into `assets/Uploads`, but you can specify the location
 (relative to /assets) by setting the following configuration:
 
 ```yaml
