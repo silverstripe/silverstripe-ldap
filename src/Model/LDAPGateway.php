@@ -5,6 +5,7 @@ namespace SilverStripe\LDAP\Model;
 use Exception;
 use Iterator;
 use SilverStripe\Core\Config\Configurable;
+use SilverStripe\Core\Extensible;
 use SilverStripe\Core\Injector\Injectable;
 use SilverStripe\LDAP\Iterators\LDAPIterator;
 use Zend\Authentication\Adapter\Ldap as LdapAdapter;
@@ -24,6 +25,7 @@ use function ldap_control_paged_result;
 class LDAPGateway
 {
     use Injectable;
+    use Extensible;
     use Configurable;
 
     /**
@@ -144,8 +146,12 @@ class LDAPGateway
      */
     public function getNodes($baseDn = null, $scope = Ldap::SEARCH_SCOPE_SUB, $attributes = [], $sort = '')
     {
+        $filter = '(|(objectClass=organizationalUnit)(objectClass=container)(objectClass=domain))';
+
+        $this->extend('updateNodesFilter', $filter);
+
         return $this->search(
-            '(|(objectClass=organizationalUnit)(objectClass=container)(objectClass=domain))',
+            $filter,
             $baseDn,
             $scope,
             $attributes,
@@ -165,7 +171,11 @@ class LDAPGateway
      */
     public function getGroups($baseDn = null, $scope = Ldap::SEARCH_SCOPE_SUB, $attributes = [], $sort = '')
     {
-        return $this->search('(objectClass=group)', $baseDn, $scope, $attributes, $sort);
+        $filter = '(objectClass=group)';
+
+        $this->extend('updateGroupsFilter', $filter);
+
+        return $this->search($filter, $baseDn, $scope, $attributes, $sort);
     }
 
     /**
@@ -180,8 +190,12 @@ class LDAPGateway
      */
     public function getNestedGroups($dn, $baseDn = null, $scope = Ldap::SEARCH_SCOPE_SUB, $attributes = [])
     {
+        $filter = sprintf('(&(objectClass=group)(memberOf:1.2.840.113556.1.4.1941:=%s))', $dn);
+
+        $this->extend('updateNestedGroupsFilter', $filter);
+
         return $this->search(
-            sprintf('(&(objectClass=group)(memberOf:1.2.840.113556.1.4.1941:=%s))', $dn),
+            $filter,
             $baseDn,
             $scope,
             $attributes
@@ -240,8 +254,12 @@ class LDAPGateway
      */
     public function getUsers($baseDn = null, $scope = Ldap::SEARCH_SCOPE_SUB, $attributes = [], $sort = '')
     {
+        $filter = '(&(objectClass=user)(!(objectClass=computer))(!(samaccountname=Guest))(!(samaccountname=Administrator))(!(samaccountname=krbtgt)))';
+
+        $this->extend('updateUsersFilter', $filter);
+
         return $this->search(
-            '(&(objectClass=user)(!(objectClass=computer))(!(samaccountname=Guest))(!(samaccountname=Administrator))(!(samaccountname=krbtgt)))',
+            $filter,
             $baseDn,
             $scope,
             $attributes,
@@ -259,8 +277,12 @@ class LDAPGateway
      */
     public function getUsersWithIterator($baseDn = null, $attributes = [])
     {
+        $filter = '(&(objectClass=user)(!(objectClass=computer))(!(samaccountname=Guest))(!(samaccountname=Administrator))(!(samaccountname=krbtgt)))';
+
+        $this->extend('updateUsersWithIteratorFilter', $filter);
+
         return $this->searchWithIterator(
-            '(&(objectClass=user)(!(objectClass=computer))(!(samaccountname=Guest))(!(samaccountname=Administrator))(!(samaccountname=krbtgt)))',
+            $filter,
             $baseDn,
             $attributes
         );
