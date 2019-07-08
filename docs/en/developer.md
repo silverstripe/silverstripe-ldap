@@ -8,7 +8,9 @@ This guide assumes that you already have a running Active Directory server which
 
 - [Install the module](#install-the-module)
 - [Configure SilverStripe Authenticators](#configure-silverstripe-authenticators)
-  - [Bypass LDAP login form](#bypass-ldap-login-form)
+  - [Show the LDAP Login button on login form](#show-the-ldap-login-button-on-login-form)
+  - [Set LDAP as default authenticator](#set-ldap-as-default-authenticator)
+  - [Bypass auto login](#bypass-auto-login)
 - [Configure LDAP synchronisation](#configure-ldap-synchronisation)
   - [Connect with LDAP](#connect-with-ldap)
   - [Configure LDAP search query](#configure-ldap-search-query)
@@ -115,6 +117,32 @@ if (getenv('LDAP_HOSTNAME') && getenv('LDAP_USERNAME') && getenv('LDAP_PASSWORD'
         ]
     );
 }
+```
+
+### Set LDAP as default authenticator
+
+If you’d like to set LDAP as the default authenticator, you will need to reset the list of authenticators first. You can achieve this with the following approach in the `mysite/_config/ldap.yml` file:
+
+```
+---
+Name: authreset
+After:
+  - '#coresecurity'
+---
+SilverStripe\Core\Injector\Injector:
+  SilverStripe\Security\Security:
+    properties:
+      Authenticators: null
+---
+Name: myldapsettings
+After:
+  - '#authreset'
+---
+SilverStripe\Core\Injector\Injector:
+  SilverStripe\Security\Security:
+    properties:
+      Authenticators:
+        default: %$SilverStripe\LDAP\Authenticators\LDAPAuthenticator
 ```
 
 ### Bypass auto login
