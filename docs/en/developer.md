@@ -35,7 +35,7 @@ First step is to add this module into your SilverStripe project. You can use Com
 composer require silverstripe/ldap
 ```
 
-Add `/ldap/` to your .gitignore file if necessary, then commit the changes to composer.json and composer.lock.
+Commit the changes to composer.json and composer.lock.
 
 ## YAML configuration
 
