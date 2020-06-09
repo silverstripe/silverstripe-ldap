@@ -219,7 +219,7 @@ You can configure the module so everyone imported goes into a default group. The
 you can use this setting. The value of this setting should be the "Code" field from the Group.
 
 ```yaml
-SilverStripe\ActiveDirectory\Services\LDAPService:
+SilverStripe\LDAP\Services\LDAPService:
   default_group: "content-authors"
 ```
 
@@ -331,7 +331,7 @@ To configure when the job should re-run itself, set the `SilverStripe\LDAP\Jobs\
 In this example, this configures the job to run every 8 hours:
 
 ```yaml
-SilverStripe\ActiveDirectory\Jobs\LDAPMemberSyncJob:
+SilverStripe\LDAP\Jobs\LDAPMemberSyncJob:
   regenerate_time: 28800
 ```
 
@@ -358,7 +358,7 @@ SilverStripe\LDAP\Tasks\LDAPGroupSyncTask:
 And here is how you make the job reschedule itself after completion:
 
 ```yaml
-SilverStripe\ActiveDirectory\Jobs\LDAPAllSyncJob:
+SilverStripe\LDAP\Jobs\LDAPAllSyncJob:
   regenerate_time: 28800
 ```
 
