@@ -166,7 +166,7 @@ class LDAPMemberExtension extends DataExtension
                 'Root.Main',
                 LiteralField::create(
                     'Info',
-                    sprintf('<p class="message warning">%s</p>', $message)
+                    sprintf('<p class="alert alert-warning">%s</p>', $message)
                 ),
                 'FirstName'
             );

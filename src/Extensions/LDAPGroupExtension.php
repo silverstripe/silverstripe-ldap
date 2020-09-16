@@ -82,7 +82,7 @@ class LDAPGroupExtension extends DataExtension
                 'Root.Members',
                 LiteralField::create(
                     'Info',
-                    sprintf('<p class="message warning">%s</p>', $message)
+                    sprintf('<p class="alert alert-warning">%s</p>', $message)
                 ),
                 'Title'
             );
