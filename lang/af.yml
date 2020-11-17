@@ -5,5 +5,3 @@ af:
     NOUSER: 'Jou rekening kort verdere besonderhede. Kontak ''n administrateur.'
     PLEASEUSEUSERNAME: 'Voer jou username in pleks van epos address om aan te teken.'
     PROBLEMFINDINGDATA: 'Iets het fout geloop tydens die herwinning van jou besonderhede.'
-  SilverStripe\LDAP\Authenticators\LDAPChangePasswordHandler:
-    NOUSER: 'Jou rekening kort verdere besonderhede. Kontak ''n administrateur.'

@@ -5,8 +5,6 @@ de:
     NOUSER: 'Ihr Konto wurde nicht richtig eingerichtet, wenden Sie sich bitte an einen Administrator.'
     PLEASEUSEUSERNAME: 'Bitte geben Sie Ihren Benutzernamen anstelle Ihrer E-Mail-Adresse ein, um sich anzumelden.'
     PROBLEMFINDINGDATA: 'Es gab ein Problem beim Abrufen Ihrer Benutzerdaten'
-  SilverStripe\LDAP\Authenticators\LDAPChangePasswordHandler:
-    NOUSER: 'Ihr Konto wurde nicht richtig eingerichtet, wenden Sie sich bitte an einen Administrator.'
   SilverStripe\LDAP\Authenticators\LDAPLostPasswordHandler:
     NOTERESETPASSWORDUSERNAME: 'Geben Sie Ihren Benutzernamen ein und wir senden Ihnen einen Link, mit dem Sie Ihr Passwort zurücksetzen können.'
     NOTERESETPASSWORDUSERNAMEOREMAIL: 'Geben Sie Ihren Benutzernamen oder Ihre E-Mail-Adresse ein und wir senden Ihnen einen Link, mit dem Sie Ihr Passwort zurücksetzen können.'
@@ -41,9 +39,5 @@ de:
   SilverStripe\LDAP\Services\LDAPService:
     ACCOUNTLOCKEDOUT: 'Ihr Konto wurde wegen zu vielen fehlgeschlagenen Anmeldeversuchen vorübergehend gesperrt. Bitte versuchen Sie es später noch einmal.'
     INVALIDCREDENTIALS: 'Die angegebenen Details scheinen nicht korrekt zu sein. Bitte versuchen Sie es erneut.'
-  SilverStripe\LDAP\Tasks\LDAPGroupSyncTask:
-    SYNCTITLE: 'Alle Gruppen aus dem Active Directory synchronisieren'
   SilverStripe\LDAP\Tasks\LDAPMemberSyncTask:
     SYNCTITLE: 'Alle Benutzer aus dem Active Directory synchronisieren'
-  Silverstripe\Security\Member:
-    SUBJECTPASSWORDRESET: 'Ihr Link zum Zurücksetzen des Passwortes'

@@ -5,8 +5,6 @@ fi:
     NOUSER: 'Tilisi määrityksissä on puutteita, ota yhteyttä järjestelmänvalvojaan.'
     PLEASEUSEUSERNAME: 'Syötä sähköpostiosoitteesi sijaan käyttäjänimesi jotta voit kirjautua sisään.'
     PROBLEMFINDINGDATA: 'Käyttäjätietojesi hakemisessa ilmeni ongelma'
-  SilverStripe\LDAP\Authenticators\LDAPChangePasswordHandler:
-    NOUSER: 'Tilisi määrityksissä on puutteita, ota yhteyttä järjestelmänvalvojaan.'
   SilverStripe\LDAP\Authenticators\LDAPLostPasswordHandler:
     NOTERESETPASSWORDUSERNAME: 'Syötä käyttäjätunnuksesi niin lähetämme linkin, jolla voit asettaa salasanasi'
     NOTERESETPASSWORDUSERNAMEOREMAIL: 'Syötä käyttäjätunnuksesi tai sähköpostiosoitteesi niin lähetämme linkin, jolla voit asettaa salasanasi'
@@ -35,5 +33,3 @@ fi:
   SilverStripe\LDAP\Services\LDAPService:
     ACCOUNTLOCKEDOUT: 'Tilisi on tilapäisesti lukittu liian monen epäonnistuneen kirjautumisyrityksen vuoksi. Yritä myöhemmin uudelleen.'
     INVALIDCREDENTIALS: 'Tiedot eivät ole oikein. Yritä uudelleen.'
-  Silverstripe\Security\Member:
-    SUBJECTPASSWORDRESET: 'Salasanan palautuslinkkisi'
