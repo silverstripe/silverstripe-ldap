@@ -5,6 +5,8 @@ id_ID:
     NOUSER: 'Akun Anda belum disiapkan dengan benar, mohon hubungi administrator.'
     PLEASEUSEUSERNAME: 'Harap masukkan nama pengguna dari pada surel Anda untuk login.'
     PROBLEMFINDINGDATA: 'Ada masalah saat menerima data anda'
+  SilverStripe\LDAP\Authenticators\LDAPChangePasswordHandler:
+    NOUSER: 'Akun Anda belum disiapkan dengan benar, mohon hubungi administrator.'
   SilverStripe\LDAP\Authenticators\LDAPLostPasswordHandler:
     NOTERESETPASSWORDUSERNAME: 'Masukkan username anda dan kami akan mengirimkan tautan untuk mereset password anda'
     NOTERESETPASSWORDUSERNAMEOREMAIL: 'Masukkan nama pengguna atau alamat surel Anda dan kami akan mengirimkan tautan yang dapat mengatur ulang kata sandi Anda'
@@ -49,5 +51,9 @@ id_ID:
   SilverStripe\LDAP\Services\LDAPService:
     ACCOUNTLOCKEDOUT: 'Akun Anda telah dikunci sementara karena terlalu banyak usaha masuk gagal. Silakan coba lagi nanti.'
     INVALIDCREDENTIALS: 'Rincian yang diberikan sepertinya tidak benar. Silahkan coba lagi.'
+  SilverStripe\LDAP\Tasks\LDAPGroupSyncTask:
+    SYNCTITLE: 'Sinkronkan semua grup dari Direktori Aktif'
   SilverStripe\LDAP\Tasks\LDAPMemberSyncTask:
     SYNCTITLE: 'Sinkronkan semua pengguna dari Direktori Aktif'
+  Silverstripe\Security\Member:
+    SUBJECTPASSWORDRESET: 'Tautan mengatur ulang kata sandi anda'
