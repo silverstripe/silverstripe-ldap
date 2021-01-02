@@ -53,8 +53,12 @@ eo:
     ACCOUNTLOCKEDOUT: 'Via konto estas provizore ŝlosita ĉar okazis troaj ensalutaj provoj. Bonvolu provi denove poste.'
     INVALIDCREDENTIALS: 'Ŝajnas ke la donitaj detaloj malpravas. Bonvolu provi denove.'
   SilverStripe\LDAP\Tasks\LDAPGroupSyncTask:
-    SYNCTITLE: 'Sinkronigu ĉiujn grupojn el Active Directory'
+    SYNCTITLE: 'Sinkronigi ĉiujn grupojn el LDAP'
+  SilverStripe\LDAP\Tasks\LDAPMemberSyncOneTask:
+    SYNCONETITLE: 'Sinkronigi unuopan uzanton el LDAP'
   SilverStripe\LDAP\Tasks\LDAPMemberSyncTask:
     SYNCTITLE: 'Sinkronigu ĉiujn uzantojn el Active Directory'
   Silverstripe\Security\Member:
     SUBJECTPASSWORDRESET: 'Via pasvortagorda ligilo'
+  SilverStripe\LDAP\Tasks\LDAPMigrateExistingMembersTask:
+    TITLE: 'Migri ekzistantajn membrojn en Silverstripe en LDAP-membrojn'
