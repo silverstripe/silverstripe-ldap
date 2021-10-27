@@ -38,7 +38,7 @@ class LDAPAuthenticatorTest extends SapphireTest
 
     protected static $fixture_file = 'LDAPAuthenticatorTest.yml';
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -104,7 +104,7 @@ class LDAPAuthenticatorTest extends SapphireTest
         $this->data = ['Login' => 'usernotfound', 'Password' => 'passwordnotfound'];
         $this->callAuthMethod();
         $this->assertFalse($this->result->isValid());
-        $this->assertContains('Username not found', $this->result->getMessages()[0]['message']);
+        $this->assertStringContainsString('Username not found', $this->result->getMessages()[0]['message']);
     }
 
     /**

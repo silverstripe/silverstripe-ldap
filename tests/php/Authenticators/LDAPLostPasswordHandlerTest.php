@@ -18,7 +18,7 @@ class LDAPLostPasswordHandlerTest extends SapphireTest
      */
     protected $handler;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -39,15 +39,15 @@ class LDAPLostPasswordHandlerTest extends SapphireTest
         Config::modify()->set(LDAPAuthenticator::class, 'allow_email_login', 'no');
         $result = $this->handler->lostpassword();
 
-        $this->assertInternalType('array', $result);
+        $this->assertIsArray($result);
         $this->assertInstanceOf(DBField::class, $result['Content']);
         $this->assertInstanceOf(Form::class, $result['Form']);
-        $this->assertContains('Enter your username and we will send you a link', $result['Content']->getValue());
+        $this->assertStringContainsString('Enter your username and we will send you a link', $result['Content']->getValue());
 
         Config::modify()->set(LDAPAuthenticator::class, 'allow_email_login', 'yes');
         $result = $this->handler->lostpassword();
-        $this->assertInternalType('array', $result);
-        $this->assertContains('Enter your username or your email address', $result['Content']->getValue());
+        $this->assertIsArray($result);
+        $this->assertStringContainsString('Enter your username or your email address', $result['Content']->getValue());
     }
 
     public function testPasswordSentMessage()
