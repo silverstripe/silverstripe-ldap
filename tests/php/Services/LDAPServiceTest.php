@@ -29,7 +29,7 @@ class LDAPServiceTest extends SapphireTest
      */
     private $service;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
