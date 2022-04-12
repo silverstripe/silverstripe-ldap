@@ -132,7 +132,7 @@ class LDAPLostPasswordHandler extends LostPasswordHandler
     {
         $link = Controller::join_links(
             $this->link('passwordsent'),
-            rawurlencode($data['Login']),
+            rawurlencode($data['Login'] ?? ''),
             '/'
         );
 
@@ -189,7 +189,7 @@ class LDAPLostPasswordHandler extends LostPasswordHandler
     public function passwordsent()
     {
         $username = Convert::raw2xml(
-            rawurldecode($this->getRequest()->param('OtherID'))
+            rawurldecode($this->getRequest()->param('OtherID') ?? '')
         );
         $username .= ($extension = $this->getRequest()->getExtension()) ? '.' . $extension : '';
 

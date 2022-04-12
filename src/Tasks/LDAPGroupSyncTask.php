@@ -147,7 +147,7 @@ class LDAPGroupSyncTask extends BuildTask
             $created,
             $updated,
             $deleted,
-            round($end, 0)
+            round($end ?? 0.0, 0)
         ));
     }
 

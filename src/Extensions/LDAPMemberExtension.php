@@ -193,7 +193,7 @@ class LDAPMemberExtension extends DataExtension
             return;
         }
 
-        if (!preg_match('/^[a-z0-9\.]+$/', $this->owner->Username)) {
+        if (!preg_match('/^[a-z0-9\.]+$/', $this->owner->Username ?? '')) {
             $validationResult->addError(
                 'Username must only contain lowercase alphanumeric characters and dots.',
                 'bad'

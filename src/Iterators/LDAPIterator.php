@@ -116,9 +116,9 @@ final class LDAPIterator implements Iterator
 
         ldap_control_paged_result($resource, $this->getPageSize(), true, $this->cookie);
         if ($this->getReturnAttributes() !== null) {
-            $resultResource = ldap_search($resource, $baseDn, $this->getFilter(), $this->getReturnAttributes());
+            $resultResource = ldap_search($resource, $baseDn ?? '', $this->getFilter() ?? '', $this->getReturnAttributes() ?? []);
         } else {
-            $resultResource = ldap_search($resource, $baseDn, $this->getFilter());
+            $resultResource = ldap_search($resource, $baseDn ?? '', $this->getFilter() ?? '');
         }
         if (! is_resource($resultResource)) {
             /*
@@ -192,10 +192,10 @@ final class LDAPIterator implements Iterator
     {
         $result = [];
         foreach ($row as $key => $value) {
-            $keyExploded = explode(';range=', $key);
+            $keyExploded = explode(';range=', $key ?? '');
 
-            if (count($keyExploded) === 2) {
-                $range = explode('-', $keyExploded[1]);
+            if (count($keyExploded ?? []) === 2) {
+                $range = explode('-', $keyExploded[1] ?? '');
                 $offsetAndLimit = (int) $range[1] + 1;
 
                 $result[$keyExploded[0]] = array_merge($value, $this->getAttributeRecursive($row['dn'], $keyExploded[0], $offsetAndLimit, $offsetAndLimit));
@@ -219,16 +219,16 @@ final class LDAPIterator implements Iterator
         ], true);
         foreach ($entry as $key => $value) {
             // skip DN and other fields (if returned)
-            if (stripos($key, $attrName) === false) {
+            if (stripos($key ?? '', $attrName ?? '') === false) {
                 continue;
             }
 
             $attributeValue = $value;
 
             // range result (pagination)
-            $keyExploded = explode(';range=', $key);
+            $keyExploded = explode(';range=', $key ?? '');
 
-            $range = explode('-', $keyExploded[1]);
+            $range = explode('-', $keyExploded[1] ?? '');
             $rangeEnd = (int) $range[1];
 
             if ($range[0] == $offset && $range[1] == $limit) {
@@ -239,6 +239,7 @@ final class LDAPIterator implements Iterator
 
         return $attributeValue;
     }
+    #[\ReturnTypeWillChange]
     public function current()
     {
         if (! is_array($this->current)) {
@@ -250,6 +251,7 @@ final class LDAPIterator implements Iterator
 
         return $this->current;
     }
+    #[\ReturnTypeWillChange]
     public function key()
     {
         if (! is_array($this->current)) {
@@ -261,6 +263,7 @@ final class LDAPIterator implements Iterator
 
         return $this->current['dn'];
     }
+    #[\ReturnTypeWillChange]
     public function next()
     {
         // initial
@@ -270,8 +273,9 @@ final class LDAPIterator implements Iterator
 
         next($this->entries);
 
-        $this->current = current($this->entries);
+        $this->current = current($this->entries ?? []);
     }
+    #[\ReturnTypeWillChange]
     public function rewind()
     {
         // initial
@@ -280,8 +284,9 @@ final class LDAPIterator implements Iterator
         }
 
         reset($this->entries);
-        $this->current = current($this->entries);
+        $this->current = current($this->entries ?? []);
     }
+    #[\ReturnTypeWillChange]
     public function valid()
     {
         if (is_array($this->current)) {

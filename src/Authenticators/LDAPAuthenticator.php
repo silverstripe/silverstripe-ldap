@@ -85,7 +85,7 @@ class LDAPAuthenticator extends MemberAuthenticator
         $result = $result ?: ValidationResult::create();
         /** @var LDAPService $service */
         $service = Injector::inst()->get(LDAPService::class);
-        $login = trim($data['Login']);
+        $login = trim($data['Login'] ?? '');
         if (Email::is_valid_address($login)) {
             if (Config::inst()->get(self::class, 'allow_email_login') != 'yes') {
                 $result->addError(
@@ -174,7 +174,7 @@ class LDAPAuthenticator extends MemberAuthenticator
     protected function fallbackAuthenticate($data, HTTPRequest $request)
     {
         // Set Email from Login
-        if (array_key_exists('Login', $data) && !array_key_exists('Email', $data)) {
+        if (array_key_exists('Login', $data ?? []) && !array_key_exists('Email', $data ?? [])) {
             $data['Email'] = $data['Login'];
         }
         $authenticatorClass = Config::inst()->get(self::class, 'fallback_authenticator_class');

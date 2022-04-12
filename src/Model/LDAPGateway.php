@@ -43,7 +43,7 @@ class LDAPGateway
     {
         // due to dependency injection this class can be created without any LDAP options set
         // and \Zend\Ldap\Ldap will throw a warning with an empty array
-        if (count($this->config()->options)) {
+        if (count($this->config()->options ?? [])) {
             $this->ldap = new Ldap($this->config()->options);
         }
     }
@@ -99,7 +99,7 @@ class LDAPGateway
                 // if the value is an array with a single value, e.g. 'samaccountname' => array(0 => 'myusername')
                 // then make sure it's just set in the results as 'samaccountname' => 'myusername' so that it
                 // can be used directly by ArrayData
-                if (is_array($value) && count($value) == 1) {
+                if (is_array($value) && count($value ?? []) == 1) {
                     $value = $value[0];
                 }
 
@@ -457,7 +457,7 @@ class LDAPGateway
         // Batch attribute operations are not supported by Zend_Ldap, use raw resource.
         $ldapConn = $this->ldap->getResource();
         ErrorHandler::start(E_WARNING);
-        $succeeded = ldap_modify_batch($ldapConn, $dn, $modifications);
+        $succeeded = ldap_modify_batch($ldapConn, $dn ?? '', $modifications ?? []);
         ErrorHandler::stop();
         if (!$succeeded) {
             throw new Exception($this->getLastPasswordError());
@@ -567,9 +567,9 @@ class LDAPGateway
         // 0000052D: Constraint violation - check_password_restrictions: the password was already used (in history)!)
 
         // We are only interested in the explanatory message after the last colon.
-        $message = preg_replace('/.*:/', '', $error);
+        $message = preg_replace('/.*:/', '', $error ?? '');
         if ($error) {
-            return ucfirst(trim($message));
+            return ucfirst(trim($message ?? ''));
         }
 
         return $defaultError;

@@ -83,7 +83,7 @@ class LDAPMigrateExistingMembersTask extends BuildTask
 
         $end = time() - $start;
 
-        $this->log(sprintf('Done. Migrated %s Member records. Duration: %s seconds', $count, round($end, 0)));
+        $this->log(sprintf('Done. Migrated %s Member records. Duration: %s seconds', $count, round($end ?? 0.0, 0)));
     }
 
     /**

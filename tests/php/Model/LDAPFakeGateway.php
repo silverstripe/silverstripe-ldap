@@ -13,7 +13,7 @@ class LDAPFakeGateway extends LDAPGateway implements TestOnly
     {
         // thumbnail images are raw JPEG/JFIF files, but that's not important
         // for this test, as long as the binary content are the same
-        self::$data['users']['456']['thumbnailphoto'] = base64_decode(self::$data['users']['456']['thumbnailphoto']);
+        self::$data['users']['456']['thumbnailphoto'] = base64_decode(self::$data['users']['456']['thumbnailphoto'] ?? '');
     }
 
     private static $data = [
@@ -168,7 +168,7 @@ class LDAPFakeGateway extends LDAPGateway implements TestOnly
                 // if the value is an array with a single value, e.g. 'samaccountname' => array(0 => 'myusername')
                 // then make sure it's just set in the results as 'samaccountname' => 'myusername' so that it
                 // can be used directly by ArrayData
-                if (is_array($value) && count($value) == 1) {
+                if (is_array($value) && count($value ?? []) == 1) {
                     $value = $value[0];
                 }
 
