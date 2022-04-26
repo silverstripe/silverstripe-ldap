@@ -198,21 +198,21 @@ class LDAPService implements Flushable
         // not suitable to display to the user.
         foreach ($messages as $i => $message) {
             if ($i > 0) {
-                $this->getLogger()->debug(str_replace("\n", "\n  ", $message));
+                $this->getLogger()->debug(str_replace("\n", "\n  ", $message ?? ''));
             }
         }
 
         $message = $messages[0]; // first message is user readable, suitable for showing on login form
 
         // show better errors than the defaults for various status codes returned by LDAP
-        if (!empty($messages[1]) && strpos($messages[1], 'NT_STATUS_ACCOUNT_LOCKED_OUT') !== false) {
+        if (!empty($messages[1]) && strpos($messages[1] ?? '', 'NT_STATUS_ACCOUNT_LOCKED_OUT') !== false) {
             $message = _t(
                 __CLASS__ . '.ACCOUNTLOCKEDOUT',
                 'Your account has been temporarily locked because of too many failed login attempts. ' .
                 'Please try again later.'
             );
         }
-        if (!empty($messages[1]) && strpos($messages[1], 'NT_STATUS_LOGON_FAILURE') !== false) {
+        if (!empty($messages[1]) && strpos($messages[1] ?? '', 'NT_STATUS_LOGON_FAILURE') !== false) {
             $message = _t(
                 __CLASS__ . '.INVALIDCREDENTIALS',
                 'The provided details don\'t seem to be correct. Please try again.'
@@ -569,7 +569,7 @@ class LDAPService implements Flushable
                 continue;
             }
 
-            if (in_array($attribute, $this->config()->photo_attributes)) {
+            if (in_array($attribute, $this->config()->photo_attributes ?? [])) {
                 $this->processThumbnailPhoto($member, $field, $data, $attribute);
             } else {
                 $member->$field = $data[$attribute];
@@ -658,7 +658,7 @@ class LDAPService implements Flushable
 
             // If the file hashes match, and the file already exists, we don't need to update anything.
             $hash = $existingObj->File->getHash();
-            if (hash_equals($hash, sha1($data[$attributeName]))) {
+            if (hash_equals($hash ?? '', sha1($data[$attributeName] ?? ''))) {
                 return true;
             }
         } else {
@@ -846,7 +846,7 @@ class LDAPService implements Flushable
         }
 
         // Normalise username to lowercase to ensure we don't have duplicates of different cases
-        $member->Username = strtolower($member->Username);
+        $member->Username = strtolower($member->Username ?? '');
 
         // Create user in LDAP using available information.
         $dn = sprintf('CN=%s,%s', $member->Username, $this->config()->new_users_dn);
@@ -953,13 +953,13 @@ class LDAPService implements Flushable
         $dn = $data['distinguishedname'];
 
         // Normalise username to lowercase to ensure we don't have duplicates of different cases
-        $member->Username = strtolower($member->Username);
+        $member->Username = strtolower($member->Username ?? '');
 
         try {
             // If the common name (cn) has changed, we need to ensure they've been moved
             // to the new DN, to avoid any clashes between user objects.
             if ($data['cn'] != $member->Username) {
-                $newDn = sprintf('CN=%s,%s', $member->Username, preg_replace('/^CN=(.+?),/', '', $dn));
+                $newDn = sprintf('CN=%s,%s', $member->Username, preg_replace('/^CN=(.+?),/', '', $dn ?? ''));
                 $this->move($dn, $newDn);
                 $dn = $newDn;
             }
@@ -1038,7 +1038,7 @@ class LDAPService implements Flushable
 
         // Which existing LDAP groups are not in the add groups? We'll check these groups to
         // see if the user should be removed from any of them.
-        $remainingGroups = array_diff($existingGroups, $addGroups);
+        $remainingGroups = array_diff($existingGroups ?? [], $addGroups);
 
         foreach ($remainingGroups as $groupDn) {
             // We only want to be removing groups we have a local Group mapped to. Removing
@@ -1062,7 +1062,7 @@ class LDAPService implements Flushable
             $members = $this->getLDAPGroupMembers($groupDn);
 
             // remove the user from the members data.
-            if (in_array($user['distinguishedname'], $members)) {
+            if (in_array($user['distinguishedname'], $members ?? [])) {
                 foreach ($members as $i => $dn) {
                     if ($dn == $user['distinguishedname']) {
                         unset($members[$i]);
@@ -1090,7 +1090,7 @@ class LDAPService implements Flushable
         $members = $this->getLDAPGroupMembers($groupDn);
 
         // this user is already in the group, no need to do anything.
-        if (in_array($userDn, $members)) {
+        if (in_array($userDn, $members ?? [])) {
             return;
         }
 
@@ -1240,7 +1240,7 @@ class LDAPService implements Flushable
     {
         $generator = new RandomGenerator();
         // 'Aa1' is there to satisfy the complexity criterion.
-        $tempPassword = sprintf('Aa1%s', substr($generator->randomToken('sha1'), 0, 21));
+        $tempPassword = sprintf('Aa1%s', substr($generator->randomToken('sha1') ?? '', 0, 21));
         $this->getGateway()->resetPassword($dn, $tempPassword);
         $this->getGateway()->changePassword($dn, $password, $tempPassword);
     }

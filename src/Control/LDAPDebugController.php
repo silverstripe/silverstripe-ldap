@@ -160,6 +160,6 @@ class LDAPDebugController extends ContentController
 
     public function Users()
     {
-        return count($this->ldapService->getUsers(['objectguid', 'dn'])); // Only get two attrs to prevent memory errors
+        return count($this->ldapService->getUsers(['objectguid', 'dn']) ?? []); // Only get two attrs to prevent memory errors
     }
 }
