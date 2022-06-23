@@ -1,0 +1,13 @@
+---
+Name: ldap-backtrace
+---
+SilverStripe\Dev\Backtrace:
+  ignore_function_args:
+    - ['SilverStripe\LDAP\Model\LDAPGateway', 'authenticate']
+    - ['SilverStripe\LDAP\Model\LDAPGateway', 'changePassword']
+    - ['SilverStripe\LDAP\Model\LDAPGateway', 'resetPassword']
+    - ['SilverStripe\LDAP\Services\LDAPService', 'authenticate']
+    - ['SilverStripe\LDAP\Services\LDAPService', 'setPassword']
+    - ['SilverStripe\LDAP\Services\LDAPService', 'passwordHistoryWorkaround']
+    - ['*', 'onAfterSetPassword']
+    - ['*', 'onBeforeSetPassword']
