@@ -1,6 +1,6 @@
 # SilverStripe LDAP module
 
-[![Build Status](https://api.travis-ci.com/silverstripe/silverstripe-ldap.svg?branch=1)](https://travis-ci.com/silverstripe/silverstripe-ldap)
+[![CI](https://github.com/silverstripe/silverstripe-ldap/actions/workflows/ci.yml/badge.svg)](https://github.com/silverstripe/silverstripe-ldap/actions/workflows/ci.yml)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/silverstripe/silverstripe-ldap/badges/quality-score.png)](https://scrutinizer-ci.com/g/silverstripe/silverstripe-ldap/)
 [![codecov](https://codecov.io/gh/silverstripe/silverstripe-ldap/branch/master/graph/badge.svg)](https://codecov.io/gh/silverstripe/silverstripe-ldap)
 [![SilverStripe supported module](https://img.shields.io/badge/silverstripe-supported-0071C4.svg)](https://www.silverstripe.org/software/addons/silverstripe-commercially-supported-module-list/)
