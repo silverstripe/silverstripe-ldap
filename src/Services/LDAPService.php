@@ -143,11 +143,6 @@ class LDAPService implements Flushable
      */
     public $gateway;
 
-    public function __construct()
-    {
-        $this->constructExtensions();
-    }
-
     /**
      * Setter for gateway. Useful for overriding the gateway with a fake for testing.
      * @var LDAPGateway
