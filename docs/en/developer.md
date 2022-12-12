@@ -187,7 +187,7 @@ The `baseDn` option defines the initial scope of the directory where the connect
 
 The `useSsl` option enables encrypted transport for LDAP communication. This should be mandatory for production systems to prevent eavesdropping. A certificate trusted by the webserver must be installed on the AD server. StartTLS can alternatively be used (`useStartTls` option).
 
-For more information about available LDAP options, please [see the Zend\Ldap documentation](http://framework.zend.com/manual/2.2/en/modules/zend.ldap.introduction.html) and [API overview documentation](http://framework.zend.com/manual/2.2/en/modules/zend.ldap.api.html).
+For more information about available LDAP options, please [see the Laminas\Ldap documentation](https://docs.laminas.dev/laminas-ldap/) and [API overview documentation](https://docs.laminas.dev/laminas-ldap/api/).
 
 ### Configure LDAP search query
 

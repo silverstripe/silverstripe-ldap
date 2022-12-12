@@ -8,12 +8,12 @@ use SilverStripe\Core\Config\Configurable;
 use SilverStripe\Core\Extensible;
 use SilverStripe\Core\Injector\Injectable;
 use SilverStripe\LDAP\Iterators\LDAPIterator;
-use Zend\Authentication\Adapter\Ldap as LdapAdapter;
-use Zend\Authentication\AuthenticationService;
-use Zend\Ldap\Exception\LdapException;
-use Zend\Ldap\Filter\AbstractFilter;
-use Zend\Ldap\Ldap;
-use Zend\Stdlib\ErrorHandler;
+use Laminas\Authentication\Adapter\Ldap as LdapAdapter;
+use Laminas\Authentication\AuthenticationService;
+use Laminas\Ldap\Exception\LdapException;
+use Laminas\Ldap\Filter\AbstractFilter;
+use Laminas\Ldap\Ldap;
+use Laminas\Stdlib\ErrorHandler;
 use function ldap_control_paged_result;
 
 /**
@@ -35,21 +35,21 @@ class LDAPGateway
     private static $options = [];
 
     /**
-     * @var Zend\Ldap\Ldap
+     * @var Laminas\Ldap\Ldap
      */
     private $ldap;
 
     public function __construct()
     {
         // due to dependency injection this class can be created without any LDAP options set
-        // and \Zend\Ldap\Ldap will throw a warning with an empty array
+        // and \Laminas\Ldap\Ldap will throw a warning with an empty array
         if (count($this->config()->options ?? [])) {
             $this->ldap = new Ldap($this->config()->options);
         }
     }
 
     /**
-     * @return Ldap The underlying Zend\Ldap\Ldap class, so that methods can be called directly
+     * @return Ldap The underlying Laminas\Ldap\Ldap class, so that methods can be called directly
      */
     public function getLdap()
     {
@@ -73,8 +73,8 @@ class LDAPGateway
      *
      * @param string $filter The string to filter by, e.g. (objectClass=user)
      * @param null|string $baseDn The DN to search from. Default is the baseDn option in the connection if not given
-     * @param int $scope The scope to perform the search. Zend_Ldap::SEARCH_SCOPE_ONE, Zend_LDAP::SEARCH_SCOPE_BASE.
-     *                   Default is Zend_Ldap::SEARCH_SCOPE_SUB
+     * @param int $scope The scope to perform the search. Laminas_Ldap::SEARCH_SCOPE_ONE, Laminas_LDAP::SEARCH_SCOPE_BASE.
+     *                   Default is Laminas_Ldap::SEARCH_SCOPE_SUB
      * @param array $attributes Restrict to specific AD attributes. An empty array will return all attributes
      * @param string $sort Sort results by this attribute if given
      * @return array
@@ -125,7 +125,7 @@ class LDAPGateway
      *
      * @param string $username
      * @param string $password
-     * @return \Zend\Authentication\Result
+     * @return \Laminas\Authentication\Result
      */
     public function authenticate($username, $password)
     {
@@ -138,8 +138,8 @@ class LDAPGateway
      * Query for LDAP nodes (organizational units, containers, and domains).
      *
      * @param null|string $baseDn The DN to search from. Default is the baseDn option in the connection if not given
-     * @param int $scope The scope to perform the search. Zend_Ldap::SEARCH_SCOPE_ONE, Zend_LDAP::SEARCH_SCOPE_BASE.
-     *          Default is Zend_Ldap::SEARCH_SCOPE_SUB
+     * @param int $scope The scope to perform the search. Laminas_Ldap::SEARCH_SCOPE_ONE, Laminas_LDAP::SEARCH_SCOPE_BASE.
+     *          Default is Laminas_Ldap::SEARCH_SCOPE_SUB
      * @param array $attributes Restrict to specific AD attributes. An empty array will return all attributes
      * @param string $sort Sort results by this attribute if given
      * @return array
@@ -163,8 +163,8 @@ class LDAPGateway
      * Query for LDAP groups.
      *
      * @param null|string $baseDn The DN to search from. Default is the baseDn option in the connection if not given
-     * @param int $scope The scope to perform the search. Zend_Ldap::SEARCH_SCOPE_ONE, Zend_LDAP::SEARCH_SCOPE_BASE.
-     *          Default is Zend_Ldap::SEARCH_SCOPE_SUB
+     * @param int $scope The scope to perform the search. Laminas_Ldap::SEARCH_SCOPE_ONE, Laminas_LDAP::SEARCH_SCOPE_BASE.
+     *          Default is Laminas_Ldap::SEARCH_SCOPE_SUB
      * @param array $attributes Restrict to specific AD attributes. An empty array will return all attributes
      * @param string $sort Sort results by this attribute if given
      * @return array
@@ -183,8 +183,8 @@ class LDAPGateway
      *
      * @param string $dn
      * @param null|string $baseDn The DN to search from. Default is the baseDn option in the connection if not given
-     * @param int $scope The scope to perform the search. Zend_Ldap::SEARCH_SCOPE_ONE, Zend_LDAP::SEARCH_SCOPE_BASE.
-     *                  Default is Zend_Ldap::SEARCH_SCOPE_SUB
+     * @param int $scope The scope to perform the search. Laminas_Ldap::SEARCH_SCOPE_ONE, Laminas_LDAP::SEARCH_SCOPE_BASE.
+     *                  Default is Laminas_Ldap::SEARCH_SCOPE_SUB
      * @param array $attributes Restrict to specific AD attributes. An empty array will return all attributes
      * @return array
      */
@@ -207,8 +207,8 @@ class LDAPGateway
      *
      * @param string $guid
      * @param null|string $baseDn The DN to search from. Default is the baseDn option in the connection if not given
-     * @param int $scope The scope to perform the search. Zend_Ldap::SEARCH_SCOPE_ONE, Zend_LDAP::SEARCH_SCOPE_BASE.
-     *                  Default is Zend_Ldap::SEARCH_SCOPE_SUB
+     * @param int $scope The scope to perform the search. Laminas_Ldap::SEARCH_SCOPE_ONE, Laminas_LDAP::SEARCH_SCOPE_BASE.
+     *                  Default is Laminas_Ldap::SEARCH_SCOPE_SUB
      * @param array $attributes Restrict to specific AD attributes. An empty array will return all attributes
      * @return array
      */
@@ -227,8 +227,8 @@ class LDAPGateway
      *
      * @param string $dn
      * @param null|string $baseDn The DN to search from. Default is the baseDn option in the connection if not given
-     * @param int $scope The scope to perform the search. Zend_Ldap::SEARCH_SCOPE_ONE, Zend_LDAP::SEARCH_SCOPE_BASE.
-     *              Default is Zend_Ldap::SEARCH_SCOPE_SUB
+     * @param int $scope The scope to perform the search. Laminas_Ldap::SEARCH_SCOPE_ONE, Laminas_LDAP::SEARCH_SCOPE_BASE.
+     *              Default is Laminas_Ldap::SEARCH_SCOPE_SUB
      * @param array $attributes Restrict to specific AD attributes. An empty array will return all attributes
      * @return array
      */
@@ -246,8 +246,8 @@ class LDAPGateway
      * Query for LDAP users, but don't include built-in user accounts.
      *
      * @param null|string $baseDn The DN to search from. Default is the baseDn option in the connection if not given
-     * @param int $scope The scope to perform the search. Zend_Ldap::SEARCH_SCOPE_ONE, Zend_LDAP::SEARCH_SCOPE_BASE.
-     *                  Default is Zend_Ldap::SEARCH_SCOPE_SUB
+     * @param int $scope The scope to perform the search. Laminas_Ldap::SEARCH_SCOPE_ONE, Laminas_LDAP::SEARCH_SCOPE_BASE.
+     *                  Default is Laminas_Ldap::SEARCH_SCOPE_SUB
      * @param array $attributes Restrict to specific AD attributes. An empty array will return all attributes
      * @param string $sort Sort results by this attribute if given
      * @return array
@@ -309,8 +309,8 @@ class LDAPGateway
      *
      * @param string $dn
      * @param null|string $baseDn The DN to search from. Default is the baseDn option in the connection if not given
-     * @param int $scope The scope to perform the search. Zend_Ldap::SEARCH_SCOPE_ONE, Zend_LDAP::SEARCH_SCOPE_BASE.
-     *                  Default is Zend_Ldap::SEARCH_SCOPE_SUB
+     * @param int $scope The scope to perform the search. Laminas_Ldap::SEARCH_SCOPE_ONE, Laminas_LDAP::SEARCH_SCOPE_BASE.
+     *                  Default is Laminas_Ldap::SEARCH_SCOPE_SUB
      * @param array $attributes Restrict to specific AD attributes. An empty array will return all attributes
      * @return array
      */
@@ -345,8 +345,8 @@ class LDAPGateway
      *
      * @param string $username
      * @param null|string $baseDn The DN to search from. Default is the baseDn option in the connection if not given
-     * @param int $scope The scope to perform the search. Zend_Ldap::SEARCH_SCOPE_ONE, Zend_LDAP::SEARCH_SCOPE_BASE.
-     *                      Default is Zend_Ldap::SEARCH_SCOPE_SUB
+     * @param int $scope The scope to perform the search. Laminas_Ldap::SEARCH_SCOPE_ONE, Laminas_LDAP::SEARCH_SCOPE_BASE.
+     *                      Default is Laminas_Ldap::SEARCH_SCOPE_SUB
      * @param array $attributes Restrict to specific AD attributes. An empty array will return all attributes
      * @return array
      * @throws Exception
@@ -431,7 +431,7 @@ class LDAPGateway
      * @param string $dn Location to update the entry at.
      * @param string $password New password to set.
      * @param string $oldPassword Old password is needed to trigger a password change.
-     * @throws \Zend\Ldap\Exception\LdapException
+     * @throws \Laminas\Ldap\Exception\LdapException
      * @throws Exception
      */
     public function changePassword($dn, $password, $oldPassword)
@@ -454,7 +454,7 @@ class LDAPGateway
                 'values'  => [iconv('UTF-8', 'UTF-16LE', sprintf('"%s"', $password))],
             ],
         ];
-        // Batch attribute operations are not supported by Zend_Ldap, use raw resource.
+        // Batch attribute operations are not supported by Laminas_Ldap, use raw resource.
         $ldapConn = $this->ldap->getResource();
         ErrorHandler::start(E_WARNING);
         $succeeded = ldap_modify_batch($ldapConn, $dn ?? '', $modifications ?? []);
@@ -472,7 +472,7 @@ class LDAPGateway
      *
      * @param string $dn Location to update the entry at.
      * @param string $password New password to set.
-     * @throws \Zend\Ldap\Exception\LdapException
+     * @throws \Laminas\Ldap\Exception\LdapException
      * @throws Exception
      */
     public function resetPassword($dn, $password)
@@ -498,7 +498,7 @@ class LDAPGateway
      *
      * @param string $dn Location to update the entry at.
      * @param array $attributes An associative array of attributes.
-     * @throws \Zend\Ldap\Exception\LdapException
+     * @throws \Laminas\Ldap\Exception\LdapException
      */
     public function update($dn, array $attributes)
     {
@@ -510,7 +510,7 @@ class LDAPGateway
      *
      * @param string $dn Location of object to delete
      * @param bool $recursively Recursively delete nested objects?
-     * @throws \Zend\Ldap\Exception\LdapException
+     * @throws \Laminas\Ldap\Exception\LdapException
      */
     public function delete($dn, $recursively = false)
     {
@@ -539,7 +539,7 @@ class LDAPGateway
      *
      * @param string $dn Location to add the entry at.
      * @param array $attributes An associative array of attributes.
-     * @throws \Zend\Ldap\Exception\LdapException
+     * @throws \Laminas\Ldap\Exception\LdapException
      */
     public function add($dn, array $attributes)
     {

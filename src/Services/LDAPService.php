@@ -24,7 +24,7 @@ use SilverStripe\ORM\ValidationResult;
 use SilverStripe\Security\Group;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\RandomGenerator;
-use Zend\Ldap\Ldap;
+use Laminas\Ldap\Ldap;
 
 /**
  * Class LDAPService
@@ -37,7 +37,7 @@ use Zend\Ldap\Ldap;
  * - data aggregation and restructuring from multiple lower-level calls
  * - error handling
  *
- * LDAPService relies on Zend LDAP module's data structures for some parameters and some return values.
+ * LDAPService relies on Laminas LDAP module's data structures for some parameters and some return values.
  */
 class LDAPService implements Flushable
 {
@@ -153,9 +153,9 @@ class LDAPService implements Flushable
     }
 
     /**
-     * Return the LDAP gateway currently in use. Can be strung together to access the underlying Zend\Ldap instance, or
+     * Return the LDAP gateway currently in use. Can be strung together to access the underlying Laminas\Ldap instance, or
      * the PHP ldap resource itself. For example:
-     * - Get the Zend\Ldap object: $service->getGateway()->getLdap() // Zend\Ldap\Ldap object
+     * - Get the Laminas\Ldap object: $service->getGateway()->getLdap() // Laminas\Ldap\Ldap object
      * - Get the underlying PHP ldap resource: $service->getGateway()->getLdap()->getResource() // php resource
      *
      * @return LDAPGateway
@@ -1102,7 +1102,7 @@ class LDAPService implements Flushable
      * Change a members password on the AD. Works with ActiveDirectory compatible services that saves the
      * password in the `unicodePwd` attribute.
      *
-     * @todo Use the Zend\Ldap\Attribute::setPassword functionality to create a password in
+     * @todo Use the Laminas\Ldap\Attribute::setPassword functionality to create a password in
      * an abstract way, so it works on other LDAP directories, not just Active Directory.
      *
      * Ensure that the LDAP bind:ed user can change passwords and that the connection is secure.

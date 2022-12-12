@@ -13,7 +13,7 @@ use SilverStripe\ORM\ValidationResult;
 use SilverStripe\Security\Authenticator;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\MemberAuthenticator\MemberAuthenticator;
-use Zend\Authentication\Result;
+use Laminas\Authentication\Result;
 
 /**
  * Class LDAPAuthenticator

@@ -4,8 +4,8 @@ namespace SilverStripe\LDAP\Tests\Model;
 
 use SilverStripe\Dev\TestOnly;
 use SilverStripe\LDAP\Model\LDAPGateway;
-use Zend\Authentication\Result as AuthenticationResult;
-use Zend\Ldap\Ldap;
+use Laminas\Authentication\Result as AuthenticationResult;
+use Laminas\Ldap\Ldap;
 
 class LDAPFakeGateway extends LDAPGateway implements TestOnly
 {
