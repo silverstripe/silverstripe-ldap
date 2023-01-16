@@ -3,9 +3,9 @@
 namespace SilverStripe\LDAP\Iterators;
 
 use Iterator;
-use Zend\Ldap\ErrorHandler;
-use Zend\Ldap\Exception\LdapException;
-use Zend\Ldap\Ldap;
+use Laminas\Ldap\ErrorHandler;
+use Laminas\Ldap\Exception\LdapException;
+use Laminas\Ldap\Ldap;
 
 /**
  * Class LDAPIterator
@@ -45,7 +45,7 @@ final class LDAPIterator implements Iterator
     private $cookie = true;
 
     /**
-     * @param Ldap $ldap The Zend\Ldap\Ldap object that this iterator will use to retrieve results from
+     * @param Ldap $ldap The Laminas\Ldap\Ldap object that this iterator will use to retrieve results from
      * @param string $filter An LDAP search filter (e.g. "(&(objectClass=user)(!(objectClass=computer)))")
      * @param string|null $baseDn The Base DN to search from (or null to search from the connection root)
      * @param array|null $returnAttributes The attributes to request from the LDAP server, or null to request all
