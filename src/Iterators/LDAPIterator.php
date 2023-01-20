@@ -95,7 +95,7 @@ final class LDAPIterator implements Iterator
         return $this->resolveRangedAttributes;
     }
 
-    private function fetchPagedResult()
+    private function fetchPagedResult(): bool
     {
         if ($this->cookie === null || $this->cookie === '') {
             return false;
@@ -149,6 +149,7 @@ final class LDAPIterator implements Iterator
 
         return true;
     }
+
     private function getConvertedEntries(array $entries)
     {
         $result = [];
@@ -239,32 +240,33 @@ final class LDAPIterator implements Iterator
 
         return $attributeValue;
     }
-    #[\ReturnTypeWillChange]
-    public function current()
+
+    public function current(): mixed
     {
         if (! is_array($this->current)) {
             $this->rewind();
         }
         if (! is_array($this->current)) {
-            return;
+            return null;
         }
 
         return $this->current;
     }
-    #[\ReturnTypeWillChange]
-    public function key()
+
+    public function key(): mixed
     {
         if (! is_array($this->current)) {
             $this->rewind();
         }
         if (! is_array($this->current)) {
-            return;
+            return null;
         }
 
         return $this->current['dn'];
     }
-    #[\ReturnTypeWillChange]
-    public function next()
+
+
+    public function next(): void
     {
         // initial
         if ($this->entries === null) {
@@ -275,8 +277,8 @@ final class LDAPIterator implements Iterator
 
         $this->current = current($this->entries ?? []);
     }
-    #[\ReturnTypeWillChange]
-    public function rewind()
+
+    public function rewind(): void
     {
         // initial
         if ($this->entries === null) {
@@ -286,8 +288,8 @@ final class LDAPIterator implements Iterator
         reset($this->entries);
         $this->current = current($this->entries ?? []);
     }
-    #[\ReturnTypeWillChange]
-    public function valid()
+
+    public function valid(): bool
     {
         if (is_array($this->current)) {
             return true;
