@@ -27,6 +27,11 @@ class LDAPAuthenticatorTest extends SapphireTest
     private $request;
 
     /**
+     * @var LDAPService
+     */
+    private $service;
+
+    /**
      * @var ValidationResult
      */
     private $result;
