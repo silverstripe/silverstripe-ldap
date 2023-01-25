@@ -2,7 +2,6 @@
 
 namespace SilverStripe\LDAP\Extensions;
 
-use SilverStripe\Dev\Deprecation;
 use Exception;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Forms\FieldList;
@@ -287,15 +286,6 @@ class LDAPMemberExtension extends DataExtension
         }
         $service->updateLDAPFromMember($this->owner);
         $service->updateLDAPGroupsForMember($this->owner);
-    }
-
-    /**
-     * @deprecated 1.1.0 Will be removed without equivalent functionality to replace it
-     */
-    public function memberLoggedIn()
-    {
-        Deprecation::notice('1.1.0', 'Will be removed without equivalent functionality to replace it');
-        return $this->afterMemberLoggedIn();
     }
 
     /**

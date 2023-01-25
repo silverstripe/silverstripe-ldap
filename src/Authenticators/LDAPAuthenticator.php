@@ -148,7 +148,7 @@ class LDAPAuthenticator extends MemberAuthenticator
             return null;
         }
 
-        // LDAPMemberExtension::memberLoggedIn() will update any other AD attributes mapped to Member fields
+        // LDAPMemberExtension::afterMemberLoggedIn() will update any other AD attributes mapped to Member fields
         $member = Member::get()->filter('GUID', $data['objectguid'])->limit(1)->first();
         if (!($member && $member->exists())) {
             $member = new Member();
