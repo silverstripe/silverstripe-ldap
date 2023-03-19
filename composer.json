@@ -22,9 +22,9 @@
     ],
     "require": {
         "php": "^7.4 || ^8.0",
-        "silverstripe/framework": "4.13.x-dev",
-        "silverstripe/cms": "4.13.x-dev",
-        "symbiote/silverstripe-queuedjobs": "4.12.x-dev",
+        "silverstripe/framework": "4.12",
+        "silverstripe/cms": "4.12",
+        "symbiote/silverstripe-queuedjobs": "4.11",
         "laminas/laminas-ldap": "^2.14.1",
         "laminas/laminas-authentication": "^2.12.0",
         "laminas/laminas-session": "^2.13.0"
