@@ -14,31 +14,9 @@ These components may be used in any combination, also alongside the default Silv
 
 ## Installation
 
-Install using Composer:
-
+```sh
+composer require silverstripe/ldap
 ```
-composer require silverstripe/ldap ^1.0
-```
-
-## Requirements
-
- * PHP 5.6+ with extensions: ldap, openssl, dom, and mcrypt
- * Silverstripe 4.0+
- * An Active Directory server:
-   * Active Directory on Windows Server 2008 R2 or greater (AD)
-   * OpenLDAP
-   * Samba
- * HTTPS endpoint on Silverstripe site
- * SSL/StartTLS encrypted LDAP endpoint on Active Directory
-
-This module has been tested using Samba 4. It has also been tested in previous major releases against:
-
- * Windows Server 2008 R2 with ADFS 2.0
- * Windows Server 2012 R2 with ADFS 3.0
-
-This module has not been tested on OpenLDAP.
-
-**Note:** For Silverstripe 3, please see the [silverstripe-activedirectory module](https://github.com/silverstripe/silverstripe-activedirectory).
 
 ## Overview
 
