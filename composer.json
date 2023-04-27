@@ -2,7 +2,13 @@
     "name": "silverstripe/ldap",
     "description": "Adds LDAP support to SilverStripe including user synchronisation and authentication",
     "type": "silverstripe-vendormodule",
-    "keywords": ["silverstripe", "ad", "active", "directory", "ldap"],
+    "keywords": [
+        "silverstripe",
+        "ad",
+        "active",
+        "directory",
+        "ldap"
+    ],
     "license": "BSD-3-Clause",
     "authors": [
         {
