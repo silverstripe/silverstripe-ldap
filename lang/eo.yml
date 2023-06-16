@@ -18,12 +18,15 @@ eo:
     INFOIMPORTED: 'Ĉi tiu grupo estas aŭtomate importita el LDAP.'
     LASTSYNCED: 'Lastfoje sinkronigita'
     MAPPEDGROUPS: 'Mapigitaj LDAP-grupoj'
+    db_LastSynced: 'Lastfoje sinkronigita'
   SilverStripe\LDAP\Extensions\LDAPMemberExtension:
     CHANGEFIELDSUPDATELDAP: 'Ŝanĝi kampojn ĉi tie ĝisdatigos ilin en LDAP.'
     IMPORTEDFIELD: (importita)
     INFOIMPORTED: 'Ĉi tiu uzanto estas aŭtomate importita el LDAP. Manaj ŝanĝoj al importitaj kampoj foriĝos je sinkronigo.'
     ISEXPIRED: 'Ĉu la LDAP/AD-ensaluto de la uzanto malaperis?'
     LASTSYNCED: 'Lastfoje sinkronigita'
+    db_LastSynced: 'Lastfoje sinkronigita'
+    db_Username: Salutnomo
   SilverStripe\LDAP\Forms\LDAPChangePasswordForm:
     USERNAME: Salutnomo
     USERNAMEOREMAIL: Retadreso
@@ -49,6 +52,7 @@ eo:
     SELECTONE: 'Elektu iun'
     SINGULARNAME: 'LDAP grupaj mapigoj'
     SUBTREE_DESCRIPTION: 'Uzantoj en ĉitiu grupo kaj ĉiuj ingitaj grupoj'
+    db_Scope: Amplekso
   SilverStripe\LDAP\Services\LDAPService:
     ACCOUNTLOCKEDOUT: 'Via konto estas provizore ŝlosita ĉar okazis troaj ensalutaj provoj. Bonvolu provi denove poste.'
     INVALIDCREDENTIALS: 'Ŝajnas ke la donitaj detaloj malpravas. Bonvolu provi denove.'
