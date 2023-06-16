@@ -11,8 +11,11 @@ hr:
     NOTERESETPASSWORDUSERNAMEOREMAIL: 'Unesite vaše korisničko ime ili email adresu i mi ćemo vam poslati link s kojim će te moći resetirati vašu lozinku'
   SilverStripe\LDAP\Extensions\LDAPGroupExtension:
     LASTSYNCED: 'Zadnje sinkronizirano'
+    db_LastSynced: 'Zadnje sinkronizirano'
   SilverStripe\LDAP\Extensions\LDAPMemberExtension:
     LASTSYNCED: 'Zadnje sinkronizirano'
+    db_LastSynced: 'Zadnje sinkronizirano'
+    db_Username: 'Korisničko ime'
   SilverStripe\LDAP\Forms\LDAPChangePasswordForm:
     USERNAME: 'Korisničko ime'
     USERNAMEOREMAIL: Email

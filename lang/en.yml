@@ -16,12 +16,20 @@ en:
     INFOIMPORTED: 'This group is automatically imported from LDAP.'
     LASTSYNCED: 'Last synced'
     MAPPEDGROUPS: 'Mapped LDAP Groups'
+    db_DN: DN
+    db_GUID: GUID
+    db_LastSynced: 'Last synced'
+    has_many_LDAPGroupMappings: 'LDAP group mappings'
   SilverStripe\LDAP\Extensions\LDAPMemberExtension:
     CHANGEFIELDSUPDATELDAP: 'Changing fields here will update them in LDAP.'
     IMPORTEDFIELD: ' (imported)'
     INFOIMPORTED: 'This user is automatically imported from LDAP. Manual changes to imported fields will be removed upon sync.'
     ISEXPIRED: 'Has user''s LDAP/AD login expired?'
     LASTSYNCED: 'Last synced'
+    db_GUID: GUID
+    db_IsExpired: 'Is expired'
+    db_LastSynced: 'Last synced'
+    db_Username: Username
   SilverStripe\LDAP\Forms\LDAPChangePasswordForm:
     USERNAME: Username
     USERNAMEOREMAIL: Email
@@ -47,6 +55,9 @@ en:
     SELECTONE: 'Select one'
     SINGULARNAME: 'LDAP Group Mapping'
     SUBTREE_DESCRIPTION: 'Users within this group and all nested groups within'
+    db_DN: DN
+    db_Scope: Scope
+    has_one_Group: Group
   SilverStripe\LDAP\Services\LDAPService:
     ACCOUNTLOCKEDOUT: 'Your account has been temporarily locked because of too many failed login attempts. Please try again later.'
     INVALIDCREDENTIALS: 'The provided details don''t seem to be correct. Please try again.'

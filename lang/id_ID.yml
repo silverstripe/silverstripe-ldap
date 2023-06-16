@@ -18,12 +18,15 @@ id_ID:
     INFOIMPORTED: 'Grup ini secara otomatis diimpor dari LDAP.'
     LASTSYNCED: 'Terakhir disinkronkan'
     MAPPEDGROUPS: 'Memetakan Grup LDAP'
+    db_LastSynced: 'Terakhir disinkronkan'
   SilverStripe\LDAP\Extensions\LDAPMemberExtension:
     CHANGEFIELDSUPDATELDAP: 'Mengubah bagian di sini akan memperbaruinya di LDAP.'
     IMPORTEDFIELD: (diimpor)
     INFOIMPORTED: 'Pengguna ini secara otomatis diimpor dari LDAP. Perubahan manual pada bagian impor akan dihapus saat disinkronkan.'
     ISEXPIRED: 'Sudahkah login LDAP / AD pengguna kadaluarsa?'
     LASTSYNCED: 'Terakhir disinkronkan'
+    db_LastSynced: 'Terakhir disinkronkan'
+    db_Username: 'Nama Pengguna'
   SilverStripe\LDAP\Forms\LDAPChangePasswordForm:
     USERNAME: 'Nama Pengguna'
     USERNAMEOREMAIL: Surel
@@ -48,6 +51,7 @@ id_ID:
     SELECTONE: 'Pilih satu'
     SINGULARNAME: 'Pemetaan Grup LDAP'
     SUBTREE_DESCRIPTION: 'Pengguna dalam grup ini dan semua kelompok di dalamnya'
+    db_Scope: Cakupan
   SilverStripe\LDAP\Services\LDAPService:
     ACCOUNTLOCKEDOUT: 'Akun Anda telah dikunci sementara karena terlalu banyak usaha masuk gagal. Silakan coba lagi nanti.'
     INVALIDCREDENTIALS: 'Rincian yang diberikan sepertinya tidak benar. Silahkan coba lagi.'
