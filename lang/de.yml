@@ -15,11 +15,14 @@ de:
   SilverStripe\LDAP\Extensions\LDAPGroupExtension:
     INFOIMPORTED: 'Diese Gruppe wird automatisch aus LDAP importiert.'
     LASTSYNCED: 'Zuletzt synchronisiert'
+    db_LastSynced: 'Zuletzt synchronisiert'
   SilverStripe\LDAP\Extensions\LDAPMemberExtension:
     CHANGEFIELDSUPDATELDAP: 'Wenn Sie hier Felder ändern, werden diese in LDAP aktualisiert.'
     IMPORTEDFIELD: ' (importiert)'
     INFOIMPORTED: 'Dieser Benutzer wird automatisch aus LDAP importiert. Manuelle Änderungen an importierten Feldern werden beim Synchronisieren entfernt.'
     LASTSYNCED: 'Zuletzt synchronisiert'
+    db_LastSynced: 'Zuletzt synchronisiert'
+    db_Username: Benutzername
   SilverStripe\LDAP\Forms\LDAPChangePasswordForm:
     USERNAME: Benutzername
     USERNAMEOREMAIL: E-Mail-Adresse
@@ -38,6 +41,7 @@ de:
     SCOPE: Gültigkeitsbereich
     SELECTONE: 'Wählen Sie eine'
     SUBTREE_DESCRIPTION: 'Benutzer innerhalb dieser Gruppe und alle verschachtelten Gruppen innerhalb dieser Gruppe'
+    db_Scope: Gültigkeitsbereich
   SilverStripe\LDAP\Services\LDAPService:
     ACCOUNTLOCKEDOUT: 'Ihr Konto wurde wegen zu vielen fehlgeschlagenen Anmeldeversuchen vorübergehend gesperrt. Bitte versuchen Sie es später noch einmal.'
     INVALIDCREDENTIALS: 'Die angegebenen Details scheinen nicht korrekt zu sein. Bitte versuchen Sie es erneut.'

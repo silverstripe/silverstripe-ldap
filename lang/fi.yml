@@ -15,9 +15,12 @@ fi:
   SilverStripe\LDAP\Extensions\LDAPGroupExtension:
     INFOIMPORTED: 'Tämä ryhmä on automaattisesti tuotu LDAP:sta.'
     LASTSYNCED: 'Viimeksi synkronoitu'
+    db_LastSynced: 'Viimeksi synkronoitu'
   SilverStripe\LDAP\Extensions\LDAPMemberExtension:
     IMPORTEDFIELD: (tuotu)
     LASTSYNCED: 'Viimeksi synkronoitu'
+    db_LastSynced: 'Viimeksi synkronoitu'
+    db_Username: Käyttäjätunnus
   SilverStripe\LDAP\Forms\LDAPChangePasswordForm:
     USERNAME: Käyttäjätunnus
     USERNAMEOREMAIL: Sähköpostiosoite
@@ -32,6 +35,7 @@ fi:
     LDAPGROUP: LDAP-ryhmä
     SCOPE: Laajuus
     SELECTONE: 'Valitse yksi'
+    db_Scope: Laajuus
   SilverStripe\LDAP\Services\LDAPService:
     ACCOUNTLOCKEDOUT: 'Tilisi on tilapäisesti lukittu liian monen epäonnistuneen kirjautumisyrityksen vuoksi. Yritä myöhemmin uudelleen.'
     INVALIDCREDENTIALS: 'Tiedot eivät ole oikein. Yritä uudelleen.'
