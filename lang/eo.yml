@@ -18,13 +18,18 @@ eo:
     INFOIMPORTED: 'Ĉi tiu grupo estas aŭtomate importita el LDAP.'
     LASTSYNCED: 'Lastfoje sinkronigita'
     MAPPEDGROUPS: 'Mapigitaj LDAP-grupoj'
+    db_DN: DN
+    db_GUID: GUID
     db_LastSynced: 'Lastfoje sinkronigita'
+    has_many_LDAPGroupMappings: 'LDAP-grupaj mapigoj'
   SilverStripe\LDAP\Extensions\LDAPMemberExtension:
     CHANGEFIELDSUPDATELDAP: 'Ŝanĝi kampojn ĉi tie ĝisdatigos ilin en LDAP.'
     IMPORTEDFIELD: (importita)
     INFOIMPORTED: 'Ĉi tiu uzanto estas aŭtomate importita el LDAP. Manaj ŝanĝoj al importitaj kampoj foriĝos je sinkronigo.'
     ISEXPIRED: 'Ĉu la LDAP/AD-ensaluto de la uzanto malaperis?'
     LASTSYNCED: 'Lastfoje sinkronigita'
+    db_GUID: GUID
+    db_IsExpired: Eksvalidiĝis
     db_LastSynced: 'Lastfoje sinkronigita'
     db_Username: Salutnomo
   SilverStripe\LDAP\Forms\LDAPChangePasswordForm:
@@ -52,7 +57,9 @@ eo:
     SELECTONE: 'Elektu iun'
     SINGULARNAME: 'LDAP grupaj mapigoj'
     SUBTREE_DESCRIPTION: 'Uzantoj en ĉitiu grupo kaj ĉiuj ingitaj grupoj'
+    db_DN: DN
     db_Scope: Amplekso
+    has_one_Group: Grupo
   SilverStripe\LDAP\Services\LDAPService:
     ACCOUNTLOCKEDOUT: 'Via konto estas provizore ŝlosita ĉar okazis troaj ensalutaj provoj. Bonvolu provi denove poste.'
     INVALIDCREDENTIALS: 'Ŝajnas ke la donitaj detaloj malpravas. Bonvolu provi denove.'
@@ -62,7 +69,7 @@ eo:
     SYNCONETITLE: 'Sinkronigi unuopan uzanton el LDAP'
   SilverStripe\LDAP\Tasks\LDAPMemberSyncTask:
     SYNCTITLE: 'Sinkronigu ĉiujn uzantojn el Active Directory'
-  Silverstripe\Security\Member:
-    SUBJECTPASSWORDRESET: 'Via pasvortagorda ligilo'
   SilverStripe\LDAP\Tasks\LDAPMigrateExistingMembersTask:
     TITLE: 'Migri ekzistantajn membrojn en Silverstripe en LDAP-membrojn'
+  Silverstripe\Security\Member:
+    SUBJECTPASSWORDRESET: 'Via pasvortagorda ligilo'
