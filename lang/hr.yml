@@ -34,7 +34,7 @@ hr:
     LDAPGROUP: 'LDAP grupa'
     ONELEVEL_DESCRIPTION: 'Samo korisnici unutar ove grupe'
     SELECTONE: 'Odaberi jedan'
-  Silverstripe\Security\Member:
-    SUBJECTPASSWORDRESET: 'Vaš link za resetiranje lozinke'
   SilverStripe\LDAP\Tasks\LDAPMemberSyncTask:
     SYNCTITLE: 'Sinkroniziraj sve korisnike iz Active Directory'
+  Silverstripe\Security\Member:
+    SUBJECTPASSWORDRESET: 'Vaš link za resetiranje lozinke'
