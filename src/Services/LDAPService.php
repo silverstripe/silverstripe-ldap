@@ -974,9 +974,7 @@ class LDAPService implements Flushable
             ];
             foreach ($member->config()->ldap_field_mappings as $attribute => $field) {
                 $relationClass = $member->getRelationClass($field);
-                if ($relationClass) {
-                    // todo no support for writing back relations yet.
-                } else {
+                if (!$relationClass) {
                     $attributes[$attribute] = $member->$field;
                 }
             }
@@ -1101,9 +1099,6 @@ class LDAPService implements Flushable
     /**
      * Change a members password on the AD. Works with ActiveDirectory compatible services that saves the
      * password in the `unicodePwd` attribute.
-     *
-     * @todo Use the Laminas\Ldap\Attribute::setPassword functionality to create a password in
-     * an abstract way, so it works on other LDAP directories, not just Active Directory.
      *
      * Ensure that the LDAP bind:ed user can change passwords and that the connection is secure.
      *
