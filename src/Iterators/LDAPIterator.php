@@ -121,10 +121,7 @@ final class LDAPIterator implements Iterator
             $resultResource = ldap_search($resource, $baseDn ?? '', $this->getFilter() ?? '');
         }
         if (! is_resource($resultResource)) {
-            /*
-             * @TODO better exception msg
-             */
-            throw new \Exception('ldap_search returned something wrong...' . ldap_error($resource));
+            throw new \Exception('ldap_search returned a non-resource type value' . ldap_error($resource));
         }
 
         $entries = ldap_get_entries($resource, $resultResource);

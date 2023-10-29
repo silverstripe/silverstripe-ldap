@@ -364,7 +364,6 @@ class LDAPGateway
                 $filter = sprintf('(&(objectClass=user)(samaccountname=%s))', AbstractFilter::escapeValue($username));
                 break;
             case Ldap::ACCTNAME_FORM_BACKSLASH: // backslash style usernames, e.g. FOO\alice
-                // @todo Not supported yet!
                 throw new Exception('Backslash style not supported in LDAPGateway::getUserByUsername()!');
                 break;
             case Ldap::ACCTNAME_FORM_PRINCIPAL: // principal style usernames, e.g. alice@foo.com
@@ -374,7 +373,6 @@ class LDAPGateway
                 );
                 break;
             case Ldap::ACCTNAME_FORM_DN: // distinguished name, e.g. CN=someone,DC=example,DC=co,DC=nz
-                // @todo Not supported yet!
                 throw new Exception('DN style not supported in LDAPGateway::getUserByUsername()!');
                 break;
             default: // default to principal style
@@ -406,7 +404,6 @@ class LDAPGateway
                 }
                 return $data['samaccountname'];
             case Ldap::ACCTNAME_FORM_BACKSLASH: // backslash style usernames, e.g. FOO\alice
-                // @todo Not supported yet!
                 throw new Exception('Backslash style not supported in LDAPGateway::getUsernameByEmail()!');
             case Ldap::ACCTNAME_FORM_PRINCIPAL: // principal style usernames, e.g. alice@foo.com
                 if (empty($data['userprincipalname'])) {
