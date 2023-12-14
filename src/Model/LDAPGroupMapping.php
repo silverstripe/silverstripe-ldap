@@ -12,6 +12,7 @@ use SilverStripe\Security\Group;
  * Class LDAPGroupMapping
  *
  * An individual mapping of an LDAP group to a SilverStripe {@link Group}
+ * @method Group Group()
  */
 class LDAPGroupMapping extends DataObject
 {
