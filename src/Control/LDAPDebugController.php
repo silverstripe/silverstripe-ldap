@@ -3,6 +3,7 @@
 namespace SilverStripe\LDAP\Control;
 
 use SilverStripe\CMS\Controllers\ContentController;
+use SilverStripe\CMS\Model\SiteTree;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\LDAP\Model\LDAPGateway;
@@ -18,6 +19,8 @@ use SilverStripe\View\ArrayData;
  * Class LDAPDebugController
  *
  * This controller is used to debug the LDAP connection.
+ *
+ * @extends ContentController<SiteTree>
  */
 class LDAPDebugController extends ContentController
 {
