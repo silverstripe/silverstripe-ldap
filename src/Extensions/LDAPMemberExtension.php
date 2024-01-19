@@ -12,13 +12,14 @@ use SilverStripe\LDAP\Services\LDAPService;
 use SilverStripe\ORM\DataExtension;
 use SilverStripe\ORM\ValidationException;
 use SilverStripe\ORM\ValidationResult;
+use SilverStripe\Security\Member;
 
 /**
  * Class LDAPMemberExtension.
  *
  * Adds mappings from AD attributes to SilverStripe {@link Member} fields.
  *
- * @package activedirectory
+ * @extends DataExtension<Member>
  */
 class LDAPMemberExtension extends DataExtension
 {

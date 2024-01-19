@@ -15,7 +15,10 @@ use SilverStripe\ORM\DataExtension;
  * Class LDAPGroupExtension
  *
  * Adds a field to map an LDAP group to a SilverStripe {@link Group}
+ *
  * @method SilverStripe\ORM\HasManyList<LDAPGroupMapping> LDAPGroupMappings()
+ *
+ * @extends DataExtension<Group&static>
  */
 class LDAPGroupExtension extends DataExtension
 {

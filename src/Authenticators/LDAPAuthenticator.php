@@ -83,7 +83,6 @@ class LDAPAuthenticator extends MemberAuthenticator
     public function authenticate(array $data, HTTPRequest $request, ValidationResult &$result = null)
     {
         $result = $result ?: ValidationResult::create();
-        /** @var LDAPService $service */
         $service = Injector::inst()->get(LDAPService::class);
         $login = trim($data['Login'] ?? '');
         if (Email::is_valid_address($login)) {
@@ -224,13 +223,11 @@ class LDAPAuthenticator extends MemberAuthenticator
     {
         $result = $result ?: ValidationResult::create();
 
-        /** @var LDAPService $service */
         $service = Injector::inst()->get(LDAPService::class);
 
         // Support email or username
         $handle = Config::inst()->get(self::class, 'allow_email_login') === 'yes' ? 'Email' : 'Username';
 
-        /** @var array $ldapResult */
         $ldapResult = $service->authenticate($member->{$handle}, $password);
 
         if (empty($ldapResult['success'])) {

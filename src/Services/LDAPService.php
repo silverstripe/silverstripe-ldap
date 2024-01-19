@@ -133,7 +133,6 @@ class LDAPService implements Flushable
      */
     public static function flush()
     {
-        /** @var CacheInterface $cache */
         $cache = self::get_cache();
         $cache->clear();
     }
