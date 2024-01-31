@@ -10,13 +10,14 @@ use SilverStripe\Forms\LiteralField;
 use SilverStripe\Forms\ReadonlyField;
 use SilverStripe\LDAP\Model\LDAPGroupMapping;
 use SilverStripe\ORM\DataExtension;
+use SilverStripe\ORM\HasManyList;
 
 /**
  * Class LDAPGroupExtension
  *
  * Adds a field to map an LDAP group to a SilverStripe {@link Group}
  *
- * @method SilverStripe\ORM\HasManyList<LDAPGroupMapping> LDAPGroupMappings()
+ * @method HasManyList<LDAPGroupMapping> LDAPGroupMappings()
  *
  * @extends DataExtension<Group&static>
  */
