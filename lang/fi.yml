@@ -10,8 +10,8 @@ fi:
   SilverStripe\LDAP\Authenticators\LDAPLostPasswordHandler:
     NOTERESETPASSWORDUSERNAME: 'Syötä käyttäjätunnuksesi niin lähetämme linkin, jolla voit asettaa salasanasi'
     NOTERESETPASSWORDUSERNAMEOREMAIL: 'Syötä käyttäjätunnuksesi tai sähköpostiosoitteesi niin lähetämme linkin, jolla voit asettaa salasanasi'
-    PASSWORDSENTHEADER: 'Salasanan palautuslinkki lähetetty käyttäjälle ''{username}'''
-    PASSWORDSENTTEXT: 'Kiitos! Palautuslinkki on lähetetty käyttäjälle ''{username}'', mikäli se löytyy järjestelmästä.'
+    PASSWORDSENTHEADER: "Salasanan palautuslinkki lähetetty käyttäjälle '{username}'"
+    PASSWORDSENTTEXT: "Kiitos! Palautuslinkki on lähetetty käyttäjälle '{username}', mikäli se löytyy järjestelmästä."
   SilverStripe\LDAP\Extensions\LDAPGroupExtension:
     INFOIMPORTED: 'Tämä ryhmä on automaattisesti tuotu LDAP:sta.'
     LASTSYNCED: 'Viimeksi synkronoitu'

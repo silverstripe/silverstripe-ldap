@@ -10,8 +10,8 @@ eo:
   SilverStripe\LDAP\Authenticators\LDAPLostPasswordHandler:
     NOTERESETPASSWORDUSERNAME: 'Enigu vian salutnomon kaj ni sendos al vi ligilon per kiu vi povos agordi vian pasvorton'
     NOTERESETPASSWORDUSERNAMEOREMAIL: 'Enigu vian salutnomon aŭ vian retpoŝtan adreson kaj ni sendos al vi ligilon per kiu vi povos agordi vian pasvorton'
-    PASSWORDSENTHEADER: 'Sendiĝis al ''{username}'' ligilo por agordi vian pasvorton'
-    PASSWORDSENTTEXT: 'Dankon! Ni sendis agordan ligilon al ''{username}'', kondiĉe ke konto ekzistas.'
+    PASSWORDSENTHEADER: "Sendiĝis al '{username}' ligilo por agordi vian pasvorton"
+    PASSWORDSENTTEXT: "Dankon! Ni sendis agordan ligilon al '{username}', kondiĉe ke konto ekzistas."
   SilverStripe\LDAP\Extensions\LDAPGroupExtension:
     ADDMAPPEDGROUP: 'Enmetu LDAP-grupan mapigon'
     AUTOMAPPEDGROUPS: 'Aŭtomate mapigitaj LDAP-grupoj'
