@@ -10,8 +10,8 @@ de:
   SilverStripe\LDAP\Authenticators\LDAPLostPasswordHandler:
     NOTERESETPASSWORDUSERNAME: 'Geben Sie Ihren Benutzernamen ein und wir senden Ihnen einen Link, mit dem Sie Ihr Passwort zurücksetzen können.'
     NOTERESETPASSWORDUSERNAMEOREMAIL: 'Geben Sie Ihren Benutzernamen oder Ihre E-Mail-Adresse ein und wir senden Ihnen einen Link, mit dem Sie Ihr Passwort zurücksetzen können.'
-    PASSWORDSENTHEADER: 'Link zum Zurücksetzen des Passworts an ''{username}'' gesendet'
-    PASSWORDSENTTEXT: 'Vielen Dank! Ein Link zum Zurücksetzen wurde an ''{username}'' gesendet, sofern ein Konto vorhanden ist.'
+    PASSWORDSENTHEADER: "Link zum Zurücksetzen des Passworts an '{username}' gesendet"
+    PASSWORDSENTTEXT: "Vielen Dank! Ein Link zum Zurücksetzen wurde an '{username}' gesendet, sofern ein Konto vorhanden ist."
   SilverStripe\LDAP\Extensions\LDAPGroupExtension:
     INFOIMPORTED: 'Diese Gruppe wird automatisch aus LDAP importiert.'
     LASTSYNCED: 'Zuletzt synchronisiert'
@@ -27,7 +27,6 @@ de:
     USERNAME: Benutzername
     USERNAMEOREMAIL: E-Mail-Adresse
   SilverStripe\LDAP\Forms\LDAPLoginForm:
-    AUTHENTICATORNAME: LDAP
     ENTERUSERNAME: 'Bitte geben Sie Ihren Benutzernamen ein, um einen Link zum Zurücksetzen des Passworts zu erhalten.'
     ENTERUSERNAMEOREMAIL: 'Bitte geben Sie Ihren Benutzernamen oder Ihre E-Mail-Adresse ein, um einen Link zum Zurücksetzen des Passworts zu erhalten.'
     USERNAME: Benutzername

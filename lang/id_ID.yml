@@ -10,8 +10,8 @@ id_ID:
   SilverStripe\LDAP\Authenticators\LDAPLostPasswordHandler:
     NOTERESETPASSWORDUSERNAME: 'Masukkan username anda dan kami akan mengirimkan tautan untuk mereset password anda'
     NOTERESETPASSWORDUSERNAMEOREMAIL: 'Masukkan nama pengguna atau alamat surel Anda dan kami akan mengirimkan tautan yang dapat mengatur ulang kata sandi Anda'
-    PASSWORDSENTHEADER: 'Tautan mengatur ulang kata sandi dikirim ke ''{username}'''
-    PASSWORDSENTTEXT: 'Terima kasih! Sebuah tautan mengatur ulang telah dikirim ke ''{username}'', jika akun tersedia.'
+    PASSWORDSENTHEADER: "Tautan mengatur ulang kata sandi dikirim ke '{username}'"
+    PASSWORDSENTTEXT: "Terima kasih! Sebuah tautan mengatur ulang telah dikirim ke '{username}', jika akun tersedia."
   SilverStripe\LDAP\Extensions\LDAPGroupExtension:
     ADDMAPPEDGROUP: 'Menambahkan pemetaan grup LDAP'
     AUTOMAPPEDGROUPS: 'Secara otomatis memetakan Grup LDAP'
@@ -31,7 +31,6 @@ id_ID:
     USERNAME: 'Nama Pengguna'
     USERNAMEOREMAIL: Surel
   SilverStripe\LDAP\Forms\LDAPLoginForm:
-    AUTHENTICATORNAME: LDAP
     ENTERUSERNAME: 'Mohon masukkan nama pengguna Anda untuk mendapatkan tautan mengatur ulang kata sandi'
     ENTERUSERNAMEOREMAIL: 'Mohon masukkan nama pengguna Anda atau alamat surel Anda untuk mendapatkan tautan mengatur ulang kata sandi'
     USERNAME: 'Nama Pengguna'

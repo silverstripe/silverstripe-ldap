@@ -18,9 +18,7 @@ hr:
     db_Username: 'Korisničko ime'
   SilverStripe\LDAP\Forms\LDAPChangePasswordForm:
     USERNAME: 'Korisničko ime'
-    USERNAMEOREMAIL: Email
   SilverStripe\LDAP\Forms\LDAPLoginForm:
-    AUTHENTICATORNAME: LDAP
     ENTERUSERNAME: 'Molimo unesite korisničko ime kako bi ste dobili link za resetiranje lozinke.'
     ENTERUSERNAMEOREMAIL: 'Molimo unesite korisničko ime ili email adresu kako bi ste dobili link za resetiranje lozinke.'
     USERNAME: 'Korisničko ime'

@@ -10,16 +10,14 @@ eo:
   SilverStripe\LDAP\Authenticators\LDAPLostPasswordHandler:
     NOTERESETPASSWORDUSERNAME: 'Enigu vian salutnomon kaj ni sendos al vi ligilon per kiu vi povos agordi vian pasvorton'
     NOTERESETPASSWORDUSERNAMEOREMAIL: 'Enigu vian salutnomon aŭ vian retpoŝtan adreson kaj ni sendos al vi ligilon per kiu vi povos agordi vian pasvorton'
-    PASSWORDSENTHEADER: 'Sendiĝis al ''{username}'' ligilo por agordi vian pasvorton'
-    PASSWORDSENTTEXT: 'Dankon! Ni sendis agordan ligilon al ''{username}'', kondiĉe ke konto ekzistas.'
+    PASSWORDSENTHEADER: "Sendiĝis al '{username}' ligilo por agordi vian pasvorton"
+    PASSWORDSENTTEXT: "Dankon! Ni sendis agordan ligilon al '{username}', kondiĉe ke konto ekzistas."
   SilverStripe\LDAP\Extensions\LDAPGroupExtension:
     ADDMAPPEDGROUP: 'Enmetu LDAP-grupan mapigon'
     AUTOMAPPEDGROUPS: 'Aŭtomate mapigitaj LDAP-grupoj'
     INFOIMPORTED: 'Ĉi tiu grupo estas aŭtomate importita el LDAP.'
     LASTSYNCED: 'Lastfoje sinkronigita'
     MAPPEDGROUPS: 'Mapigitaj LDAP-grupoj'
-    db_DN: DN
-    db_GUID: GUID
     db_LastSynced: 'Lastfoje sinkronigita'
     has_many_LDAPGroupMappings: 'LDAP-grupaj mapigoj'
   SilverStripe\LDAP\Extensions\LDAPMemberExtension:
@@ -28,7 +26,6 @@ eo:
     INFOIMPORTED: 'Ĉi tiu uzanto estas aŭtomate importita el LDAP. Manaj ŝanĝoj al importitaj kampoj foriĝos je sinkronigo.'
     ISEXPIRED: 'Ĉu la LDAP/AD-ensaluto de la uzanto malaperis?'
     LASTSYNCED: 'Lastfoje sinkronigita'
-    db_GUID: GUID
     db_IsExpired: Eksvalidiĝis
     db_LastSynced: 'Lastfoje sinkronigita'
     db_Username: Salutnomo
@@ -36,7 +33,6 @@ eo:
     USERNAME: Salutnomo
     USERNAMEOREMAIL: Retadreso
   SilverStripe\LDAP\Forms\LDAPLoginForm:
-    AUTHENTICATORNAME: LDAP
     ENTERUSERNAME: 'Bonvolu enigi vian salutnomon por ricevi pasvortagordan ligilon.'
     ENTERUSERNAMEOREMAIL: 'Bonvolu enigi vian salutnomon aŭ vian retadreson por ricevi pasvortagordan ligilon.'
     USERNAME: Salutnomo
@@ -57,7 +53,6 @@ eo:
     SELECTONE: 'Elektu iun'
     SINGULARNAME: 'LDAP grupaj mapigoj'
     SUBTREE_DESCRIPTION: 'Uzantoj en ĉitiu grupo kaj ĉiuj ingitaj grupoj'
-    db_DN: DN
     db_Scope: Amplekso
     has_one_Group: Grupo
   SilverStripe\LDAP\Services\LDAPService:
