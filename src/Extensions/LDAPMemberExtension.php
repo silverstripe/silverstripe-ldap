@@ -185,7 +185,7 @@ class LDAPMemberExtension extends DataExtension
      * @param  ValidationResult
      * @throws ValidationException
      */
-    public function validate(ValidationResult $validationResult)
+    protected function updateValidate(ValidationResult $validationResult)
     {
         // We allow empty Username for registration purposes, as we need to
         // create Member records with empty Username temporarily. Forms should explicitly
@@ -295,7 +295,7 @@ class LDAPMemberExtension extends DataExtension
      *
      * @throws Exception When failures are not acceptable via configuration
      */
-    public function afterMemberLoggedIn()
+    protected function onAfterMemberLoggedIn()
     {
         if ($this->owner->GUID) {
             try {
