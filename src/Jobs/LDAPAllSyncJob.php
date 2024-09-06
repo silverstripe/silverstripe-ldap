@@ -6,10 +6,12 @@ use Exception;
 use SilverStripe\LDAP\Tasks\LDAPGroupSyncTask;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Injector\Injector;
+use SilverStripe\PolyExecution\PolyOutput;
 use SilverStripe\LDAP\Tasks\LDAPMemberSyncTask;
 use Symbiote\QueuedJobs\Services\AbstractQueuedJob;
 use Symbiote\QueuedJobs\Services\QueuedJob;
 use Symbiote\QueuedJobs\Services\QueuedJobService;
+use Symfony\Component\Console\Input\ArrayInput;
 
 /**
  * Class LDAPAllSyncJob
@@ -84,11 +86,15 @@ class LDAPAllSyncJob extends AbstractQueuedJob
             singleton(QueuedJobService::class)->queueJob($nextJob, date('Y-m-d H:i:s', time() + $regenerateTime));
         }
 
+        $output = PolyOutput::create(PolyOutput::FORMAT_ANSI);
+        $input = new ArrayInput([]);
+        $input->setInteractive(false);
+
         $task = Injector::inst()->create(LDAPGroupSyncTask::class);
-        $task->run(null);
+        $task->run($input, $output);
 
         $task = Injector::inst()->create(LDAPMemberSyncTask::class);
-        $task->run(null);
+        $task->run($input, $output);
 
         $this->isComplete = true;
     }

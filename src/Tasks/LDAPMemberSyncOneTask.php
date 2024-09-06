@@ -3,9 +3,11 @@
 namespace SilverStripe\LDAP\Tasks;
 
 use Exception;
-use SilverStripe\Control\HTTPRequest;
-use SilverStripe\Dev\Deprecation;
+use SilverStripe\PolyExecution\PolyOutput;
 use SilverStripe\LDAP\Services\LDAPService;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 
 /**
  * Class LDAPMemberSyncOneTask
@@ -13,15 +15,11 @@ use SilverStripe\LDAP\Services\LDAPService;
  *
  * Debug build task that can be used to sync a single member by providing their email address registered in LDAP.
  *
- * Usage: /dev/tasks/LDAPMemberSyncOneTask?mail=john.smith@example.com
+ * Usage: sake tasks:LDAPMemberSyncOneTask --email=john.smith@example.com
  */
 class LDAPMemberSyncOneTask extends LDAPMemberSyncTask
 {
-    /**
-     * {@inheritDoc}
-     * @var string
-     */
-    private static $segment = 'LDAPMemberSyncOneTask';
+    protected static string $commandName = 'LDAPMemberSyncOneTask';
 
     /**
      * @var array
@@ -35,50 +33,40 @@ class LDAPMemberSyncOneTask extends LDAPMemberSyncTask
      */
     protected $ldapService;
 
-    /**
-     * @return string
-     */
-    public function getTitle()
+    public function getTitle(): string
     {
         return _t(__CLASS__ . '.SYNCONETITLE', 'Sync single user from LDAP');
     }
 
-    /**
-     * Syncs a single user based on the email address passed in the URL
-     *
-     * @param HTTPRequest $request
-     */
-    public function run($request)
+    protected function execute(InputInterface $input, PolyOutput $output): int
     {
-        $email = $request->getVar('email');
+        $email = $input->getOption('email');
 
         if (!$email) {
-            echo 'You must supply an email parameter to this method.', PHP_EOL;
-            exit;
+            $output->writeln('<error>You must supply an email address.</>');
+            return Command::INVALID;
         }
 
         $user = $this->ldapService->getUserByEmail($email);
 
         if (!$user) {
-            echo sprintf('No user found in LDAP for email %s', $email), PHP_EOL;
-            exit;
+            $output->writeln(sprintf('<error>No user found in LDAP for email %s</>', $email));
+            return Command::FAILURE;
         }
 
         $member = $this->findOrCreateMember($user);
 
         // If member exists already, we're updating - otherwise we're creating
         if ($member->exists()) {
-            Deprecation::withSuppressedNotice(function () use ($user, $member) {
-                $this->log(sprintf(
-                    'Updating existing Member %s: "%s" (ID: %s, SAM Account Name: %s)',
-                    $user['objectguid'],
-                    $member->getName(),
-                    $member->ID,
-                    $user['samaccountname']
-                ));
-            });
+            $output->writeln(sprintf(
+                'Updating existing Member %s: "%s" (ID: %s, SAM Account Name: %s)',
+                $user['objectguid'],
+                $member->getName(),
+                $member->ID,
+                $user['samaccountname']
+            ));
         } else {
-            $this->log(sprintf(
+            $output->writeln(sprintf(
                 'Creating new Member %s: "%s" (SAM Account Name: %s)',
                 $user['objectguid'],
                 $user['cn'],
@@ -86,17 +74,17 @@ class LDAPMemberSyncOneTask extends LDAPMemberSyncTask
             ));
         }
 
-        Deprecation::withSuppressedNotice(function () use ($user) {
-            $this->log('User data returned from LDAP follows:');
-            $this->log(var_export($user));
-        });
+        $output->writeln('User data returned from LDAP follows:');
+        $output->writeln(var_export($user, true));
 
         try {
             $this->ldapService->updateMemberFromLDAP($member, $user);
-            Deprecation::withSuppressedNotice(fn() => $this->log('Done!'));
         } catch (Exception $e) {
-            Deprecation::withSuppressedNotice(fn() => $this->log($e->getMessage()));
+            $output->writeln('<error>' . $e->getMessage() . '</>');
+            return Command::FAILURE;
         }
+
+        return Command::SUCCESS;
     }
 
     /**
@@ -107,5 +95,12 @@ class LDAPMemberSyncOneTask extends LDAPMemberSyncTask
     {
         $this->ldapService = $service;
         return $this;
+    }
+
+    public function getOptions(): array
+    {
+        return [
+            new InputOption('email', null, InputOption::VALUE_REQUIRED, 'Email address of the member to sync (required)'),
+        ];
     }
 }

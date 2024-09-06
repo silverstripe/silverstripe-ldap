@@ -340,8 +340,8 @@ See the [module docs](https://github.com/symbiote/silverstripe-queuedjobs) on ho
 
 If you don't want to run a queued job, you can set a cronjob yourself by calling:
 
-```
-env php vendor/silverstripe/framework/cli-script.php dev/tasks/LDAPMemberSyncTask
+```sh
+vendor/bin/sake tasks:LDAPMemberSyncTask
 ```
 
 ### Syncing AD groups and users on a schedule
@@ -365,8 +365,8 @@ SilverStripe\LDAP\Jobs\LDAPAllSyncJob:
 If you don't want to run a queued job, you can set a cronjob yourself by calling the two sync tasks (order is important, otherwise your group memberships might not get updated):
 
 ```sh
-env php vendor/silverstripe/framework/cli-script.php dev/tasks/LDAPGroupSyncTask
-env php vendor/silverstripe/framework/cli-script.php dev/tasks/LDAPMemberSyncTask
+vendor/bin/sake tasks:LDAPGroupSyncTask
+vendor/bin/sake tasks:LDAPMemberSyncTask
 ```
 
 ### Migrating existing users
@@ -438,9 +438,9 @@ The fallback authenticator will be used in the following conditions:
 
 ### Extending the member and group sync tasks with custom functionality
 
-Both `LDAPMemberSyncTask` and `LDAPGroupSyncTask` provide extension points (`onAfterLDAPMemberSyncTask` and 
-`onAfterLDAPGroupSyncTask` respectively) after all members/groups have been synced and before the task exits. This is a 
-perfect time to set values that are dependent on a full sync - for example linking a user to their manager based on DNs. 
+Both `LDAPMemberSyncTask` and `LDAPGroupSyncTask` provide extension points (`onAfterLDAPMemberSyncTask` and
+`onAfterLDAPGroupSyncTask` respectively) after all members/groups have been synced and before the task exits. This is a
+perfect time to set values that are dependent on a full sync - for example linking a user to their manager based on DNs.
 For example:
 
 ```yaml
@@ -462,7 +462,7 @@ use SilverStripe\Security\Member;
 class LDAPMemberSyncExtension extends Extension
 {
     /**
-     * Assuming the `DN` and `ManagerDN` values are set by LDAP, this code will link a member with their manager and 
+     * Assuming the `DN` and `ManagerDN` values are set by LDAP, this code will link a member with their manager and
      * store the link in the `Manager` has_one.
      */
     protected function onAfterLDAPMemberSyncTask()
@@ -505,19 +505,19 @@ This will allow users to change their AD password via the regular CMS "forgot pa
 
 ### Allow SilverStripe attributes to be reset (removed) by AD
 
-By default if attributes are present, and then missing in subsequent requests, they are ignored (non-destructive) by 
+By default if attributes are present, and then missing in subsequent requests, they are ignored (non-destructive) by
 this module. This can cause attributes to persist when they've been deliberately removed (attribute is no longer present)
-in the LDAP source data. 
+in the LDAP source data.
 
-If you wish a full two way sync to occur, then set the attribute on `LDAPService` for `reset_missing_attributes` to 
-enable a full sync. 
+If you wish a full two way sync to occur, then set the attribute on `LDAPService` for `reset_missing_attributes` to
+enable a full sync.
 
 *Note*: This will mean syncs are destructive, and data or attributes will be reset if missing from the master LDAP source
-data. 
+data.
 
 ```yaml
 SilverStripe\LDAP\Services\LDAPService:
-  reset_missing_attributes: true 
+  reset_missing_attributes: true
 ```
 
 ### Writing LDAP data from SilverStripe

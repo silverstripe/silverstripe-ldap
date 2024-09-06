@@ -4,13 +4,14 @@ namespace SilverStripe\LDAP\Tasks;
 
 use Exception;
 use SilverStripe\Control\Director;
-use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Dev\BuildTask;
-use SilverStripe\Dev\Deprecation;
+use SilverStripe\PolyExecution\PolyOutput;
 use SilverStripe\LDAP\Services\LDAPService;
 use SilverStripe\ORM\DB;
 use SilverStripe\Security\Member;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
 
 /**
  * Class LDAPMemberSyncTask
@@ -19,11 +20,7 @@ use SilverStripe\Security\Member;
  */
 class LDAPMemberSyncTask extends BuildTask
 {
-    /**
-     * {@inheritDoc}
-     * @var string
-     */
-    private static $segment = 'LDAPMemberSyncTask';
+    protected static string $commandName = 'LDAPMemberSyncTask';
 
     /**
      * @var array
@@ -46,19 +43,12 @@ class LDAPMemberSyncTask extends BuildTask
      */
     protected $ldapService;
 
-    /**
-     * @return string
-     */
-    public function getTitle()
+    public function getTitle(): string
     {
         return _t(__CLASS__ . '.SYNCTITLE', 'Sync all users from Active Directory');
     }
 
-    /**
-     * {@inheritDoc}
-     * @param HTTPRequest $request
-     */
-    public function run($request)
+    protected function execute(InputInterface $input, PolyOutput $output): int
     {
         ini_set('max_execution_time', 3600); // 3600s = 1hr
         ini_set('memory_limit', '1024M'); // 1GB memory limit
@@ -71,8 +61,6 @@ class LDAPMemberSyncTask extends BuildTask
             array_keys(Config::inst()->get(Member::class, 'ldap_field_mappings') ?? [])
         ));
 
-        $start = time();
-
         $created = 0;
         $updated = 0;
         $deleted = 0;
@@ -83,25 +71,21 @@ class LDAPMemberSyncTask extends BuildTask
             // If member exists already, we're updating - otherwise we're creating
             if ($member->exists()) {
                 $updated++;
-                Deprecation::withSuppressedNotice(function () use ($data, $member) {
-                    $this->log(sprintf(
-                        'Updating existing Member %s: "%s" (ID: %s, SAM Account Name: %s)',
-                        $data['objectguid'],
-                        $member->getName(),
-                        $member->ID,
-                        $data['samaccountname']
-                    ));
-                });
+                $output->writeln(sprintf(
+                    'Updating existing Member %s: "%s" (ID: %s, SAM Account Name: %s)',
+                    $data['objectguid'],
+                    $member->getName(),
+                    $member->ID,
+                    $data['samaccountname']
+                ));
             } else {
                 $created++;
-                Deprecation::withSuppressedNotice(function () use ($data) {
-                    $this->log(sprintf(
-                        'Creating new Member %s: "%s" (SAM Account Name: %s)',
-                        $data['objectguid'],
-                        $data['cn'],
-                        $data['samaccountname']
-                    ));
-                });
+                $output->writeln(sprintf(
+                    'Creating new Member %s: "%s" (SAM Account Name: %s)',
+                    $data['objectguid'],
+                    $data['cn'],
+                    $data['samaccountname']
+                ));
             }
 
             // Sync attributes from LDAP to the Member record. This will also write the Member record.
@@ -109,7 +93,7 @@ class LDAPMemberSyncTask extends BuildTask
             try {
                 $this->ldapService->updateMemberFromLDAP($member, $data);
             } catch (Exception $e) {
-                Deprecation::withSuppressedNotice(fn() => $this->log($e->getMessage()));
+                $output->writeln('<error>' . $e->getMessage() . '</>');
                 continue;
             }
         }
@@ -121,18 +105,16 @@ class LDAPMemberSyncTask extends BuildTask
                 $member = Member::get()->byId($record['ID']);
 
                 if (!isset($users[$record['GUID']])) {
-                    Deprecation::withSuppressedNotice(function () use ($member) {
-                        $this->log(sprintf(
-                            'Removing Member "%s" (GUID: %s) that no longer exists in LDAP.',
-                            $member->getName(),
-                            $member->GUID
-                        ));
-                    });
+                    $output->writeln(sprintf(
+                        'Removing Member "%s" (GUID: %s) that no longer exists in LDAP.',
+                        $member->getName(),
+                        $member->GUID
+                    ));
 
                     try {
                         $member->delete();
                     } catch (Exception $e) {
-                        Deprecation::withSuppressedNotice(fn() => $this->log($e->getMessage()));
+                        $output->writeln('<error>' . $e->getMessage() . '</>');
                         continue;
                     }
 
@@ -141,32 +123,15 @@ class LDAPMemberSyncTask extends BuildTask
             }
         }
 
-        $this->invokeWithExtensions('onAfterLDAPMemberSyncTask');
+        $this->invokeWithExtensions('onAfterLDAPMemberSyncTask', $output);
 
-        $end = time() - $start;
-
-        Deprecation::withSuppressedNotice(function () use ($created, $updated, $deleted, $end) {
-            $this->log(sprintf(
-                'Done. Created %s records. Updated %s records. Deleted %s records. Duration: %s seconds',
-                $created,
-                $updated,
-                $deleted,
-                round($end ?? 0.0, 0)
-            ));
-        });
-    }
-
-    /**
-     * Sends a message, formatted either for the CLI or browser
-     *
-     * @param string $message
-     * @deprecated 2.3.0 Will be replaced with new $output parameter in the run() method
-     */
-    protected function log($message)
-    {
-        Deprecation::notice('2.3.0', 'Will be replaced with new $output parameter in the run() method');
-        $message = sprintf('[%s] ', date('Y-m-d H:i:s')) . $message;
-        echo Director::is_cli() ? ($message . PHP_EOL) : ($message . '<br>');
+        $output->writeln(sprintf(
+            'Done. Created %s records. Updated %s records. Deleted %s records.',
+            $created,
+            $updated,
+            $deleted
+        ));
+        return Command::SUCCESS;
     }
 
     /**

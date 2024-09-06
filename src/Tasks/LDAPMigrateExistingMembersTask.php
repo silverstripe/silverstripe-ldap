@@ -2,13 +2,13 @@
 
 namespace SilverStripe\LDAP\Tasks;
 
-use SilverStripe\Control\Director;
-use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Core\Convert;
 use SilverStripe\Dev\BuildTask;
-use SilverStripe\Dev\Deprecation;
+use SilverStripe\PolyExecution\PolyOutput;
 use SilverStripe\LDAP\Services\LDAPService;
 use SilverStripe\Security\Member;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
 
 /**
  * Class LDAPMigrateExistingMembersTask
@@ -18,11 +18,7 @@ use SilverStripe\Security\Member;
  */
 class LDAPMigrateExistingMembersTask extends BuildTask
 {
-    /**
-     * {@inheritDoc}
-     * @var string
-     */
-    private static $segment = 'LDAPMigrateExistingMembersTask';
+    protected static string $commandName = 'LDAPMigrateExistingMembersTask';
 
     /**
      * @var array
@@ -36,22 +32,14 @@ class LDAPMigrateExistingMembersTask extends BuildTask
      */
     public $ldapService;
 
-    /**
-     * @return string
-     */
-    public function getTitle()
+    public function getTitle(): string
     {
         return _t(__CLASS__ . '.TITLE', 'Migrate existing members in SilverStripe into LDAP members');
     }
 
-    /**
-     * {@inheritDoc}
-     * @param HTTPRequest $request
-     */
-    public function run($request)
+    protected function execute(InputInterface $input, PolyOutput $output): int
     {
         $users = $this->ldapService->getUsers(['objectguid', 'mail']);
-        $start = time();
         $count = 0;
 
         foreach ($users as $user) {
@@ -74,33 +62,15 @@ class LDAPMigrateExistingMembersTask extends BuildTask
 
             $count++;
 
-            Deprecation::withSuppressedNotice(function () use ($member) {
-                $this->log(sprintf(
-                    'Migrated Member %s (ID: %s, Email: %s)',
-                    $member->getName(),
-                    $member->ID,
-                    $member->Email
-                ));
-            });
+            $output->writeln(sprintf(
+                'Migrated Member %s (ID: %s, Email: %s)',
+                $member->getName(),
+                $member->ID,
+                $member->Email
+            ));
         }
 
-        $end = time() - $start;
-
-        Deprecation::withSuppressedNotice(function () use ($count, $end) {
-            $this->log(sprintf('Done. Migrated %s Member records. Duration: %s seconds', $count, round($end ?? 0.0, 0)));
-        });
-    }
-
-    /**
-     * Sends a message, formatted either for the CLI or browser
-     *
-     * @param string $message
-     * @deprecated 2.3.0 Will be replaced with new $output parameter in the run() method
-     */
-    protected function log($message)
-    {
-        Deprecation::notice('2.3.0', 'Will be replaced with new $output parameter in the run() method');
-        $message = sprintf('[%s] ', date('Y-m-d H:i:s')) . $message;
-        echo Director::is_cli() ? ($message . PHP_EOL) : ($message . '<br>');
+        $output->writeln("Done. Migrated $count Member records.");
+        return Command::SUCCESS;
     }
 }

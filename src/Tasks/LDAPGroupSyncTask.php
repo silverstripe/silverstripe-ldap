@@ -4,12 +4,13 @@ namespace SilverStripe\LDAP\Tasks;
 
 use Exception;
 use SilverStripe\Control\Director;
-use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Dev\BuildTask;
-use SilverStripe\Dev\Deprecation;
+use SilverStripe\PolyExecution\PolyOutput;
 use SilverStripe\LDAP\Services\LDAPService;
 use SilverStripe\ORM\DB;
 use SilverStripe\Security\Group;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
 
 /**
  * Class LDAPGroupSyncTask
@@ -18,11 +19,7 @@ use SilverStripe\Security\Group;
  */
 class LDAPGroupSyncTask extends BuildTask
 {
-    /**
-     * {@inheritDoc}
-     * @var string
-     */
-    private static $segment = 'LDAPGroupSyncTask';
+    protected static string $commandName = 'LDAPGroupSyncTask';
 
     /**
      * @var array
@@ -45,19 +42,12 @@ class LDAPGroupSyncTask extends BuildTask
      */
     protected $ldapService;
 
-    /**
-     * @return string
-     */
-    public function getTitle()
+    public function getTitle(): string
     {
         return _t(__CLASS__ . '.SYNCTITLE', 'Sync all groups from LDAP');
     }
 
-    /**
-     * {@inheritDoc}
-     * @var HTTPRequest $request
-     */
-    public function run($request)
+    protected function execute(InputInterface $input, PolyOutput $output): int
     {
         ini_set('max_execution_time', 900);
 
@@ -71,8 +61,6 @@ class LDAPGroupSyncTask extends BuildTask
             'objectguid'
         );
 
-        $start = time();
-
         $created = 0;
         $updated = 0;
         $deleted = 0;
@@ -85,31 +73,27 @@ class LDAPGroupSyncTask extends BuildTask
                 $group = new Group();
                 $group->GUID = $data['objectguid'];
 
-                Deprecation::withSuppressedNotice(function () use ($data) {
-                    $this->log(sprintf(
-                        'Creating new Group (GUID: %s, sAMAccountName: %s)',
-                        $data['objectguid'],
-                        $data['samaccountname']
-                    ));
-                });
+                $output->writeln(sprintf(
+                    'Creating new Group (GUID: %s, sAMAccountName: %s)',
+                    $data['objectguid'],
+                    $data['samaccountname']
+                ));
                 $created++;
             } else {
-                Deprecation::withSuppressedNotice(function () use ($group, $data) {
-                    $this->log(sprintf(
-                        'Updating existing Group "%s" (ID: %s, GUID: %s, sAMAccountName: %s)',
-                        $group->getTitle(),
-                        $group->ID,
-                        $data['objectguid'],
-                        $data['samaccountname']
-                    ));
-                });
+                $output->writeln(sprintf(
+                    'Updating existing Group "%s" (ID: %s, GUID: %s, sAMAccountName: %s)',
+                    $group->getTitle(),
+                    $group->ID,
+                    $data['objectguid'],
+                    $data['samaccountname']
+                ));
                 $updated++;
             }
 
             try {
                 $this->ldapService->updateGroupFromLDAP($group, $data);
             } catch (Exception $e) {
-                Deprecation::withSuppressedNotice(fn() => $this->log($e->getMessage()));
+                $output->writeln('<error>' . $e->getMessage() . '</>');
                 continue;
             }
         }
@@ -121,13 +105,11 @@ class LDAPGroupSyncTask extends BuildTask
                 if (!isset($ldapGroups[$record['GUID']])) {
                     $group = Group::get()->byId($record['ID']);
 
-                    Deprecation::withSuppressedNotice(function () use ($group) {
-                        $this->log(sprintf(
-                            'Removing Group "%s" (GUID: %s) that no longer exists in LDAP.',
-                            $group->Title,
-                            $group->GUID
-                        ));
-                    });
+                    $output->writeln(sprintf(
+                        'Removing Group "%s" (GUID: %s) that no longer exists in LDAP.',
+                        $group->Title,
+                        $group->GUID
+                    ));
 
                     try {
                         // Cascade into mappings, just to clean up behind ourselves.
@@ -136,7 +118,7 @@ class LDAPGroupSyncTask extends BuildTask
                         }
                         $group->delete();
                     } catch (Exception $e) {
-                        Deprecation::withSuppressedNotice(fn() => $this->log($e->getMessage()));
+                        $output->writeln('<error>' . $e->getMessage() . '</>');
                         continue;
                     }
 
@@ -145,32 +127,15 @@ class LDAPGroupSyncTask extends BuildTask
             }
         }
 
-        $this->invokeWithExtensions('onAfterLDAPGroupSyncTask');
+        $this->invokeWithExtensions('onAfterLDAPGroupSyncTask', $output);
 
-        $end = time() - $start;
-
-        Deprecation::withSuppressedNotice(function () use ($created, $updated, $deleted, $end) {
-            $this->log(sprintf(
-                'Done. Created %s records. Updated %s records. Deleted %s records. Duration: %s seconds',
-                $created,
-                $updated,
-                $deleted,
-                round($end ?? 0.0, 0)
-            ));
-        });
-    }
-
-    /**
-     * Sends a message, formatted either for the CLI or browser
-     *
-     * @param string $message
-     * @deprecated 2.3.0 Will be replaced with new $output parameter in the run() method
-     */
-    protected function log($message)
-    {
-        Deprecation::notice('2.3.0', 'Will be replaced with new $output parameter in the run() method');
-        $message = sprintf('[%s] ', date('Y-m-d H:i:s')) . $message;
-        echo Director::is_cli() ? ($message . PHP_EOL) : ($message . '<br>');
+        $output->writeln(sprintf(
+            'Done. Created %s records. Updated %s records. Deleted %s records.',
+            $created,
+            $updated,
+            $deleted
+        ));
+        return Command::SUCCESS;
     }
 
     /**
