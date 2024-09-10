@@ -6,6 +6,7 @@ use SilverStripe\Control\Director;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Core\Convert;
 use SilverStripe\Dev\BuildTask;
+use SilverStripe\Dev\Deprecation;
 use SilverStripe\LDAP\Services\LDAPService;
 use SilverStripe\Security\Member;
 
@@ -73,26 +74,32 @@ class LDAPMigrateExistingMembersTask extends BuildTask
 
             $count++;
 
-            $this->log(sprintf(
-                'Migrated Member %s (ID: %s, Email: %s)',
-                $member->getName(),
-                $member->ID,
-                $member->Email
-            ));
+            Deprecation::withNoReplacement(function () use ($member) {
+                $this->log(sprintf(
+                    'Migrated Member %s (ID: %s, Email: %s)',
+                    $member->getName(),
+                    $member->ID,
+                    $member->Email
+                ));
+            });
         }
 
         $end = time() - $start;
 
-        $this->log(sprintf('Done. Migrated %s Member records. Duration: %s seconds', $count, round($end ?? 0.0, 0)));
+        Deprecation::withNoReplacement(function () use ($count, $end) {
+            $this->log(sprintf('Done. Migrated %s Member records. Duration: %s seconds', $count, round($end ?? 0.0, 0)));
+        });
     }
 
     /**
      * Sends a message, formatted either for the CLI or browser
      *
      * @param string $message
+     * @deprecated 2.3.0 Will be replaced with new $output parameter in the run() method
      */
     protected function log($message)
     {
+        Deprecation::notice('2.3.0', 'Will be replaced with new $output parameter in the run() method');
         $message = sprintf('[%s] ', date('Y-m-d H:i:s')) . $message;
         echo Director::is_cli() ? ($message . PHP_EOL) : ($message . '<br>');
     }

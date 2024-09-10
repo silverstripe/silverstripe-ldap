@@ -4,6 +4,7 @@ namespace SilverStripe\LDAP\Tasks;
 
 use Exception;
 use SilverStripe\Control\HTTPRequest;
+use SilverStripe\Dev\Deprecation;
 use SilverStripe\LDAP\Services\LDAPService;
 
 /**
@@ -67,13 +68,15 @@ class LDAPMemberSyncOneTask extends LDAPMemberSyncTask
 
         // If member exists already, we're updating - otherwise we're creating
         if ($member->exists()) {
-            $this->log(sprintf(
-                'Updating existing Member %s: "%s" (ID: %s, SAM Account Name: %s)',
-                $user['objectguid'],
-                $member->getName(),
-                $member->ID,
-                $user['samaccountname']
-            ));
+            Deprecation::withNoReplacement(function () use ($user, $member) {
+                $this->log(sprintf(
+                    'Updating existing Member %s: "%s" (ID: %s, SAM Account Name: %s)',
+                    $user['objectguid'],
+                    $member->getName(),
+                    $member->ID,
+                    $user['samaccountname']
+                ));
+            });
         } else {
             $this->log(sprintf(
                 'Creating new Member %s: "%s" (SAM Account Name: %s)',
@@ -83,14 +86,16 @@ class LDAPMemberSyncOneTask extends LDAPMemberSyncTask
             ));
         }
 
-        $this->log('User data returned from LDAP follows:');
-        $this->log(var_export($user));
+        Deprecation::withNoReplacement(function () use ($user) {
+            $this->log('User data returned from LDAP follows:');
+            $this->log(var_export($user));
+        });
 
         try {
             $this->ldapService->updateMemberFromLDAP($member, $user);
-            $this->log('Done!');
+            Deprecation::withNoReplacement(fn() => $this->log('Done!'));
         } catch (Exception $e) {
-            $this->log($e->getMessage());
+            Deprecation::withNoReplacement(fn() => $this->log($e->getMessage()));
         }
     }
 

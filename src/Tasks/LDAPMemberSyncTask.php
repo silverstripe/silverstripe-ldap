@@ -7,6 +7,7 @@ use SilverStripe\Control\Director;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Dev\BuildTask;
+use SilverStripe\Dev\Deprecation;
 use SilverStripe\LDAP\Services\LDAPService;
 use SilverStripe\ORM\DB;
 use SilverStripe\Security\Member;
@@ -82,21 +83,25 @@ class LDAPMemberSyncTask extends BuildTask
             // If member exists already, we're updating - otherwise we're creating
             if ($member->exists()) {
                 $updated++;
-                $this->log(sprintf(
-                    'Updating existing Member %s: "%s" (ID: %s, SAM Account Name: %s)',
-                    $data['objectguid'],
-                    $member->getName(),
-                    $member->ID,
-                    $data['samaccountname']
-                ));
+                Deprecation::withNoReplacement(function () use ($data, $member) {
+                    $this->log(sprintf(
+                        'Updating existing Member %s: "%s" (ID: %s, SAM Account Name: %s)',
+                        $data['objectguid'],
+                        $member->getName(),
+                        $member->ID,
+                        $data['samaccountname']
+                    ));
+                });
             } else {
                 $created++;
-                $this->log(sprintf(
-                    'Creating new Member %s: "%s" (SAM Account Name: %s)',
-                    $data['objectguid'],
-                    $data['cn'],
-                    $data['samaccountname']
-                ));
+                Deprecation::withNoReplacement(function () use ($data) {
+                    $this->log(sprintf(
+                        'Creating new Member %s: "%s" (SAM Account Name: %s)',
+                        $data['objectguid'],
+                        $data['cn'],
+                        $data['samaccountname']
+                    ));
+                });
             }
 
             // Sync attributes from LDAP to the Member record. This will also write the Member record.
@@ -104,7 +109,7 @@ class LDAPMemberSyncTask extends BuildTask
             try {
                 $this->ldapService->updateMemberFromLDAP($member, $data);
             } catch (Exception $e) {
-                $this->log($e->getMessage());
+                Deprecation::withNoReplacement(fn() => $this->log($e->getMessage()));
                 continue;
             }
         }
@@ -116,16 +121,18 @@ class LDAPMemberSyncTask extends BuildTask
                 $member = Member::get()->byId($record['ID']);
 
                 if (!isset($users[$record['GUID']])) {
-                    $this->log(sprintf(
-                        'Removing Member "%s" (GUID: %s) that no longer exists in LDAP.',
-                        $member->getName(),
-                        $member->GUID
-                    ));
+                    Deprecation::withNoReplacement(function () use ($member) {
+                        $this->log(sprintf(
+                            'Removing Member "%s" (GUID: %s) that no longer exists in LDAP.',
+                            $member->getName(),
+                            $member->GUID
+                        ));
+                    });
 
                     try {
                         $member->delete();
                     } catch (Exception $e) {
-                        $this->log($e->getMessage());
+                        Deprecation::withNoReplacement(fn() => $this->log($e->getMessage()));
                         continue;
                     }
 
@@ -138,22 +145,26 @@ class LDAPMemberSyncTask extends BuildTask
 
         $end = time() - $start;
 
-        $this->log(sprintf(
-            'Done. Created %s records. Updated %s records. Deleted %s records. Duration: %s seconds',
-            $created,
-            $updated,
-            $deleted,
-            round($end ?? 0.0, 0)
-        ));
+        Deprecation::withNoReplacement(function () use ($created, $updated, $deleted, $end) {
+            $this->log(sprintf(
+                'Done. Created %s records. Updated %s records. Deleted %s records. Duration: %s seconds',
+                $created,
+                $updated,
+                $deleted,
+                round($end ?? 0.0, 0)
+            ));
+        });
     }
 
     /**
      * Sends a message, formatted either for the CLI or browser
      *
      * @param string $message
+     * @deprecated 2.3.0 Will be replaced with new $output parameter in the run() method
      */
     protected function log($message)
     {
+        Deprecation::notice('2.3.0', 'Will be replaced with new $output parameter in the run() method');
         $message = sprintf('[%s] ', date('Y-m-d H:i:s')) . $message;
         echo Director::is_cli() ? ($message . PHP_EOL) : ($message . '<br>');
     }

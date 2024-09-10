@@ -6,6 +6,7 @@ use Exception;
 use SilverStripe\Control\Director;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Dev\BuildTask;
+use SilverStripe\Dev\Deprecation;
 use SilverStripe\LDAP\Services\LDAPService;
 use SilverStripe\ORM\DB;
 use SilverStripe\Security\Group;
@@ -84,27 +85,31 @@ class LDAPGroupSyncTask extends BuildTask
                 $group = new Group();
                 $group->GUID = $data['objectguid'];
 
-                $this->log(sprintf(
-                    'Creating new Group (GUID: %s, sAMAccountName: %s)',
-                    $data['objectguid'],
-                    $data['samaccountname']
-                ));
+                Deprecation::withNoReplacement(function () use ($data) {
+                    $this->log(sprintf(
+                        'Creating new Group (GUID: %s, sAMAccountName: %s)',
+                        $data['objectguid'],
+                        $data['samaccountname']
+                    ));
+                });
                 $created++;
             } else {
-                $this->log(sprintf(
-                    'Updating existing Group "%s" (ID: %s, GUID: %s, sAMAccountName: %s)',
-                    $group->getTitle(),
-                    $group->ID,
-                    $data['objectguid'],
-                    $data['samaccountname']
-                ));
+                Deprecation::withNoReplacement(function () use ($group, $data) {
+                    $this->log(sprintf(
+                        'Updating existing Group "%s" (ID: %s, GUID: %s, sAMAccountName: %s)',
+                        $group->getTitle(),
+                        $group->ID,
+                        $data['objectguid'],
+                        $data['samaccountname']
+                    ));
+                });
                 $updated++;
             }
 
             try {
                 $this->ldapService->updateGroupFromLDAP($group, $data);
             } catch (Exception $e) {
-                $this->log($e->getMessage());
+                Deprecation::withNoReplacement(fn() => $this->log($e->getMessage()));
                 continue;
             }
         }
@@ -116,11 +121,13 @@ class LDAPGroupSyncTask extends BuildTask
                 if (!isset($ldapGroups[$record['GUID']])) {
                     $group = Group::get()->byId($record['ID']);
 
-                    $this->log(sprintf(
-                        'Removing Group "%s" (GUID: %s) that no longer exists in LDAP.',
-                        $group->Title,
-                        $group->GUID
-                    ));
+                    Deprecation::withNoReplacement(function () use ($group) {
+                        $this->log(sprintf(
+                            'Removing Group "%s" (GUID: %s) that no longer exists in LDAP.',
+                            $group->Title,
+                            $group->GUID
+                        ));
+                    });
 
                     try {
                         // Cascade into mappings, just to clean up behind ourselves.
@@ -129,7 +136,7 @@ class LDAPGroupSyncTask extends BuildTask
                         }
                         $group->delete();
                     } catch (Exception $e) {
-                        $this->log($e->getMessage());
+                        Deprecation::withNoReplacement(fn() => $this->log($e->getMessage()));
                         continue;
                     }
 
@@ -142,22 +149,26 @@ class LDAPGroupSyncTask extends BuildTask
 
         $end = time() - $start;
 
-        $this->log(sprintf(
-            'Done. Created %s records. Updated %s records. Deleted %s records. Duration: %s seconds',
-            $created,
-            $updated,
-            $deleted,
-            round($end ?? 0.0, 0)
-        ));
+        Deprecation::withNoReplacement(function () use ($created, $updated, $deleted, $end) {
+            $this->log(sprintf(
+                'Done. Created %s records. Updated %s records. Deleted %s records. Duration: %s seconds',
+                $created,
+                $updated,
+                $deleted,
+                round($end ?? 0.0, 0)
+            ));
+        });
     }
 
     /**
      * Sends a message, formatted either for the CLI or browser
      *
      * @param string $message
+     * @deprecated 2.3.0 Will be replaced with new $output parameter in the run() method
      */
     protected function log($message)
     {
+        Deprecation::notice('2.3.0', 'Will be replaced with new $output parameter in the run() method');
         $message = sprintf('[%s] ', date('Y-m-d H:i:s')) . $message;
         echo Director::is_cli() ? ($message . PHP_EOL) : ($message . '<br>');
     }
