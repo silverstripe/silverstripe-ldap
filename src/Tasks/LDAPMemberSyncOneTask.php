@@ -68,7 +68,7 @@ class LDAPMemberSyncOneTask extends LDAPMemberSyncTask
 
         // If member exists already, we're updating - otherwise we're creating
         if ($member->exists()) {
-            Deprecation::withNoReplacement(function () use ($user, $member) {
+            Deprecation::withSuppressedNotice(function () use ($user, $member) {
                 $this->log(sprintf(
                     'Updating existing Member %s: "%s" (ID: %s, SAM Account Name: %s)',
                     $user['objectguid'],
@@ -86,16 +86,16 @@ class LDAPMemberSyncOneTask extends LDAPMemberSyncTask
             ));
         }
 
-        Deprecation::withNoReplacement(function () use ($user) {
+        Deprecation::withSuppressedNotice(function () use ($user) {
             $this->log('User data returned from LDAP follows:');
             $this->log(var_export($user));
         });
 
         try {
             $this->ldapService->updateMemberFromLDAP($member, $user);
-            Deprecation::withNoReplacement(fn() => $this->log('Done!'));
+            Deprecation::withSuppressedNotice(fn() => $this->log('Done!'));
         } catch (Exception $e) {
-            Deprecation::withNoReplacement(fn() => $this->log($e->getMessage()));
+            Deprecation::withSuppressedNotice(fn() => $this->log($e->getMessage()));
         }
     }
 

@@ -74,7 +74,7 @@ class LDAPMigrateExistingMembersTask extends BuildTask
 
             $count++;
 
-            Deprecation::withNoReplacement(function () use ($member) {
+            Deprecation::withSuppressedNotice(function () use ($member) {
                 $this->log(sprintf(
                     'Migrated Member %s (ID: %s, Email: %s)',
                     $member->getName(),
@@ -86,7 +86,7 @@ class LDAPMigrateExistingMembersTask extends BuildTask
 
         $end = time() - $start;
 
-        Deprecation::withNoReplacement(function () use ($count, $end) {
+        Deprecation::withSuppressedNotice(function () use ($count, $end) {
             $this->log(sprintf('Done. Migrated %s Member records. Duration: %s seconds', $count, round($end ?? 0.0, 0)));
         });
     }

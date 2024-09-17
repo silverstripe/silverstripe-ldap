@@ -85,7 +85,7 @@ class LDAPGroupSyncTask extends BuildTask
                 $group = new Group();
                 $group->GUID = $data['objectguid'];
 
-                Deprecation::withNoReplacement(function () use ($data) {
+                Deprecation::withSuppressedNotice(function () use ($data) {
                     $this->log(sprintf(
                         'Creating new Group (GUID: %s, sAMAccountName: %s)',
                         $data['objectguid'],
@@ -94,7 +94,7 @@ class LDAPGroupSyncTask extends BuildTask
                 });
                 $created++;
             } else {
-                Deprecation::withNoReplacement(function () use ($group, $data) {
+                Deprecation::withSuppressedNotice(function () use ($group, $data) {
                     $this->log(sprintf(
                         'Updating existing Group "%s" (ID: %s, GUID: %s, sAMAccountName: %s)',
                         $group->getTitle(),
@@ -109,7 +109,7 @@ class LDAPGroupSyncTask extends BuildTask
             try {
                 $this->ldapService->updateGroupFromLDAP($group, $data);
             } catch (Exception $e) {
-                Deprecation::withNoReplacement(fn() => $this->log($e->getMessage()));
+                Deprecation::withSuppressedNotice(fn() => $this->log($e->getMessage()));
                 continue;
             }
         }
@@ -121,7 +121,7 @@ class LDAPGroupSyncTask extends BuildTask
                 if (!isset($ldapGroups[$record['GUID']])) {
                     $group = Group::get()->byId($record['ID']);
 
-                    Deprecation::withNoReplacement(function () use ($group) {
+                    Deprecation::withSuppressedNotice(function () use ($group) {
                         $this->log(sprintf(
                             'Removing Group "%s" (GUID: %s) that no longer exists in LDAP.',
                             $group->Title,
@@ -136,7 +136,7 @@ class LDAPGroupSyncTask extends BuildTask
                         }
                         $group->delete();
                     } catch (Exception $e) {
-                        Deprecation::withNoReplacement(fn() => $this->log($e->getMessage()));
+                        Deprecation::withSuppressedNotice(fn() => $this->log($e->getMessage()));
                         continue;
                     }
 
@@ -149,7 +149,7 @@ class LDAPGroupSyncTask extends BuildTask
 
         $end = time() - $start;
 
-        Deprecation::withNoReplacement(function () use ($created, $updated, $deleted, $end) {
+        Deprecation::withSuppressedNotice(function () use ($created, $updated, $deleted, $end) {
             $this->log(sprintf(
                 'Done. Created %s records. Updated %s records. Deleted %s records. Duration: %s seconds',
                 $created,

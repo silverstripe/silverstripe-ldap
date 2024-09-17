@@ -83,7 +83,7 @@ class LDAPMemberSyncTask extends BuildTask
             // If member exists already, we're updating - otherwise we're creating
             if ($member->exists()) {
                 $updated++;
-                Deprecation::withNoReplacement(function () use ($data, $member) {
+                Deprecation::withSuppressedNotice(function () use ($data, $member) {
                     $this->log(sprintf(
                         'Updating existing Member %s: "%s" (ID: %s, SAM Account Name: %s)',
                         $data['objectguid'],
@@ -94,7 +94,7 @@ class LDAPMemberSyncTask extends BuildTask
                 });
             } else {
                 $created++;
-                Deprecation::withNoReplacement(function () use ($data) {
+                Deprecation::withSuppressedNotice(function () use ($data) {
                     $this->log(sprintf(
                         'Creating new Member %s: "%s" (SAM Account Name: %s)',
                         $data['objectguid'],
@@ -109,7 +109,7 @@ class LDAPMemberSyncTask extends BuildTask
             try {
                 $this->ldapService->updateMemberFromLDAP($member, $data);
             } catch (Exception $e) {
-                Deprecation::withNoReplacement(fn() => $this->log($e->getMessage()));
+                Deprecation::withSuppressedNotice(fn() => $this->log($e->getMessage()));
                 continue;
             }
         }
@@ -121,7 +121,7 @@ class LDAPMemberSyncTask extends BuildTask
                 $member = Member::get()->byId($record['ID']);
 
                 if (!isset($users[$record['GUID']])) {
-                    Deprecation::withNoReplacement(function () use ($member) {
+                    Deprecation::withSuppressedNotice(function () use ($member) {
                         $this->log(sprintf(
                             'Removing Member "%s" (GUID: %s) that no longer exists in LDAP.',
                             $member->getName(),
@@ -132,7 +132,7 @@ class LDAPMemberSyncTask extends BuildTask
                     try {
                         $member->delete();
                     } catch (Exception $e) {
-                        Deprecation::withNoReplacement(fn() => $this->log($e->getMessage()));
+                        Deprecation::withSuppressedNotice(fn() => $this->log($e->getMessage()));
                         continue;
                     }
 
@@ -145,7 +145,7 @@ class LDAPMemberSyncTask extends BuildTask
 
         $end = time() - $start;
 
-        Deprecation::withNoReplacement(function () use ($created, $updated, $deleted, $end) {
+        Deprecation::withSuppressedNotice(function () use ($created, $updated, $deleted, $end) {
             $this->log(sprintf(
                 'Done. Created %s records. Updated %s records. Deleted %s records. Duration: %s seconds',
                 $created,
