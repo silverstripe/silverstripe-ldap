@@ -11,7 +11,7 @@ use SilverStripe\LDAP\Authenticators\LDAPAuthenticator;
 use SilverStripe\LDAP\Model\LDAPGateway;
 use SilverStripe\LDAP\Services\LDAPService;
 use SilverStripe\LDAP\Tests\Model\LDAPFakeGateway;
-use SilverStripe\ORM\ValidationResult;
+use SilverStripe\Core\Validation\ValidationResult;
 use SilverStripe\Security\Member;
 
 class LDAPAuthenticatorTest extends SapphireTest

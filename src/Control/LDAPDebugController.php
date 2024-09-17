@@ -9,11 +9,11 @@ use SilverStripe\Core\Config\Config;
 use SilverStripe\LDAP\Model\LDAPGateway;
 use SilverStripe\LDAP\Model\LDAPGroupMapping;
 use SilverStripe\LDAP\Services\LDAPService;
-use SilverStripe\ORM\ArrayList;
+use SilverStripe\Model\List\ArrayList;
 use SilverStripe\Security\Group;
 use SilverStripe\Security\Permission;
 use SilverStripe\Security\Security;
-use SilverStripe\View\ArrayData;
+use SilverStripe\Model\ArrayData;
 
 /**
  * Class LDAPDebugController
