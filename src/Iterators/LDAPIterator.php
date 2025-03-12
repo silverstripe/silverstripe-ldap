@@ -114,14 +114,29 @@ final class LDAPIterator implements Iterator
             $baseDn = $ldap->getBaseDn();
         }
 
-        ldap_control_paged_result($resource, $this->getPageSize(), true, $this->cookie);
-        if ($this->getReturnAttributes() !== null) {
-            $resultResource = ldap_search($resource, $baseDn ?? '', $this->getFilter() ?? '', $this->getReturnAttributes() ?? []);
+        if (version_compare(PHP_VERSION, '8.0.0') < 0) {
+            ldap_control_paged_result($resource, $this->getPageSize(), true, $this->cookie);
+            if ($this->getReturnAttributes() !== null) {
+                $resultResource = ldap_search($resource, $baseDn ?? '', $this->getFilter() ?? '', $this->getReturnAttributes() ?? []);
+            } else {
+                $resultResource = ldap_search($resource, $baseDn ?? '', $this->getFilter() ?? '');
+            }
+            if (! is_resource($resultResource)) {
+                throw new \Exception('ldap_search returned a non-resource type value' . ldap_error($resource));
+            }
         } else {
-            $resultResource = ldap_search($resource, $baseDn ?? '', $this->getFilter() ?? '');
-        }
-        if (! is_resource($resultResource)) {
-            throw new \Exception('ldap_search returned a non-resource type value' . ldap_error($resource));
+            if ($this->getReturnAttributes() !== null) {
+                $resultResource = ldap_search($resource, $baseDn ?? '', $this->getFilter() ?? '', $this->getReturnAttributes() ?? [],
+                         0, 0, 0, LDAP_DEREF_NEVER,
+                         [['oid' => LDAP_CONTROL_PAGEDRESULTS, 'value' => ['size' => $this->getPageSize(), 'cookie' => $this->cookie]]]
+                );
+            } else {
+                $resultResource = ldap_search($resource, $baseDn ?? '', $this->getFilter() ?? '', [],
+                         0, 0, 0, LDAP_DEREF_NEVER,
+                         [['oid' => LDAP_CONTROL_PAGEDRESULTS, 'value' => ['size' => $this->getPageSize(), 'cookie' => $this->cookie]]]
+                );
+            }
+            $response = ldap_parse_result($resource, $resultResource, $errcode , $matcheddn , $errmsg , $referrals, $controls);
         }
 
         $entries = ldap_get_entries($resource, $resultResource);
@@ -130,9 +145,18 @@ final class LDAPIterator implements Iterator
         }
         $entries = $this->getConvertedEntries($entries);
 
-        ErrorHandler::start();
-        $response = ldap_control_paged_result_response($resource, $resultResource, $this->cookie);
-        ErrorHandler::stop();
+        if (version_compare(PHP_VERSION, '8.0.0') < 0) {
+            ErrorHandler::start();
+            $response = ldap_control_paged_result_response($resource, $resultResource, $this->cookie);
+            ErrorHandler::stop();
+        } else {
+            if (isset($controls[LDAP_CONTROL_PAGEDRESULTS]['value']['cookie'])) {
+                // You need to pass the cookie from the last call to the next one
+                $this->cookie = $controls[LDAP_CONTROL_PAGEDRESULTS]['value']['cookie'];
+            } else {
+                $this->cookie = '';
+            }
+        }
 
         if ($response !== true) {
             throw new LdapException($ldap, 'Paged result was empty');
