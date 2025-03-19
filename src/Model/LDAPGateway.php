@@ -63,8 +63,8 @@ class LDAPGateway
         $results = $this->processSearchResults($records);
 
         if (version_compare(PHP_VERSION, '8.0.0') < 0) {
-          // Reset the LDAP pagination control back to the original, otherwise all further LDAP read queries fail
-          ldap_control_paged_result($this->getLdap()->getResource(), 1000);
+            // Reset the LDAP pagination control back to the original, otherwise all further LDAP read queries fail
+            ldap_control_paged_result($this->getLdap()->getResource(), 1000);
         }
 
         return $results;
