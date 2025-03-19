@@ -126,17 +126,37 @@ final class LDAPIterator implements Iterator
             }
         } else {
             if ($this->getReturnAttributes() !== null) {
-                $resultResource = ldap_search($resource, $baseDn ?? '', $this->getFilter() ?? '', $this->getReturnAttributes() ?? [],
-                         0, 0, 0, LDAP_DEREF_NEVER,
-                         [['oid' => LDAP_CONTROL_PAGEDRESULTS, 'value' => ['size' => $this->getPageSize(), 'cookie' => $this->cookie]]]
+                $resultResource = ldap_search(
+                    $resource,
+                    $baseDn ?? '',
+                    $this->getFilter() ?? '',
+                    $this->getReturnAttributes() ?? [],
+                    0,
+                    0,
+                    0,
+                    LDAP_DEREF_NEVER,
+                    [[
+                        'oid' => LDAP_CONTROL_PAGEDRESULTS,
+                        'value' => ['size' => $this->getPageSize(), 'cookie' => $this->cookie],
+                    ]]
                 );
             } else {
-                $resultResource = ldap_search($resource, $baseDn ?? '', $this->getFilter() ?? '', [],
-                         0, 0, 0, LDAP_DEREF_NEVER,
-                         [['oid' => LDAP_CONTROL_PAGEDRESULTS, 'value' => ['size' => $this->getPageSize(), 'cookie' => $this->cookie]]]
+                $resultResource = ldap_search(
+                    $resource,
+                    $baseDn ?? '',
+                    $this->getFilter() ?? '',
+                    [],
+                    0,
+                    0,
+                    0,
+                    LDAP_DEREF_NEVER,
+                    [[
+                        'oid' => LDAP_CONTROL_PAGEDRESULTS,
+                        'value' => ['size' => $this->getPageSize(), 'cookie' => $this->cookie],
+                    ]]
                 );
             }
-            $response = ldap_parse_result($resource, $resultResource, $errcode , $matcheddn , $errmsg , $referrals, $controls);
+            $response = ldap_parse_result($resource, $resultResource, $errcode, $matcheddn, $errmsg, $referrals, $controls);
         }
 
         $entries = ldap_get_entries($resource, $resultResource);
