@@ -69,7 +69,9 @@ class LDAPService implements Flushable
     private static $groups_search_locations = [];
 
     /**
-     * If configured, only group objects within these locations will be searched for nexted groups to this service.
+     * If configured, only group objects within these locations will be searched for nested groups to this service.
+     * This allows the configuration to include nested groups from other LDAP locations -- outside of the group search
+     * locations.
      * @var array
      *
      * @config
