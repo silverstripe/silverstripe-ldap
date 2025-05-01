@@ -95,11 +95,11 @@ class LDAPMigrateExistingMembersTask extends BuildTask
      * Sends a message, formatted either for the CLI or browser
      *
      * @param string $message
-     * @deprecated 2.3.0 Will be replaced with new $output parameter in the run() method
+     * @deprecated 2.3.0 Will be replaced with new $output parameter in the run() method in a future major release
      */
     protected function log($message)
     {
-        Deprecation::notice('2.3.0', 'Will be replaced with new $output parameter in the run() method');
+        Deprecation::notice('2.3.0', 'Will be replaced with new $output parameter in the run() method in a future major release');
         $message = sprintf('[%s] ', date('Y-m-d H:i:s')) . $message;
         echo Director::is_cli() ? ($message . PHP_EOL) : ($message . '<br>');
     }
