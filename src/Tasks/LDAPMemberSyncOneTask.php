@@ -79,8 +79,8 @@ class LDAPMemberSyncOneTask extends LDAPMemberSyncTask
 
         try {
             $this->ldapService->updateMemberFromLDAP($member, $user);
-        } catch (Exception $e) {
-            $output->writeln('<error>' . $e->getMessage() . '</>');
+        } catch (Exception $exception) {
+            $output->writeln('<error>' . $exception->getMessage() . '</>');
             return Command::FAILURE;
         }
 

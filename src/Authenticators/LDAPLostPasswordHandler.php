@@ -4,10 +4,8 @@ namespace SilverStripe\LDAP\Authenticators;
 
 use SilverStripe\Control\Controller;
 use SilverStripe\Control\Email\Email;
-use SilverStripe\Control\HTTPResponse;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Convert;
-use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\Form;
 use SilverStripe\Forms\FormAction;
@@ -17,8 +15,10 @@ use SilverStripe\ORM\FieldType\DBField;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\MemberAuthenticator\LostPasswordForm;
 use SilverStripe\Security\MemberAuthenticator\LostPasswordHandler;
-use SilverStripe\Security\Security;
 
+/**
+ * @see \SilverStripe\LDAP\Tests\Authenticators\LDAPLostPasswordHandlerTest
+ */
 class LDAPLostPasswordHandler extends LostPasswordHandler
 {
     protected $authenticatorClass = LDAPAuthenticator::class;
@@ -60,7 +60,7 @@ class LDAPLostPasswordHandler extends LostPasswordHandler
     public function __construct($link, LDAPAuthenticator $authenticator)
     {
         $this->link = $link;
-        $this->authenticatorClass = get_class($authenticator);
+        $this->authenticatorClass = $authenticator::class;
         parent::__construct($link);
     }
 
@@ -72,7 +72,7 @@ class LDAPLostPasswordHandler extends LostPasswordHandler
         $login = isset($data['Login']) ? trim($data['Login']) : '';
 
         // Ensure something was provided
-        if (empty($login)) {
+        if ($login === '' || $login === '0') {
             if (Config::inst()->get(LDAPAuthenticator::class, 'allow_email_login') === 'yes') {
                 $form->sessionMessage(
                     _t(
@@ -90,6 +90,7 @@ class LDAPLostPasswordHandler extends LostPasswordHandler
                     'bad'
                 );
             }
+
             return $this->redirectBack();
         }
 
@@ -105,15 +106,17 @@ class LDAPLostPasswordHandler extends LostPasswordHandler
                 );
                 return $this->redirect($this->Link('lostpassword'));
             }
+
             $this->ldapUserData = $this->getService()->getUserByEmail($login);
         } else {
             $this->ldapUserData = $this->getService()->getUserByUsername($login);
         }
+        return null;
     }
 
     protected function getMemberFromData(array $data)
     {
-        $member = Member::get()->filter('GUID', $this->ldapUserData['objectguid'])->limit(1)->first();
+        $member = Member::get()->filter(['GUID' => $this->ldapUserData['objectguid']])->limit(1)->first();
 
         // User haven't been imported yet so do that now
         if (!$member || !$member->exists()) {
@@ -181,7 +184,7 @@ class LDAPLostPasswordHandler extends LostPasswordHandler
         }
 
         return [
-            'Content' => DBField::create_field('HTMLFragment', "<p>$message</p>"),
+            'Content' => DBField::create_field('HTMLFragment', "<p>{$message}</p>"),
             'Form' => $this->lostPasswordForm(),
         ];
     }

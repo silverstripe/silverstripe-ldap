@@ -17,10 +17,14 @@ error_reporting(E_ALL | E_STRICT);
  * Command synax:
  * rotate_ldap_password <ss_env_file> <c_hostname|hostname> <c_privileged_dn> <c_privileged_password> [<c_target_dn> <c_target_password>]
  *
+ * The endpoint must be encrypted. This script binds with a privileged account and then writes a
+ * new password, so it refuses to continue unless the connection is ldaps://, ldapi://, or a plain
+ * ldap:// URL on which StartTLS could be negotiated. There is deliberately no override.
+ *
  * Example:
  * Assuming you have this configuration in your /sites/.env file:
  * <code>
- * LDAP_HOSTNAME="ldap://myldap.hostname:636"
+ * LDAP_HOSTNAME="ldaps://myldap.hostname:636"
  * PRIVILEGED_DN="CN=PrivilegedUser,DC=platform,DC=silverstripe,DC=com"
  * PRIVILEGED_PASSWORD="somesupersecretpassword"
  * TARGET_DN="CN=MyUser,DC=platform,DC=silverstripe,DC=com"
@@ -68,8 +72,31 @@ require_once($envFilePath);
 
 $hostnameValue = defined($hostname) ? constant($hostname) : $hostname;
 $conn = ldap_connect($hostnameValue);
+if (!$conn) {
+    echo sprintf("Could not create an LDAP connection for %s\n", $hostnameValue);
+    exit(1);
+}
 ldap_set_option($conn, LDAP_OPT_PROTOCOL_VERSION, 3);
 ldap_set_option($conn, LDAP_OPT_REFERRALS, 0);
+
+// Everything below this point puts secrets on the wire: the privileged bind credentials, and then
+// the new password in unicodePwd. Refuse to do any of it over cleartext, and fail closed if the
+// transport cannot be secured. Note ldaps:// on its own does not imply the server certificate was
+// verified - that is governed by TLS_REQCERT in ldap.conf.
+$scheme = strtolower((string) parse_url($hostnameValue, PHP_URL_SCHEME));
+if ($scheme !== 'ldaps' && $scheme !== 'ldapi') {
+    if (!@ldap_start_tls($conn)) {
+        echo sprintf(
+            "Refusing to continue: %s is not encrypted and StartTLS failed: %s (error code: %s).\n"
+                . "Use an ldaps:// URL, or fix StartTLS on the directory. This script will not send\n"
+                . "a privileged bind or a new password over an unencrypted connection.\n",
+            $hostnameValue,
+            ldap_error($conn),
+            ldap_errno($conn)
+        );
+        exit(1);
+    }
+}
 
 $bind = @ldap_bind($conn, constant($privilegedDNConst), constant($privilegedPasswordConst));
 if (!$bind) {
@@ -150,25 +177,13 @@ exit(0);
 
 function generatePassword($length = 24)
 {
-    $passwordData = null;
-
-    if (function_exists('mcrypt_create_iv')) {
-        $e = mcrypt_create_iv(64, MCRYPT_DEV_URANDOM);
-        if ($e !== false) {
-            $passwordData = $e;
-        }
-    }
-
-    if (empty($passwordData) && function_exists('openssl_random_pseudo_bytes')) {
-        $e = openssl_random_pseudo_bytes(64, $strong);
-        // Only return if strong algorithm was used
-        if ($strong) {
-            $passwordData = $e;
-        }
-    }
-
-    if (empty($passwordData)) {
-        echo "Cannot generate passwords - PRNG functions missing? Try installing mcrypt.";
+    // random_bytes() is the CSPRNG since PHP 7 and throws rather than degrading, so there is no
+    // weaker fallback to guard against. The previous mcrypt_create_iv() branch was dead code -
+    // mcrypt was removed in PHP 7.2 - and its error message advised installing it.
+    try {
+        $passwordData = random_bytes(64);
+    } catch (Exception $e) {
+        echo sprintf("Cannot generate a password - no secure randomness available: %s\n", $e->getMessage());
         exit(1);
     }
 

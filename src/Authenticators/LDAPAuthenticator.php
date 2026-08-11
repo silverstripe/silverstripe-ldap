@@ -19,6 +19,7 @@ use Laminas\Authentication\Result;
  * Class LDAPAuthenticator
  *
  * Authenticate a user against LDAP, without the single sign-on component.
+ * @see \SilverStripe\LDAP\Tests\Authenticators\LDAPAuthenticatorTest
  */
 class LDAPAuthenticator extends MemberAuthenticator
 {
@@ -80,7 +81,7 @@ class LDAPAuthenticator extends MemberAuthenticator
      * @param ValidationResult|null $result
      * @return null|Member
      */
-    public function authenticate(array $data, HTTPRequest $request, ValidationResult &$result = null)
+    public function authenticate(array $data, HTTPRequest $request, ?ValidationResult &$result = null)
     {
         $result = $result ?: ValidationResult::create();
         $service = Injector::inst()->get(LDAPService::class);
@@ -95,6 +96,7 @@ class LDAPAuthenticator extends MemberAuthenticator
                 );
                 return null;
             }
+
             $username = $service->getUsernameByEmail($login);
 
             // No user found with this email.
@@ -123,7 +125,7 @@ class LDAPAuthenticator extends MemberAuthenticator
              * This is to avoid having an unhandled exception error thrown by PasswordEncryptor::create_for_algorithm()
              */
             if (Config::inst()->get(LDAPAuthenticator::class, 'fallback_authenticator') === 'yes') {
-                if (!in_array($serviceAuthenticationResult['code'], [Result::FAILURE_CREDENTIAL_INVALID])
+                if ($serviceAuthenticationResult['code'] != Result::FAILURE_CREDENTIAL_INVALID
                     || $username === 'admin'
                 ) {
                     if ($fallbackMember = $this->fallbackAuthenticate($data, $request)) {
@@ -136,6 +138,7 @@ class LDAPAuthenticator extends MemberAuthenticator
 
             return null;
         }
+
         $data = $service->getUserByUsername($serviceAuthenticationResult['identity']);
         if (!$data) {
             $result->addError(
@@ -148,9 +151,9 @@ class LDAPAuthenticator extends MemberAuthenticator
         }
 
         // LDAPMemberExtension::afterMemberLoggedIn() will update any other AD attributes mapped to Member fields
-        $member = Member::get()->filter('GUID', $data['objectguid'])->limit(1)->first();
-        if (!($member && $member->exists())) {
-            $member = new Member();
+        $member = Member::get()->filter(['GUID' => $data['objectguid']])->limit(1)->first();
+        if (!$member || !$member->exists()) {
+            $member = Member::create();
             $member->GUID = $data['objectguid'];
         }
 
@@ -176,6 +179,7 @@ class LDAPAuthenticator extends MemberAuthenticator
         if (array_key_exists('Login', $data ?? []) && !array_key_exists('Email', $data ?? [])) {
             $data['Email'] = $data['Login'];
         }
+
         $authenticatorClass = Config::inst()->get(LDAPAuthenticator::class, 'fallback_authenticator_class');
         if ($authenticator = Injector::inst()->get($authenticatorClass)) {
             $result = call_user_func(
@@ -202,6 +206,7 @@ class LDAPAuthenticator extends MemberAuthenticator
         if ((bool)LDAPService::config()->get('allow_password_change')) {
             $result |=  Authenticator::RESET_PASSWORD | Authenticator::CHANGE_PASSWORD;
         }
+
         return $result;
     }
 
@@ -219,7 +224,7 @@ class LDAPAuthenticator extends MemberAuthenticator
         return LDAPChangePasswordHandler::create($link, $this);
     }
 
-    public function checkPassword(Member $member, $password, ValidationResult &$result = null)
+    public function checkPassword(Member $member, $password, ?ValidationResult &$result = null)
     {
         $result = $result ?: ValidationResult::create();
 

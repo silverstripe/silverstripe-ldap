@@ -3,7 +3,6 @@
 namespace SilverStripe\LDAP\Tasks;
 
 use Exception;
-use SilverStripe\Control\Director;
 use SilverStripe\Dev\BuildTask;
 use SilverStripe\PolyExecution\PolyOutput;
 use SilverStripe\LDAP\Services\LDAPService;
@@ -66,11 +65,11 @@ class LDAPGroupSyncTask extends BuildTask
         $deleted = 0;
 
         foreach ($ldapGroups as $data) {
-            $group = Group::get()->filter('GUID', $data['objectguid'])->limit(1)->first();
+            $group = Group::get()->filter(['GUID' => $data['objectguid']])->limit(1)->first();
 
-            if (!($group && $group->exists())) {
+            if (!$group || !$group->exists()) {
                 // create the initial Group with some internal fields
-                $group = new Group();
+                $group = Group::create();
                 $group->GUID = $data['objectguid'];
 
                 $output->writeln(sprintf(
@@ -78,7 +77,7 @@ class LDAPGroupSyncTask extends BuildTask
                     $data['objectguid'],
                     $data['samaccountname']
                 ));
-                $created++;
+                ++$created;
             } else {
                 $output->writeln(sprintf(
                     'Updating existing Group "%s" (ID: %s, GUID: %s, sAMAccountName: %s)',
@@ -87,7 +86,7 @@ class LDAPGroupSyncTask extends BuildTask
                     $data['objectguid'],
                     $data['samaccountname']
                 ));
-                $updated++;
+                ++$updated;
             }
 
             try {
@@ -100,7 +99,7 @@ class LDAPGroupSyncTask extends BuildTask
 
         // remove Group records that were previously imported, but no longer exist in the directory
         // NOTE: DB::query() here is used for performance and so we don't run out of memory
-        if ($this->config()->destructive) {
+        if ($this->config()->get('destructive')) {
             foreach (DB::query('SELECT "ID", "GUID" FROM "Group" WHERE "GUID" IS NOT NULL') as $record) {
                 if (!isset($ldapGroups[$record['GUID']])) {
                     $group = Group::get()->byId($record['ID']);
@@ -116,13 +115,14 @@ class LDAPGroupSyncTask extends BuildTask
                         foreach ($group->LDAPGroupMappings() as $mapping) {
                             $mapping->delete();
                         }
+
                         $group->delete();
                     } catch (Exception $e) {
                         $output->writeln('<error>' . $e->getMessage() . '</>');
                         continue;
                     }
 
-                    $deleted++;
+                    ++$deleted;
                 }
             }
         }

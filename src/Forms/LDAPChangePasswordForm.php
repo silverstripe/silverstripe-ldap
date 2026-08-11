@@ -2,18 +2,13 @@
 
 namespace SilverStripe\LDAP\Forms;
 
-use Exception;
 use SilverStripe\LDAP\Authenticators\LDAPAuthenticator;
 use SilverStripe\LDAP\Services\LDAPService;
-use SilverStripe\Control\Director;
-use SilverStripe\Control\HTTP;
-use SilverStripe\Control\HTTPResponse;
 use SilverStripe\Control\RequestHandler;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\TextField;
-use SilverStripe\Core\Validation\ValidationResult;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\MemberAuthenticator\ChangePasswordForm;
 use SilverStripe\Security\Security;
@@ -65,6 +60,7 @@ class LDAPChangePasswordForm extends ChangePasswordForm
                 $this
             );
         }
+
         if (!empty($data['samaccountname'])) {
             $usernameField = TextField::create(
                 'Username',
@@ -79,6 +75,7 @@ class LDAPChangePasswordForm extends ChangePasswordForm
             $emailFieldReadonly = $emailField->performDisabledTransformation();
             $this->Fields()->unshift($emailFieldReadonly);
         }
+
         if ($usernameField) {
             $usernameFieldReadonly = $usernameField->performDisabledTransformation();
             $this->Fields()->unshift($usernameFieldReadonly);

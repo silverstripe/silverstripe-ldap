@@ -57,7 +57,7 @@ class LDAPAllSyncJob extends AbstractQueuedJob
      */
     public function getSignature()
     {
-        return md5(get_class($this));
+        return md5(static::class);
     }
 
     /**

@@ -14,7 +14,7 @@ use SilverStripe\LDAP\Tests\Model\LDAPFakeGateway;
 use SilverStripe\LDAP\Tests\Model\LDAPFakeMember;
 use SilverStripe\Security\Group;
 use SilverStripe\Security\Member;
-use Silverstripe\Assets\Dev\TestAssetStore;
+use SilverStripe\Assets\Dev\TestAssetStore;
 use SilverStripe\ORM\DataQuery;
 
 class LDAPServiceTest extends SapphireTest

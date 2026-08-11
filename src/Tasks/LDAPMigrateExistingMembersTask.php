@@ -51,8 +51,10 @@ class LDAPMigrateExistingMembersTask extends BuildTask
             $member = Member::get()->where(
                 sprintf('"Email" = \'%s\' AND "GUID" IS NULL', Convert::raw2sql($user['mail']))
             )->first();
-
-            if (!($member && $member->exists())) {
+            if (!$member) {
+                continue;
+            }
+            if (!$member->exists()) {
                 continue;
             }
 
@@ -60,7 +62,7 @@ class LDAPMigrateExistingMembersTask extends BuildTask
             $member->GUID = $user['objectguid'];
             $member->write();
 
-            $count++;
+            ++$count;
 
             $output->writeln(sprintf(
                 'Migrated Member %s (ID: %s, Email: %s)',
@@ -70,7 +72,7 @@ class LDAPMigrateExistingMembersTask extends BuildTask
             ));
         }
 
-        $output->writeln("Done. Migrated $count Member records.");
+        $output->writeln("Done. Migrated {$count} Member records.");
         return Command::SUCCESS;
     }
 }

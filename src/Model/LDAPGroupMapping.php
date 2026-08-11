@@ -66,6 +66,7 @@ class LDAPGroupMapping extends DataObject
 
         $field = DropdownField::create('DN', _t(__CLASS__ . '.LDAPGROUP', 'LDAP Group'));
         $field->setEmptyString(_t(__CLASS__ . '.SELECTONE', 'Select one'));
+
         $groups = $this->ldapService->getGroups(true, ['dn', 'name']);
         $source = [];
         if ($groups) {
@@ -73,6 +74,7 @@ class LDAPGroupMapping extends DataObject
                 $source[$dn] = sprintf('%s (%s)', $record['name'], $dn);
             }
         }
+
         asort($source);
         $field->setSource($source);
         $fields->addFieldToTab('Root.Main', $field);
