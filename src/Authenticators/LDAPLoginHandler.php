@@ -19,7 +19,7 @@ class LDAPLoginHandler extends LoginHandler
     {
         return LDAPLoginForm::create(
             $this,
-            get_class($this->authenticator),
+            $this->authenticator::class,
             'LoginForm'
         );
     }

@@ -2,12 +2,13 @@
 
 namespace SilverStripe\LDAP\Forms;
 
+use SilverStripe\LDAP\Authenticators\LDAPAuthenticator;
 use SilverStripe\LDAP\Services\LDAPService;
 use SilverStripe\Control\RequestHandler;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Forms\LiteralField;
-use SilverStripe\Forms\RequiredFields;
 use SilverStripe\Forms\TextField;
+use SilverStripe\Forms\Validation\RequiredFieldsValidator;
 use SilverStripe\Security\MemberAuthenticator\MemberLoginForm;
 use SilverStripe\Security\Security;
 use SilverStripe\View\Requirements;
@@ -39,8 +40,7 @@ class LDAPLoginForm extends MemberLoginForm
      */
     public function __construct(RequestHandler $controller, $authenticatorClass, $name)
     {
-
-        parent::__construct($controller, 'LDAPAuthenticator', $name);
+        parent::__construct($controller, $authenticatorClass, $name);
 
         if (Config::inst()->get(LDAPAuthenticator::class, 'allow_email_login') === 'yes') {
             $loginField = TextField::create(
@@ -55,8 +55,8 @@ class LDAPLoginForm extends MemberLoginForm
         }
 
         $this->Fields()->replaceField('Email', $loginField);
-        $this->setValidator(new RequiredFields('Login', 'Password'));
-        if (Security::config()->remember_username) {
+        $this->setValidator(RequiredFieldsValidator::create('Login', 'Password'));
+        if (Security::config()->get('remember_username')) {
             $loginField->setValue($this->getSession()->get('SessionForms.MemberLoginForm.Email'));
         } else {
             // Some browsers won't respect this attribute unless it's added to the form

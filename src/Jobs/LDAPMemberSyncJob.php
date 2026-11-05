@@ -55,7 +55,7 @@ class LDAPMemberSyncJob extends AbstractQueuedJob
      */
     public function getSignature()
     {
-        return md5(get_class($this));
+        return md5(static::class);
     }
 
     /**
@@ -94,6 +94,7 @@ class LDAPMemberSyncJob extends AbstractQueuedJob
         $output = PolyOutput::create(PolyOutput::FORMAT_ANSI);
         $input = new ArrayInput([]);
         $input->setInteractive(false);
+
         $task->run($input, $output);
 
         $this->isComplete = true;

@@ -17,10 +17,7 @@ class LDAPUtil
      */
     public static function validGuid($guid)
     {
-        if (preg_match('/^[A-Z0-9]{8}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{12}?$/', $guid ?? '')) {
-            return true;
-        }
-        return false;
+        return (bool) preg_match('/^[A-Z0-9]{8}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{12}?$/', $guid ?? '');
     }
 
     /**
@@ -34,14 +31,17 @@ class LDAPUtil
         for ($k = 1; $k <= 4; ++$k) {
             $hex_guid_to_guid_str .= substr($hex_guid ?? '', 8 - 2 * $k, 2);
         }
+
         $hex_guid_to_guid_str .= '-';
         for ($k = 1; $k <= 2; ++$k) {
             $hex_guid_to_guid_str .= substr($hex_guid ?? '', 12 - 2 * $k, 2);
         }
+
         $hex_guid_to_guid_str .= '-';
         for ($k = 1; $k <= 2; ++$k) {
             $hex_guid_to_guid_str .= substr($hex_guid ?? '', 16 - 2 * $k, 2);
         }
+
         $hex_guid_to_guid_str .= '-' . substr($hex_guid ?? '', 16, 4);
         $hex_guid_to_guid_str .= '-' . substr($hex_guid ?? '', 20);
 
@@ -71,10 +71,11 @@ class LDAPUtil
             $escaped = '\\';
             for ($i = 0; $i < strlen($octet_str ?? ''); $i += 2) {
                 $escaped .= substr($octet_str ?? '', $i ?? 0, 2);
-                if ($i != strlen($octet_str ?? '') - 2) {
+                if ($i !== strlen($octet_str ?? '') - 2) {
                     $escaped .= '\\';
                 }
             }
+
             return $escaped;
         }
 
@@ -91,9 +92,9 @@ class LDAPUtil
         $rev = hexdec(substr($hex_sid ?? '', 0, 2));
         $subcount = hexdec(substr($hex_sid ?? '', 2, 2));
         $auth = hexdec(substr($hex_sid ?? '', 4, 12));
-        $result = "$rev-$auth";
+        $result = "{$rev}-{$auth}";
 
-        for ($x = 0; $x < $subcount; $x++) {
+        for ($x = 0; $x < $subcount; ++$x) {
             $subauth[$x] = hexdec(LDAPUtil::little_endian(substr($hex_sid ?? '', 16 + ($x * 8), 8)) ?? '');
             $result .= '-' . $subauth[$x];
         }
@@ -110,9 +111,10 @@ class LDAPUtil
     public static function little_endian($hex)
     {
         $result = '';
-        for ($x = strlen($hex) - 2; $x >= 0; $x = $x - 2) {
+        for ($x = strlen($hex) - 2; $x >= 0; $x -= 2) {
             $result .= substr($hex ?? '', $x ?? 0, 2);
         }
+
         return $result;
     }
 }

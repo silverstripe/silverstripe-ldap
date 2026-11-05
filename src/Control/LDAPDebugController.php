@@ -65,27 +65,28 @@ class LDAPDebugController extends ContentController
 
     public function Options()
     {
-        $list = new ArrayList();
+        $list = ArrayList::create();
         foreach (Config::inst()->get(LDAPGateway::class, 'options') as $field => $value) {
             if ($field === 'password') {
                 $value = '***';
             }
 
-            $list->push(new ArrayData([
+            $list->push(ArrayData::create([
                 'Name' => $field,
                 'Value' => $value
             ]));
         }
+
         return $list;
     }
 
     public function UsersSearchLocations()
     {
         $locations = Config::inst()->get(LDAPService::class, 'users_search_locations');
-        $list = new ArrayList();
+        $list = ArrayList::create();
         if ($locations) {
             foreach ($locations as $location) {
-                $list->push(new ArrayData([
+                $list->push(ArrayData::create([
                     'Value' => $location
                 ]));
             }
@@ -99,10 +100,10 @@ class LDAPDebugController extends ContentController
     public function GroupsSearchLocations()
     {
         $locations = Config::inst()->get(LDAPService::class, 'groups_search_locations');
-        $list = new ArrayList();
+        $list = ArrayList::create();
         if ($locations) {
             foreach ($locations as $location) {
-                $list->push(new ArrayData([
+                $list->push(ArrayData::create([
                     'Value' => $location
                 ]));
             }
@@ -117,16 +118,15 @@ class LDAPDebugController extends ContentController
     {
         $code = Config::inst()->get(LDAPService::class, 'default_group');
         if ($code) {
-            $group = Group::get()->filter('Code', $code)->limit(1)->first();
-            if (!($group && $group->exists())) {
+            $group = Group::get()->filter(['Code' => $code])->limit(1)->first();
+            if (!$group || !$group->exists()) {
                 return sprintf(
-                    'WARNING: LDAPService.default_group configured with \'%s\''
+                    "WARNING: LDAPService.default_group configured with '%s', "
                         . 'but there is no Group with that Code in the database!',
                     $code
                 );
-            } else {
-                return sprintf('%s (Code: %s)', $group->Title, $group->Code);
             }
+            return sprintf('%s (Code: %s)', $group->Title, $group->Code);
         }
 
         return null;
@@ -140,24 +140,26 @@ class LDAPDebugController extends ContentController
     public function Nodes()
     {
         $groups = $this->ldapService->getNodes(false);
-        $list = new ArrayList();
+        $list = ArrayList::create();
         foreach ($groups as $record) {
-            $list->push(new ArrayData([
+            $list->push(ArrayData::create([
                 'DN' => $record['dn']
             ]));
         }
+
         return $list;
     }
 
     public function Groups()
     {
         $groups = $this->ldapService->getGroups(false);
-        $list = new ArrayList();
+        $list = ArrayList::create();
         foreach ($groups as $record) {
-            $list->push(new ArrayData([
+            $list->push(ArrayData::create([
                 'DN' => $record['dn']
             ]));
         }
+
         return $list;
     }
 

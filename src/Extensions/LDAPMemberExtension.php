@@ -2,6 +2,7 @@
 
 namespace SilverStripe\LDAP\Extensions;
 
+use SilverStripe\Forms\FormField;
 use Exception;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Forms\FieldList;
@@ -126,7 +127,7 @@ class LDAPMemberExtension extends Extension
             'IsExpired',
             $ldapMetadata[] = ReadonlyField::create(
                 'IsExpired',
-                _t(__CLASS__ . '.ISEXPIRED', 'Has user\'s LDAP/AD login expired?')
+                _t(__CLASS__ . '.ISEXPIRED', "Has user's LDAP/AD login expired?")
             )
         );
         $fields->replaceField(
@@ -139,29 +140,31 @@ class LDAPMemberExtension extends Extension
         $fields->addFieldsToTab('Root.LDAP', $ldapMetadata);
 
         $message = '';
-        if ($this->owner->GUID && $this->owner->config()->update_ldap_from_local) {
+        if ($this->getOwner()->GUID && $this->getOwner()->config()->get('update_ldap_from_local')) {
             $message = _t(
                 __CLASS__ . '.CHANGEFIELDSUPDATELDAP',
                 'Changing fields here will update them in LDAP.'
             );
-        } elseif ($this->owner->GUID && !$this->owner->config()->update_ldap_from_local) {
+        } elseif ($this->getOwner()->GUID && !$this->getOwner()->config()->get('update_ldap_from_local')) {
             // Transform the automatically mapped fields into read-only. This doesn't
             // apply if updating LDAP from local is enabled, as changing data locally can be written back.
-            foreach ($this->owner->config()->ldap_field_mappings as $name) {
+            foreach ($this->getOwner()->config()->get('ldap_field_mappings') as $name) {
                 $field = $fields->dataFieldByName($name);
-                if (!empty($field)) {
+                if ($field instanceof FormField) {
                     // Set to readonly, but not disabled so that the data is still sent to the
                     // server and doesn't break Member_Validator
                     $field->setReadonly(true);
                     $field->setTitle($field->Title() . _t(__CLASS__ . '.IMPORTEDFIELD', ' (imported)'));
                 }
             }
+
             $message = _t(
                 __CLASS__ . '.INFOIMPORTED',
                 'This user is automatically imported from LDAP. ' .
                     'Manual changes to imported fields will be removed upon sync.'
             );
         }
+
         if ($message) {
             $fields->addFieldToTab(
                 'Root.Main',
@@ -190,16 +193,16 @@ class LDAPMemberExtension extends Extension
         // We allow empty Username for registration purposes, as we need to
         // create Member records with empty Username temporarily. Forms should explicitly
         // check for Username not being empty if they require it not to be.
-        if (empty($this->owner->Username) || !$this->owner->config()->create_users_in_ldap) {
+        if (empty($this->getOwner()->Username) || !$this->getOwner()->config()->get('create_users_in_ldap')) {
             return;
         }
 
-        if (!preg_match('/^[a-z0-9\.]+$/', $this->owner->Username ?? '')) {
+        if (!preg_match('/^[a-z0-9\.]+$/', $this->getOwner()->Username ?? '')) {
             $validationResult->addError(
                 'Username must only contain lowercase alphanumeric characters and dots.',
                 'bad'
             );
-            throw new ValidationException($validationResult);
+            throw ValidationException::create($validationResult);
         }
     }
 
@@ -209,53 +212,54 @@ class LDAPMemberExtension extends Extension
      */
     protected function onBeforeWrite()
     {
-        if ($this->owner->LDAPMemberExtension_NoSync) {
+        if ($this->getOwner()->LDAPMemberExtension_NoSync) {
             return;
         }
 
         $service = Injector::inst()->get(LDAPService::class);
         if (!$service->enabled()
-            || !$this->owner->config()->create_users_in_ldap
-            || !$this->owner->Username
-            || $this->owner->GUID
+            || !$this->getOwner()->config()->get('create_users_in_ldap')
+            || !$this->getOwner()->Username
+            || $this->getOwner()->GUID
         ) {
             return;
         }
 
-        $service->createLDAPUser($this->owner);
+        $service->createLDAPUser($this->getOwner());
     }
 
     protected function onAfterWrite()
     {
-        if ($this->owner->LDAPMemberExtension_NoSync) {
+        if ($this->getOwner()->LDAPMemberExtension_NoSync) {
             return;
         }
 
         $service = Injector::inst()->get(LDAPService::class);
         if (!$service->enabled() ||
-            !$this->owner->config()->update_ldap_from_local ||
-            !$this->owner->GUID
+            !$this->getOwner()->config()->get('update_ldap_from_local') ||
+            !$this->getOwner()->GUID
         ) {
             return;
         }
+
         $this->sync();
     }
 
     protected function onAfterDelete()
     {
-        if ($this->owner->LDAPMemberExtension_NoSync) {
+        if ($this->getOwner()->LDAPMemberExtension_NoSync) {
             return;
         }
 
         $service = Injector::inst()->get(LDAPService::class);
         if (!$service->enabled() ||
-            !$this->owner->config()->delete_users_in_ldap ||
-            !$this->owner->GUID
+            !$this->getOwner()->config()->get('delete_users_in_ldap') ||
+            !$this->getOwner()->GUID
         ) {
             return;
         }
 
-        $service->deleteLDAPMember($this->owner);
+        $service->deleteLDAPMember($this->getOwner());
     }
 
     /**
@@ -265,11 +269,11 @@ class LDAPMemberExtension extends Extension
      */
     public function writeWithoutSync()
     {
-        $this->owner->LDAPMemberExtension_NoSync = true;
+        $this->getOwner()->LDAPMemberExtension_NoSync = true;
         try {
-            $this->owner->write();
+            $this->getOwner()->write();
         } finally {
-            $this->owner->LDAPMemberExtension_NoSync = false;
+            $this->getOwner()->LDAPMemberExtension_NoSync = false;
         }
     }
 
@@ -281,12 +285,13 @@ class LDAPMemberExtension extends Extension
     {
         $service = Injector::inst()->get(LDAPService::class);
         if (!$service->enabled() ||
-            !$this->owner->GUID
+            !$this->getOwner()->GUID
         ) {
             return;
         }
-        $service->updateLDAPFromMember($this->owner);
-        $service->updateLDAPGroupsForMember($this->owner);
+
+        $service->updateLDAPFromMember($this->getOwner());
+        $service->updateLDAPGroupsForMember($this->getOwner());
     }
 
     /**
@@ -297,14 +302,15 @@ class LDAPMemberExtension extends Extension
      */
     protected function onAfterMemberLoggedIn()
     {
-        if ($this->owner->GUID) {
+        if ($this->getOwner()->GUID) {
             try {
-                Injector::inst()->get(LDAPService::class)->updateMemberFromLDAP($this->owner);
+                Injector::inst()->get(LDAPService::class)->updateMemberFromLDAP($this->getOwner());
             } catch (Exception $e) {
                 // If the failure is acceptable, then ignore it and return. Otherwise, re-throw the exception
-                if ($this->owner->config()->get('allow_update_failure_during_login')) {
+                if ($this->getOwner()->config()->get('allow_update_failure_during_login')) {
                     return;
                 }
+
                 throw $e;
             }
         }
@@ -324,6 +330,6 @@ class LDAPMemberExtension extends Extension
         }
 
         Injector::inst()->get(LDAPService::class)
-            ->setPassword($this->owner, $newPassword);
+            ->setPassword($this->getOwner(), $newPassword);
     }
 }

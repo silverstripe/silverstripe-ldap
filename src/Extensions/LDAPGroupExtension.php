@@ -73,7 +73,7 @@ class LDAPGroupExtension extends Extension
             )
         );
 
-        if ($this->owner->GUID) {
+        if ($this->getOwner()->GUID) {
             $fields->replaceField('Title', ReadonlyField::create('Title'));
             $fields->replaceField('Description', ReadonlyField::create('Description'));
             // Surface the code which is normally hidden from the CMS user.
@@ -95,13 +95,13 @@ class LDAPGroupExtension extends Extension
             $fields->addFieldToTab('Root.LDAP', ReadonlyField::create(
                 'LDAPGroupMappingsRO',
                 _t(__CLASS__ . '.AUTOMAPPEDGROUPS', 'Automatically mapped LDAP Groups'),
-                implode('; ', $this->owner->LDAPGroupMappings()->column('DN'))
+                implode('; ', $this->getOwner()->LDAPGroupMappings()->column('DN'))
             ));
         } else {
             $field = GridField::create(
                 'LDAPGroupMappings',
                 _t(__CLASS__ . '.MAPPEDGROUPS', 'Mapped LDAP Groups'),
-                $this->owner->LDAPGroupMappings()
+                $this->getOwner()->LDAPGroupMappings()
             );
             $config = GridFieldConfig_RecordEditor::create();
             $config->getComponentByType(GridFieldAddNewButton::class)
@@ -117,7 +117,7 @@ class LDAPGroupExtension extends Extension
      */
     protected function onBeforeDelete()
     {
-        foreach ($this->owner->LDAPGroupMappings() as $mapping) {
+        foreach ($this->getOwner()->LDAPGroupMappings() as $mapping) {
             $mapping->delete();
         }
     }

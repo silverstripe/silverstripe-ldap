@@ -3,7 +3,6 @@
 namespace SilverStripe\LDAP\Tasks;
 
 use Exception;
-use SilverStripe\Control\Director;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Dev\BuildTask;
 use SilverStripe\PolyExecution\PolyOutput;
@@ -70,7 +69,7 @@ class LDAPMemberSyncTask extends BuildTask
 
             // If member exists already, we're updating - otherwise we're creating
             if ($member->exists()) {
-                $updated++;
+                ++$updated;
                 $output->writeln(sprintf(
                     'Updating existing Member %s: "%s" (ID: %s, SAM Account Name: %s)',
                     $data['objectguid'],
@@ -79,7 +78,7 @@ class LDAPMemberSyncTask extends BuildTask
                     $data['samaccountname']
                 ));
             } else {
-                $created++;
+                ++$created;
                 $output->writeln(sprintf(
                     'Creating new Member %s: "%s" (SAM Account Name: %s)',
                     $data['objectguid'],
@@ -100,7 +99,7 @@ class LDAPMemberSyncTask extends BuildTask
 
         // remove Member records that were previously imported, but no longer exist in the directory
         // NOTE: DB::query() here is used for performance and so we don't run out of memory
-        if ($this->config()->destructive) {
+        if ($this->config()->get('destructive')) {
             foreach (DB::query('SELECT "ID", "GUID" FROM "Member" WHERE "GUID" IS NOT NULL') as $record) {
                 $member = Member::get()->byId($record['ID']);
 
@@ -118,7 +117,7 @@ class LDAPMemberSyncTask extends BuildTask
                         continue;
                     }
 
-                    $deleted++;
+                    ++$deleted;
                 }
             }
         }
@@ -142,9 +141,9 @@ class LDAPMemberSyncTask extends BuildTask
      */
     protected function findOrCreateMember($data = [])
     {
-        $member = Member::get()->filter('GUID', $data['objectguid'])->first();
+        $member = Member::get()->filter(['GUID' => $data['objectguid']])->first();
 
-        if (!($member && $member->exists())) {
+        if (!$member || !$member->exists()) {
             // create the initial Member with some internal fields
             $member = Member::create();
             $member->GUID = $data['objectguid'];

@@ -2,6 +2,7 @@
 
 namespace SilverStripe\LDAP\Model;
 
+use Laminas\Authentication\Result;
 use Exception;
 use Iterator;
 use SilverStripe\Core\Config\Configurable;
@@ -10,6 +11,7 @@ use SilverStripe\Core\Injector\Injectable;
 use SilverStripe\LDAP\Iterators\LDAPIterator;
 use Laminas\Authentication\Adapter\Ldap as LdapAdapter;
 use Laminas\Authentication\AuthenticationService;
+use Laminas\Authentication\Storage\NonPersistent as NonPersistentStorage;
 use Laminas\Ldap\Exception\LdapException;
 use Laminas\Ldap\Filter\AbstractFilter;
 use Laminas\Ldap\Ldap;
@@ -35,6 +37,24 @@ class LDAPGateway
     private static $options = [];
 
     /**
+     * Refuse to send password material over an unencrypted connection.
+     *
+     * Binding a user, changing a password and resetting a password all put secrets on the wire.
+     * With plain ldap:// those travel in cleartext, so by default this module fails closed and
+     * requires either useSsl (ldaps://) or useStartTls in the connection options.
+     *
+     * Turning this off is only sensible where the transport is already protected by other means,
+     * such as an ldapi:// socket or a tunnel that terminates at the directory server.
+     *
+     * Note that useSsl on its own does not guarantee the certificate is verified - that is decided
+     * by the LDAP client library, via TLS_REQCERT in ldap.conf or LDAP_OPT_X_TLS_REQUIRE_CERT.
+     *
+     * @var bool
+     * @config
+     */
+    private static $require_encrypted_connection = true;
+
+    /**
      * @var Laminas\Ldap\Ldap
      */
     private $ldap;
@@ -43,28 +63,80 @@ class LDAPGateway
     {
         // due to dependency injection this class can be created without any LDAP options set
         // and \Laminas\Ldap\Ldap will throw a warning with an empty array
-        if (count($this->config()->options ?? [])) {
-            $this->ldap = new Ldap($this->config()->options);
+        if (count($this->config()->get('options') ?? [])) {
+            $this->ldap = new Ldap($this->config()->get('options'));
         }
     }
 
     /**
-     * @return Ldap The underlying Laminas\Ldap\Ldap class, so that methods can be called directly
+     * @return Ldap|null The underlying Laminas\Ldap\Ldap class, so that methods can be called directly.
+     *                   Null if no connection options have been configured - see requireLdap().
      */
     public function getLdap()
     {
         return $this->ldap;
     }
 
+    /**
+     * Like getLdap(), but fails loudly when no connection options have been configured, rather than
+     * handing a null connection to Laminas and failing with an opaque TypeError further down the stack.
+     *
+     * @return Ldap
+     * @throws Exception
+     */
+    protected function requireLdap()
+    {
+        if (!$this->ldap) {
+            throw new Exception(sprintf(
+                '%s::options must be configured before LDAP can be queried',
+                static::class
+            ));
+        }
+
+        return $this->ldap;
+    }
+
+    /**
+     * Guard for operations that put password material on the wire. Throws unless the connection is
+     * encrypted, so an unencrypted directory can never be handed a credential by accident.
+     *
+     * @param string $operation Named in the exception, so the caller is identifiable in logs.
+     * @return void
+     * @throws Exception
+     * @see self::$require_encrypted_connection
+     */
+    protected function requireEncryptedConnection($operation)
+    {
+        if (!$this->config()->get('require_encrypted_connection')) {
+            return;
+        }
+
+        $options = $this->config()->get('options') ?? [];
+        if (!empty($options['useSsl']) || !empty($options['useStartTls'])) {
+            return;
+        }
+
+        throw new Exception(sprintf(
+            '%s refuses to %s over an unencrypted connection. Set useSsl or useStartTls in '
+                . '%s::options, or disable %s::require_encrypted_connection if the transport is '
+                . 'already protected by other means.',
+            static::class,
+            $operation,
+            static::class,
+            static::class
+        ));
+    }
+
     protected function searchWithIterator($filter, $baseDn = null, $attributes = [])
     {
+        $ldap = $this->requireLdap();
         $pageSize = 500; // This must be less than the maximum size for a single page in LDAP (default 1000)
-        $records = new LDAPIterator($this->getLdap(), $filter, $baseDn, $attributes, $pageSize);
+        $records = new LDAPIterator($ldap, $filter, $baseDn, $attributes, $pageSize);
         $results = $this->processSearchResults($records);
 
         if (version_compare(PHP_VERSION, '8.0.0') < 0) {
             // Reset the LDAP pagination control back to the original, otherwise all further LDAP read queries fail
-            ldap_control_paged_result($this->getLdap()->getResource(), 1000);
+            ldap_control_paged_result($ldap->getResource(), 1000);
         }
 
         return $results;
@@ -83,7 +155,7 @@ class LDAPGateway
      */
     protected function search($filter, $baseDn = null, $scope = Ldap::SEARCH_SCOPE_SUB, $attributes = [], $sort = '')
     {
-        $records = $this->ldap->search($filter, $baseDn, $scope, $attributes, $sort);
+        $records = $this->requireLdap()->search($filter, $baseDn, $scope, $attributes, $sort);
         return $this->processSearchResults($records);
     }
 
@@ -101,7 +173,7 @@ class LDAPGateway
                 // if the value is an array with a single value, e.g. 'samaccountname' => array(0 => 'myusername')
                 // then make sure it's just set in the results as 'samaccountname' => 'myusername' so that it
                 // can be used directly by ArrayData
-                if (is_array($value) && count($value ?? []) == 1) {
+                if (is_array($value) && count($value ?? []) === 1) {
                     $value = $value[0];
                 }
 
@@ -109,6 +181,7 @@ class LDAPGateway
                 if ($attribute == 'objectguid') {
                     $value = LDAPUtil::bin_to_str_guid($value);
                 }
+
                 if ($attribute == 'objectsid') {
                     $value = LDAPUtil::bin_to_str_sid($value);
                 }
@@ -127,12 +200,23 @@ class LDAPGateway
      *
      * @param string $username
      * @param string $password
-     * @return \Laminas\Authentication\Result
+     * @return Result
+     * @throws Exception
      */
     public function authenticate($username, $password)
     {
-        $auth = new AuthenticationService();
-        $adapter = new LdapAdapter([$this->config()->options], $username, $password);
+        // Doesn't go through requireLdap(), because the adapter builds its own connection from the
+        // same options - but fail with the same message rather than one from deep inside Laminas.
+        $this->requireLdap();
+        $this->requireEncryptedConnection('bind a user');
+
+        // NonPersistent storage, because AuthenticationService otherwise defaults to
+        // Storage\Session, which needs laminas-session - and that cannot be installed
+        // alongside Silverstripe 6 (it pins laminas-servicemanager 3.x, i.e. psr/container ^1.0,
+        // while the framework requires psr/container ^2.0). Nothing here reads Laminas' stored
+        // identity anyway: only the returned Result is used, and Silverstripe owns the session.
+        $auth = new AuthenticationService(new NonPersistentStorage());
+        $adapter = new LdapAdapter([$this->config()->get('options')], $username, $password);
         return $auth->authenticate($adapter);
     }
 
@@ -192,7 +276,10 @@ class LDAPGateway
      */
     public function getNestedGroups($dn, $baseDn = null, $scope = Ldap::SEARCH_SCOPE_SUB, $attributes = [])
     {
-        $filter = sprintf('(&(objectClass=group)(memberOf:1.2.840.113556.1.4.1941:=%s))', $dn);
+        $filter = sprintf(
+            '(&(objectClass=group)(memberOf:1.2.840.113556.1.4.1941:=%s))',
+            AbstractFilter::escapeValue($dn)
+        );
 
         $this->extend('updateNestedGroupsFilter', $filter);
 
@@ -237,7 +324,7 @@ class LDAPGateway
     public function getGroupByDN($dn, $baseDn = null, $scope = Ldap::SEARCH_SCOPE_SUB, $attributes = [])
     {
         return $this->search(
-            sprintf('(&(objectClass=group)(distinguishedname=%s))', $dn),
+            sprintf('(&(objectClass=group)(distinguishedname=%s))', AbstractFilter::escapeValue($dn)),
             $baseDn,
             $scope,
             $attributes
@@ -319,7 +406,7 @@ class LDAPGateway
     public function getUserByDN($dn, $baseDn = null, $scope = Ldap::SEARCH_SCOPE_SUB, $attributes = [])
     {
         return $this->search(
-            sprintf('(&(objectClass=user)(distinguishedname=%s))', $dn),
+            sprintf('(&(objectClass=user)(distinguishedname=%s))', AbstractFilter::escapeValue($dn)),
             $baseDn,
             $scope,
             $attributes
@@ -355,12 +442,12 @@ class LDAPGateway
      */
     public function getUserByUsername($username, $baseDn = null, $scope = Ldap::SEARCH_SCOPE_SUB, $attributes = [])
     {
-        $options = $this->config()->options;
-        $option = isset($options['accountCanonicalForm']) ? $options['accountCanonicalForm'] : null;
+        $options = $this->config()->get('options');
+        $option = $options['accountCanonicalForm'] ?? null;
 
         // will translate the username to username@foo.bar, username or foo\user depending on the
         // $options['accountCanonicalForm']
-        $username = $this->ldap->getCanonicalAccountName($username, $option);
+        $username = $this->requireLdap()->getCanonicalAccountName($username, $option);
         switch ($option) {
             case Ldap::ACCTNAME_FORM_USERNAME: // traditional style usernames, e.g. alice
                 $filter = sprintf('(&(objectClass=user)(samaccountname=%s))', AbstractFilter::escapeValue($username));
@@ -397,13 +484,14 @@ class LDAPGateway
      */
     public function getCanonicalUsername($data)
     {
-        $options = $this->config()->options;
-        $option = isset($options['accountCanonicalForm']) ? $options['accountCanonicalForm'] : null;
+        $options = $this->config()->get('options');
+        $option = $options['accountCanonicalForm'] ?? null;
         switch ($option) {
             case Ldap::ACCTNAME_FORM_USERNAME: // traditional style usernames, e.g. alice
                 if (empty($data['samaccountname'])) {
-                    throw new \Exception('Could not extract canonical username: samaccountname field missing');
+                    throw new Exception('Could not extract canonical username: samaccountname field missing');
                 }
+
                 return $data['samaccountname'];
             case Ldap::ACCTNAME_FORM_BACKSLASH: // backslash style usernames, e.g. FOO\alice
                 throw new Exception('Backslash style not supported in LDAPGateway::getUsernameByEmail()!');
@@ -411,11 +499,13 @@ class LDAPGateway
                 if (empty($data['userprincipalname'])) {
                     throw new Exception('Could not extract canonical username: userprincipalname field missing');
                 }
+
                 return $data['userprincipalname'];
             default: // default to principal style
                 if (empty($data['userprincipalname'])) {
                     throw new Exception('Could not extract canonical username: userprincipalname field missing');
                 }
+
                 return $data['userprincipalname'];
         }
     }
@@ -430,11 +520,13 @@ class LDAPGateway
      * @param string $dn Location to update the entry at.
      * @param string $password New password to set.
      * @param string $oldPassword Old password is needed to trigger a password change.
-     * @throws \Laminas\Ldap\Exception\LdapException
+     * @throws LdapException
      * @throws Exception
      */
     public function changePassword($dn, $password, $oldPassword)
     {
+        $this->requireEncryptedConnection('change a password');
+
         if (!function_exists('ldap_modify_batch')) {
             // Password change is unsupported - missing PHP API method.
             $this->resetPassword($dn, $password);
@@ -454,7 +546,7 @@ class LDAPGateway
             ],
         ];
         // Batch attribute operations are not supported by Laminas_Ldap, use raw resource.
-        $ldapConn = $this->ldap->getResource();
+        $ldapConn = $this->requireLdap()->getResource();
         ErrorHandler::start(E_WARNING);
         $succeeded = ldap_modify_batch($ldapConn, $dn ?? '', $modifications ?? []);
         ErrorHandler::stop();
@@ -471,17 +563,19 @@ class LDAPGateway
      *
      * @param string $dn Location to update the entry at.
      * @param string $password New password to set.
-     * @throws \Laminas\Ldap\Exception\LdapException
+     * @throws LdapException
      * @throws Exception
      */
     public function resetPassword($dn, $password)
     {
+        $this->requireEncryptedConnection('reset a password');
+
         try {
             $this->update(
                 $dn,
                 ['unicodePwd' => iconv('UTF-8', 'UTF-16LE', sprintf('"%s"', $password))]
             );
-        } catch (LdapException $e) {
+        } catch (LdapException) {
             throw new Exception($this->getLastPasswordError());
         }
     }
@@ -497,11 +591,11 @@ class LDAPGateway
      *
      * @param string $dn Location to update the entry at.
      * @param array $attributes An associative array of attributes.
-     * @throws \Laminas\Ldap\Exception\LdapException
+     * @throws LdapException
      */
     public function update($dn, array $attributes)
     {
-        $this->ldap->update($dn, $attributes);
+        $this->requireLdap()->update($dn, $attributes);
     }
 
     /**
@@ -509,11 +603,11 @@ class LDAPGateway
      *
      * @param string $dn Location of object to delete
      * @param bool $recursively Recursively delete nested objects?
-     * @throws \Laminas\Ldap\Exception\LdapException
+     * @throws LdapException
      */
     public function delete($dn, $recursively = false)
     {
-        $this->ldap->delete($dn, $recursively);
+        $this->requireLdap()->delete($dn, $recursively);
     }
 
     /**
@@ -526,7 +620,7 @@ class LDAPGateway
      */
     public function move($fromDn, $toDn, $recursively = false)
     {
-        $this->ldap->move($fromDn, $toDn, $recursively);
+        $this->requireLdap()->move($fromDn, $toDn, $recursively);
     }
 
     /**
@@ -538,11 +632,11 @@ class LDAPGateway
      *
      * @param string $dn Location to add the entry at.
      * @param array $attributes An associative array of attributes.
-     * @throws \Laminas\Ldap\Exception\LdapException
+     * @throws LdapException
      */
     public function add($dn, array $attributes)
     {
-        $this->ldap->add($dn, $attributes);
+        $this->requireLdap()->add($dn, $attributes);
     }
 
     /**
@@ -552,7 +646,7 @@ class LDAPGateway
     {
         $defaultError = _t(
             'SilverStripe\\LDAP\\Authenticators\\LDAPAuthenticator.CANTCHANGEPASSWORD',
-            'We couldn\'t change your password, please contact an administrator.'
+            "We couldn't change your password, please contact an administrator."
         );
         $error = '';
         ldap_get_option($this->ldap->getResource(), LDAP_OPT_ERROR_STRING, $error);

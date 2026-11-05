@@ -2,6 +2,7 @@
 
 namespace SilverStripe\LDAP\Iterators;
 
+use Exception;
 use Iterator;
 use Laminas\Ldap\ErrorHandler;
 use Laminas\Ldap\Exception\LdapException;
@@ -23,20 +24,23 @@ use Laminas\Ldap\Ldap;
  */
 final class LDAPIterator implements Iterator
 {
-    private $ldap;
-    private $filter;
-    private $baseDn;
-    private $returnAttributes;
-    private $pageSize;
-    private $resolveRangedAttributes;
+
+
+
+
+
+
     private $entries;
+
     private $current;
+
     /**
      * Required for paging
      *
      * @var unknown
      */
     private $currentResult;
+
     /**
      * Required for paging
      *
@@ -52,14 +56,8 @@ final class LDAPIterator implements Iterator
      * @param int $pageSize Number of results per page. This *must* be less than the LDAP server MaxPageSize setting
      * @param bool $resolveRangedAttributes Whether or not to return ranged attributes
      */
-    public function __construct(Ldap $ldap, $filter = "", $baseDn = null, array $returnAttributes = null, $pageSize = 250, $resolveRangedAttributes = false)
+    public function __construct(private readonly Ldap $ldap, private $filter = "", private $baseDn = null, private readonly ?array $returnAttributes = null, private $pageSize = 250, private $resolveRangedAttributes = false)
     {
-        $this->ldap = $ldap;
-        $this->filter = $filter;
-        $this->baseDn = $baseDn;
-        $this->returnAttributes = $returnAttributes;
-        $this->pageSize = $pageSize;
-        $this->resolveRangedAttributes = $resolveRangedAttributes;
     }
 
     private function getLdap()
@@ -121,8 +119,9 @@ final class LDAPIterator implements Iterator
             } else {
                 $resultResource = ldap_search($resource, $baseDn ?? '', $this->getFilter() ?? '');
             }
+
             if (! is_resource($resultResource)) {
-                throw new \Exception('ldap_search returned a non-resource type value' . ldap_error($resource));
+                throw new Exception('ldap_search returned a non-resource type value' . ldap_error($resource));
             }
         } else {
             if ($this->getReturnAttributes() !== null) {
@@ -156,6 +155,7 @@ final class LDAPIterator implements Iterator
                     ]]
                 );
             }
+
             $response = ldap_parse_result($resource, $resultResource, $errcode, $matcheddn, $errmsg, $referrals, $controls);
         }
 
@@ -163,6 +163,7 @@ final class LDAPIterator implements Iterator
         if ($entries === false) {
             throw new LdapException($ldap, 'Entries could not get fetched');
         }
+
         $entries = $this->getConvertedEntries($entries);
 
         if (version_compare(PHP_VERSION, '8.0.0') < 0) {
@@ -178,7 +179,7 @@ final class LDAPIterator implements Iterator
             }
         }
 
-        if ($response !== true) {
+        if (!$response) {
             throw new LdapException($ldap, 'Paged result was empty');
         }
 
@@ -205,6 +206,7 @@ final class LDAPIterator implements Iterator
 
         return $result;
     }
+
     private function getConvertedEntry(array $entry)
     {
         $result = [];
@@ -213,6 +215,7 @@ final class LDAPIterator implements Iterator
             if (is_int($key)) {
                 continue;
             }
+
             if ($key === 'count') {
                 continue;
             }
@@ -225,11 +228,12 @@ final class LDAPIterator implements Iterator
         }
 
         if ($this->getResolveRangedAttributes() === true) {
-            $result = $this->resolveRangedAttributes($result);
+            return $this->resolveRangedAttributes($result);
         }
 
         return $result;
     }
+
     private function resolveRangedAttributes(array $row)
     {
         $result = [];
@@ -248,6 +252,7 @@ final class LDAPIterator implements Iterator
 
         return $result;
     }
+
     private function getAttributeRecursive($dn, $attrName, $offset, $maxPerRequest)
     {
         $attributeValue = [];
@@ -261,7 +266,7 @@ final class LDAPIterator implements Iterator
         ], true);
         foreach ($entry as $key => $value) {
             // skip DN and other fields (if returned)
-            if (stripos($key ?? '', $attrName ?? '') === false) {
+            if (stripos($key ?? '', (string) ($attrName ?? '')) === false) {
                 continue;
             }
 
@@ -287,6 +292,7 @@ final class LDAPIterator implements Iterator
         if (! is_array($this->current)) {
             $this->rewind();
         }
+
         if (! is_array($this->current)) {
             return null;
         }
@@ -299,6 +305,7 @@ final class LDAPIterator implements Iterator
         if (! is_array($this->current)) {
             $this->rewind();
         }
+
         if (! is_array($this->current)) {
             return null;
         }
